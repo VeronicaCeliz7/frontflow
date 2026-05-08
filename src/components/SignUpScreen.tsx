@@ -1,22 +1,11 @@
-// src/components/LoginScreen.tsx
-import { SignIn, useAuth } from '@clerk/clerk-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+// src/components/SignUpScreen.tsx
+import { SignUp } from '@clerk/clerk-react';
+import { Link } from 'react-router-dom';
 import UrbanFlowLogo from './UrbanFlowLogo';
 
-const LoginScreen = () => {
-  const { isSignedIn } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isSignedIn) {
-      navigate('/dashboard');
-    }
-  }, [isSignedIn, navigate]);
-
+const SignUpScreen = () => {
   return (
     <div className="text-center space-y-6">
-      {/* Logo + texto */}
       <div className="flex flex-col items-center gap-3">
         <UrbanFlowLogo size="large" />
         <div>
@@ -25,15 +14,14 @@ const LoginScreen = () => {
             <span className="text-blue-500">FLOW</span>
           </h1>
           <p className="text-gray-400 text-sm mt-1">
-            Reporta incidencias en tu ciudad
+            Crea tu cuenta para reportar incidencias
           </p>
         </div>
       </div>
       
-      {/* Formulario de Clerk con registro habilitado */}
-      <SignIn 
+      <SignUp 
         routing="virtual"
-        signUpUrl="/sign-up"
+        signInUrl="/login"
         appearance={{
           elements: {
             rootBox: "w-full",
@@ -43,7 +31,6 @@ const LoginScreen = () => {
             formFieldLabel: "text-gray-200 text-sm",
             formFieldInput: "bg-white/20 border-white/30 text-white rounded-lg",
             formButtonPrimary: "w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition",
-            socialButtonsBlockButton: "bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl",
             footerActionLink: "text-blue-400 hover:text-blue-300",
             dividerLine: "bg-white/20",
             dividerText: "text-gray-400 text-xs",
@@ -51,11 +38,10 @@ const LoginScreen = () => {
         }}
       />
       
-      {/* 👇 Agrega ESTE enlace para registrarse */}
       <p className="text-gray-400 text-sm">
-        ¿No tienes cuenta?{' '}
-        <Link to="/sign-up" className="text-blue-400 hover:text-blue-300">
-          Regístrate
+        ¿Ya tienes cuenta?{' '}
+        <Link to="/login" className="text-blue-400 hover:text-blue-300">
+          Inicia sesión
         </Link>
       </p>
       
@@ -66,4 +52,4 @@ const LoginScreen = () => {
   );
 };
 
-export default LoginScreen;
+export default SignUpScreen;
