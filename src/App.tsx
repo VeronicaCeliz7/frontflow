@@ -5,6 +5,8 @@ import LoginScreen from './components/LoginScreen';
 import SignUpScreen from './components/SignUpScreen';
 import HomeScreen from './components/HomeScreen';
 import CrearReporteScreen from './components/CrearReporteScreen';
+import MisReportesScreen from './components/MisReportesScreen';
+import DetalleReporteScreen from './components/DetalleReporteScreen'; // ✅ Import correcto
 
 function App() {
   return (
@@ -58,11 +60,29 @@ function App() {
               </div>
             } />
             
-            {/* Ruta para crear reporte - con ancho completo */}
+            {/* Ruta para crear reporte */}
             <Route path="/nuevo-reporte" element={
               <div className="relative z-10 w-full max-w-6xl px-4">
                 <SignedIn>
                   <CrearReporteScreen />
+                </SignedIn>
+              </div>
+            } />
+
+            {/* Ruta para mis reportes */}
+            <Route path="/mis-reportes" element={
+              <div className="relative z-10 w-full max-w-4xl px-4">
+                <SignedIn>
+                  <MisReportesScreen />
+                </SignedIn>
+              </div>
+            } />
+
+            {/* Ruta para detalle del reporte */}
+            <Route path="/reporte/:id" element={
+              <div className="relative z-10 w-full max-w-4xl px-4">
+                <SignedIn>
+                  <DetalleReporteScreen />
                 </SignedIn>
               </div>
             } />

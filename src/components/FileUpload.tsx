@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { subirArchivoACloudinary } from '../services/cloudinary';
+import { subirArchivoACloudinary } from '../Services/cloudinary';
 
 interface FileUploadProps {
   onFileUploaded: (url: string, publicId: string, tipo: 'image' | 'video') => void;
@@ -17,13 +17,21 @@ const FileUpload = ({ onFileUploaded, onError }: FileUploadProps) => {
 
     // Validar tipo de archivo
     if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-      onError('Solo se permiten imágenes o videos');
+      onError('❌ Solo se permiten imágenes o videos');
       return;
     }
 
-    // Validar tamaño (máximo 50MB)
-    if (file.size > 50 * 1024 * 1024) {
-      onError('El archivo no puede superar los 50MB');
+    // Límites específicos por tipo
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB para imágenes
+    const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB para videos
+
+    if (file.type.startsWith('image/') && file.size > MAX_IMAGE_SIZE) {
+      onError('📸 La imagen no puede superar los 10MB');
+      return;
+    }
+    
+    if (file.type.startsWith('video/') && file.size > MAX_VIDEO_SIZE) {
+      onError('🎥 El video no puede superar los 50MB');
       return;
     }
 
@@ -61,7 +69,7 @@ const FileUpload = ({ onFileUploaded, onError }: FileUploadProps) => {
           disabled={isUploading}
           className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl transition disabled:opacity-50"
         >
-          {isUploading ? 'Subiendo...' : '📸 Seleccionar foto o video'}
+          {isUploading ? '📤 Subiendo...' : '📸 Seleccionar foto o video'}
         </button>
       </div>
       

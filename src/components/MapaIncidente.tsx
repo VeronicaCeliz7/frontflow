@@ -1,167 +1,204 @@
 import { useState } from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { divIcon } from 'leaflet';
 import { Ubicacion } from '../types/reporte';
+import 'leaflet/dist/leaflet.css';
+import { renderToString } from 'react-dom/server';
+import { FaCrosshairs, FaLocationArrow } from 'react-icons/fa';
 
+// Función para obtener color según categoría (para el administrador)
+const getColorByCategoria = (categoria: string): string => {
+  switch (categoria) {
+    case 'bache': return '#EF4444';      // Rojo
+    case 'semaforo': return '#F59E0B';   // Amarillo
+    case 'iluminacion': return '#3B82F6'; // Azul
+    case 'basura': return '#10B981';     // Verde
+    case 'seguridad': return '#1F2937';  // Negro/Gris
+    case 'otros': return '#8B5CF6';      // Morado
+    default: return '#3B82F6';           // Azul por defecto
+  }
+};
+
+// Ícono personalizado con efecto de brillo (para el marcador)
+const createCustomIcon = (color = '#3B82F6', glow = true) => {
+  return divIcon({
+    html: renderToString(
+      <div className="relative">
+        {/* Sombra/brillo externo */}
+        {glow && (
+          <div className="absolute inset-0 rounded-full animate-ping opacity-75" 
+               style={{ 
+                 backgroundColor: color,
+                 width: '40px',
+                 height: '40px',
+                 left: '-8px',
+                 top: '-28px',
+                 borderRadius: '50%'
+               }} 
+          />
+        )}
+        {/* Icono principal */}
+        <div className="relative" style={{ transform: 'translate(-8px, -28px)' }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" 
+                  fill={color} 
+                  stroke="white" 
+                  strokeWidth="2"/>
+            <circle cx="12" cy="9" r="3" fill="white"/>
+          </svg>
+        </div>
+      </div>
+    ),
+    className: 'custom-marker',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32],
+  });
+};
+
+// Props del componente con tipos
 interface MapaIncidenteProps {
   onUbicacionChange: (ubicacion: Ubicacion) => void;
   ubicacionInicial?: { lat: number; lng: number };
+  categoria?: string;
 }
 
-const MapaIncidente = ({ onUbicacionChange, ubicacionInicial }: MapaIncidenteProps) => {
-  const [ubicacion, setUbicacion] = useState(ubicacionInicial || null);
-  const [buscandoUbicacion, setBuscandoUbicacion] = useState(false);
-  const [errorGPS, setErrorGPS] = useState('');
-  const [direccionManual, setDireccionManual] = useState('');
+const MapaIncidente = ({ 
+  onUbicacionChange, 
+  ubicacionInicial, 
+  categoria = 'otros' 
+}: MapaIncidenteProps) => {
+  const defaultCenter = { lat: -32.4075, lng: -63.2408 };
+  const [markerPosition, setMarkerPosition] = useState(ubicacionInicial || defaultCenter);
+  const [buscando, setBuscando] = useState(false);
+  const [gpsActive, setGpsActive] = useState(false);
 
-  // Obtener ubicación por GPS
+  // Obtener el color según la categoría seleccionada por el usuario
+  const markerColor = getColorByCategoria(categoria);
+  const activeIcon = createCustomIcon(gpsActive ? '#10B981' : markerColor, true);
+
   const obtenerMiUbicacion = () => {
     if (!navigator.geolocation) {
-      setErrorGPS('❌ Tu navegador no soporta geolocalización');
+      alert('Tu navegador no soporta geolocalización');
       return;
     }
-
-    setBuscandoUbicacion(true);
-    setErrorGPS('');
+    setBuscando(true);
+    setGpsActive(true);
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const coords = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        
-        setUbicacion(coords);
-        
-        // Notificar al formulario padre
+        const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
+        setMarkerPosition(coords);
         onUbicacionChange({
-          direccion: `Ubicación GPS: ${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`,
+          direccion: `📍 Ubicación GPS: ${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`,
           coordenadas: coords
         });
-        
-        setBuscandoUbicacion(false);
+        setBuscando(false);
+        setTimeout(() => setGpsActive(false), 2000);
       },
       (error) => {
-        console.error('Error de geolocalización:', error);
-        let mensaje = '';
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            mensaje = '❌ Permiso denegado. Activa el GPS en tu celular y acepta el permiso.';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            mensaje = '📡 GPS no disponible. Intenta en un lugar con mejor señal.';
-            break;
-          case error.TIMEOUT:
-            mensaje = '⏱️ Tiempo de espera agotado. ¿Tienes el GPS activado?';
-            break;
-          default:
-            mensaje = '⚠️ No se pudo obtener tu ubicación. Activa el GPS.';
-        }
-        setErrorGPS(mensaje);
-        setBuscandoUbicacion(false);
+        console.error(error);
+        let mensaje = 'No se pudo obtener tu ubicación. ';
+        if (error.code === 1) mensaje += '📱 Permiso denegado. Activá el GPS.';
+        else if (error.code === 2) mensaje += '📡 Señal GPS débil.';
+        else mensaje += '🔄 Intentá de nuevo.';
+        alert(mensaje);
+        setBuscando(false);
+        setGpsActive(false);
       },
-      { 
-        enableHighAccuracy: true, 
-        timeout: 10000,
-        maximumAge: 0
-      }
+      { enableHighAccuracy: true, timeout: 10000 }
     );
   };
 
-  // Permitir ingresar dirección manualmente (alternativa)
-  const handleDireccionManual = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const texto = e.target.value;
-    setDireccionManual(texto);
-    
-    // Si hay ubicación GPS, la reemplazamos por la dirección manual
-    if (ubicacion) {
-      setUbicacion(null);
-    }
-    
-    // Notificar al formulario padre
-    onUbicacionChange({
-      direccion: texto,
-      coordenadas: { lat: 0, lng: 0 }
+  const MapClickHandler = () => {
+    useMapEvents({
+      click(e) {
+        const { lat, lng } = e.latlng;
+        setMarkerPosition({ lat, lng });
+        onUbicacionChange({
+          direccion: `📍 Selección manual: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+          coordenadas: { lat, lng }
+        });
+      },
     });
+    return null;
   };
 
   return (
     <div className="space-y-4">
-      {/* Botón principal de GPS */}
+      {/* Botón GPS con efecto brillante */}
       <button
         type="button"
         onClick={obtenerMiUbicacion}
-        disabled={buscandoUbicacion}
-        className="w-full py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg"
+        disabled={buscando}
+        className="relative w-full py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 flex items-center justify-center gap-3 overflow-hidden group"
       >
-        {buscandoUbicacion ? (
+        {/* Efecto de brillo en hover */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+        
+        {buscando ? (
           <>
-            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Obteniendo ubicación GPS...
+            <div className="animate-spin">
+              <FaCrosshairs className="text-white text-xl" />
+            </div>
+            <span className="font-medium">🛰️ Buscando GPS...</span>
           </>
         ) : (
-          <>📍 Usar mi ubicación actual (GPS)</>
+          <>
+            <div className={`relative ${gpsActive ? 'animate-pulse' : ''}`}>
+              <div className={`absolute inset-0 rounded-full bg-green-400 ${gpsActive ? 'animate-ping' : ''}`} 
+                   style={{ width: '28px', height: '28px', left: '-4px', top: '-4px' }} />
+              <FaLocationArrow className="text-white text-xl relative z-10" />
+            </div>
+            <span className="font-medium">📍 Usar mi ubicación actual</span>
+          </>
         )}
       </button>
 
-      {/* Mensaje de error */}
-      {errorGPS && (
-        <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-sm">
-          {errorGPS}
-        </div>
-      )}
-
-      {/* Mostrar ubicación obtenida */}
-      {ubicacion && !errorGPS && (
-        <div className="p-4 bg-blue-500/20 border border-blue-500/50 rounded-xl">
-          <p className="text-blue-200 font-medium mb-2">📍 Ubicación obtenida:</p>
-          <p className="text-blue-200/80 text-sm font-mono">
-            Latitud: {ubicacion.lat.toFixed(6)}<br />
-            Longitud: {ubicacion.lng.toFixed(6)}
-          </p>
-          <p className="text-blue-300/70 text-xs mt-2">
-            ✅ Esta ubicación se enviará con tu reporte
-          </p>
-        </div>
-      )}
-
-      {/* Separador */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/20"></div>
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-gray-900/50 text-gray-400">O escribe tu dirección</span>
-        </div>
-      </div>
-
-      {/* Campo alternativo para dirección manual */}
-      <div>
-        <label className="block text-white font-medium mb-2">
-          Dirección manual (alternativa)
-        </label>
-        <input
-          type="text"
-          value={direccionManual}
-          onChange={handleDireccionManual}
-          placeholder="Ej: Av. Libertad 123, Villa María"
-          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition"
+      {/* Mapa con marcador brillante */}
+      <MapContainer
+        center={[markerPosition.lat, markerPosition.lng]}
+        zoom={14}
+        style={{ height: '400px', width: '100%', borderRadius: '1rem' }}
+        className="shadow-lg ring-1 ring-white/20"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <p className="text-gray-400 text-xs mt-1">
-          Si no puedes usar el GPS, escribe tu dirección manualmente
-        </p>
-      </div>
+        
+        <Marker
+          position={[markerPosition.lat, markerPosition.lng]}
+          draggable={true}
+          icon={activeIcon}
+          eventHandlers={{
+            dragend: (e) => {
+              const { lat, lng } = e.target.getLatLng();
+              setMarkerPosition({ lat, lng });
+              onUbicacionChange({
+                direccion: `📍 Ubicación ajustada: ${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+                coordenadas: { lat, lng }
+              });
+            },
+          }}
+        />
+        
+        <MapClickHandler />
+      </MapContainer>
 
-      {/* Instrucciones para el usuario */}
-      <div className="mt-4 p-4 bg-white/5 rounded-xl">
-        <p className="text-gray-300 text-sm font-medium mb-2">📱 Consejos:</p>
-        <ul className="text-gray-400 text-xs space-y-1 list-disc list-inside">
-          <li>Activa el GPS en tu celular antes de usar el botón</li>
-          <li>Permite el acceso a la ubicación cuando el navegador lo solicite</li>
-          <li>Para mejor precisión, asegúrate de estar al aire libre</li>
-          <li>Si el GPS no funciona, usa la dirección manual</li>
-        </ul>
+      {/* Instrucciones mejoradas */}
+      <div className="text-gray-400 text-xs text-center space-y-1">
+        <div className="flex items-center justify-center gap-4">
+          <span className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+            Marcador brillante
+          </span>
+          <span className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            GPS activo
+          </span>
+        </div>
+        <p>💡 Click en el mapa o arrastrá el marcador • El GPS usa la señal de tu dispositivo</p>
       </div>
     </div>
   );

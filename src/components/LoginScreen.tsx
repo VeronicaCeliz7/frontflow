@@ -16,19 +16,8 @@ const LoginScreen = () => {
 
   return (
     <div className="text-center space-y-6">
-      {/* Logo + texto */}
-      <div className="flex flex-col items-center gap-3">
-        <UrbanFlowLogo size="large" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tighter">
-            <span className="text-white">URBAN</span>
-            <span className="text-blue-500">FLOW</span>
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Reporta incidencias en tu ciudad
-          </p>
-        </div>
-      </div>
+      {/* Logo - el componente ya incluye el texto "URBANFLOW" y el subtítulo */}
+      <UrbanFlowLogo size="large" showText={true} />
       
       {/* Formulario de Clerk con registro habilitado */}
       <SignIn 
@@ -51,7 +40,7 @@ const LoginScreen = () => {
         }}
       />
       
-      {/* 👇 Agrega ESTE enlace para registrarse */}
+      {/* Enlace para registrarse */}
       <p className="text-gray-400 text-sm">
         ¿No tienes cuenta?{' '}
         <Link to="/sign-up" className="text-blue-400 hover:text-blue-300">
