@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useClerk } from '@clerk/clerk-react'
 import { LayoutDashboard, FileText, Users, Settings, LogOut, ClipboardList, X, Building2 } from 'lucide-react'
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 
 export default function Sidebar({ isOpen, onClose, role }: Props) {
   const isAdmin = role === 'admin'
-
+  const { signOut } = useClerk()
   const adminLinks = [
     { to: '/municipality/admin',          icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/municipality/admin/reportes', icon: FileText,        label: 'Reportes' },
@@ -62,10 +63,13 @@ export default function Sidebar({ isOpen, onClose, role }: Props) {
         </nav>
 
         <div className="p-3 border-t border-gray-100">
-          <button className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all">
-            <LogOut size={18} />Cerrar sesión
-          </button>
-        </div>
+          <button
+    onClick={() => signOut({ redirectUrl: '/' })}
+    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all"
+  >
+    <LogOut size={18} />Cerrar sesión
+  </button>
+</div>
       </aside>
     </>
   )
