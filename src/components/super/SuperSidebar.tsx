@@ -1,26 +1,79 @@
+type SuperSection =
+  | 'panel'
+  | 'clientes'
+  | 'usuarios'
+  | 'incidentes'
+  | 'informes'
+  | 'analitica'
+  | 'configuracion';
+
 type Props = {
   mobileOpen: boolean;
   collapsed: boolean;
+  activeSection: SuperSection;
+  onSectionChange: (section: SuperSection) => void;
   onToggleCollapse: () => void;
   onClose: () => void;
 };
 
-const items = [
-  { label: 'Panel', icon: '📊' },
-  { label: 'Clientes', icon: '🏛️' },
-  { label: 'Usuarios', icon: '👥' },
-  { label: 'Incidentes', icon: '📍' },
-  { label: 'Informes', icon: '📄' },
-  { label: 'Analítica', icon: '📈' },
-  { label: 'Configuración', icon: '⚙️' },
+const items: { id: SuperSection; label: string; icon: string; description: string }[] = [
+  {
+    id: 'panel',
+    label: 'Panel',
+    icon: '📊',
+    description: 'KPIs globales',
+  },
+  {
+    id: 'clientes',
+    label: 'Clientes',
+    icon: '🏛️',
+    description: 'Organizaciones activas',
+  },
+  {
+    id: 'usuarios',
+    label: 'Usuarios',
+    icon: '👥',
+    description: 'Roles y actividad',
+  },
+  {
+    id: 'incidentes',
+    label: 'Incidentes',
+    icon: '📍',
+    description: 'Gestión operativa',
+  },
+  {
+    id: 'informes',
+    label: 'Informes',
+    icon: '📄',
+    description: 'Resumen ejecutivo',
+  },
+  {
+    id: 'analitica',
+    label: 'Analítica',
+    icon: '📈',
+    description: 'Tendencias y prioridades',
+  },
+  {
+    id: 'configuracion',
+    label: 'Configuración',
+    icon: '⚙️',
+    description: 'Estado del sistema',
+  },
 ];
 
 export default function SuperSidebar({
   mobileOpen,
   collapsed,
+  activeSection,
+  onSectionChange,
   onToggleCollapse,
   onClose,
 }: Props) {
+  const handleSectionClick = (section: SuperSection) => {
+    onSectionChange(section);
+    onClose();
+  };
+
   return (
     <>
       {mobileOpen && (
@@ -43,6 +96,7 @@ export default function SuperSidebar({
                 <div className="grid h-10 w-10 place-items-center rounded-xl bg-violet-600 font-black">
                   UF
                 </div>
+
                 <div>
                   <h1 className="text-lg font-black">Flujo Urbano</h1>
                   <p className="text-xs text-slate-400">Súper Usuario</p>
@@ -60,29 +114,42 @@ export default function SuperSidebar({
           </div>
 
           <nav className="space-y-2">
-            {items.map((item, index) => (
-              <button
-                key={item.label}
-                title={item.label}
-                className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                  collapsed ? 'justify-center' : ''
-                } ${
-                  index === 0
-                    ? 'bg-violet-600 text-white'
-                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <span className="text-lg">{item.icon}</span>
-                {!collapsed && <span>{item.label}</span>}
-              </button>
-            ))}
+            {items.map((item) => {
+              const isActive = activeSection === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  title={item.label}
+                  onClick={() => handleSectionClick(item.id)}
+                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
+                    collapsed ? 'justify-center' : ''
+                  } ${
+                    isActive
+                      ? 'bg-violet-600 text-white shadow-lg shadow-violet-950/30'
+                      : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <span className="text-lg">{item.icon}</span>
+
+                  {!collapsed && (
+                    <span className="flex flex-col">
+                      <span>{item.label}</span>
+                      <span className="text-[11px] font-normal text-slate-400">
+                        {item.description}
+                      </span>
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
 
           {!collapsed && (
             <div className="mt-auto rounded-2xl bg-white/10 p-4">
-              <p className="text-sm font-bold">Control total</p>
+              <p className="text-sm font-bold">Centro de decisión</p>
               <p className="mt-1 text-xs text-slate-400">
-                Gestión global de municipios, usuarios e incidentes.
+                Datos reales para priorizar, actuar y medir impacto urbano.
               </p>
             </div>
           )}
