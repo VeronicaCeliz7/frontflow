@@ -1,3 +1,4 @@
+import UsuariosPage from './UsuariosPage.tsx'
 import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { FileText, Users, AlertTriangle, CheckCircle, Menu, TrendingUp } from 'lucide-react'
@@ -133,14 +134,9 @@ function AdminLayout() {
         </header>
         <main className="flex-1 overflow-y-auto p-5">
           <Routes>
-            <Route index element={<AdminHome />} />
-            <Route path="reportes" element={<AdminHome />} />
-            <Route path="usuarios" element={
-              <div className="bg-white rounded-2xl p-8 text-center text-gray-400 border border-gray-100">
-                <Users size={40} className="mx-auto mb-3 opacity-30" />
-                <p>Gestión de usuarios — próximamente</p>
-              </div>
-            } />
+             <Route index element={<AdminHome />} />
+             <Route path="reportes" element={<AdminHome />} />
+             <Route path="usuarios" element={<UsuariosPage />} />
           </Routes>
         </main>
       </div>
