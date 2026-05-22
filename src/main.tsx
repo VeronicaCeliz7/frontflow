@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { ClerkProvider } from '@clerk/clerk-react'  // ← Cambia esto
+import 'leaflet/dist/leaflet.css';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
