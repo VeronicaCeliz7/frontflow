@@ -1,213 +1,127 @@
-import './App.css';
-import {
-  SignedIn,
-  SignedOut,
-  UserButton,
-  useUser,
-} from '@clerk/clerk-react';
+import './App.css'
+import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import LoginScreen from './components/LoginScreen'
+import SignUpScreen from './components/SignUpScreen'
+import HomeScreen from './components/HomeScreen'
+import CrearReporteScreen from './components/CrearReporteScreen'
+import MisReportesScreen from './components/MisReportesScreen'
+import DetalleReporteScreen from './components/DetalleReporteScreen'
+import AdminDashboard from './features/municipality/pages/AdminDashboard'
+import OperatorDashboard from './features/municipality/pages/OperatorDashboard'
 
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-} from 'react-router-dom';
+// ── RoleRouter: lee el rol y redirige a la pantalla correcta ──
+function RoleRouter() {
+  const { user, isLoaded } = useUser()
 
-import { ThemeProvider } from './components/context/ThemeContext';
+  // Esperar a que Clerk cargue los datos del usuario
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    )
+  }
 
-import LoginScreen from './components/LoginScreen';
-import SignUpScreen from './components/SignUpScreen';
-import HomeScreen from './components/HomeScreen';
-import CrearReporteScreen from './components/CrearReporteScreen';
-import MisReportesScreen from './components/MisReportesScreen';
-import DetalleReporteScreen from './components/DetalleReporteScreen';
+  const role = user?.publicMetadata?.role as string
 
-import SuperDashboard from './components/super/SuperDashboard';
+  // Según el rol, redirigir a la pantalla correspondiente
+  if (role === 'admin')    return <Navigate to="/municipality/admin" replace />
+  if (role === 'operator') return <Navigate to="/municipality/operator" replace />
+
+  // Si no tiene rol especial, es ciudadano normal
+  return <HomeScreen />
+}
 
 function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
+    <BrowserRouter>
+      <Routes>
 
-          {/* SUPER USUARIO */}
-          <Route
-            path="/super"
-            element={
-              <>
-                <SignedOut>
-                  <Navigate to="/" replace />
-                </SignedOut>
+        {/* ── Rutas del ciudadano ───────────────────────────── */}
+        <Route path="/login" element={
+          <PageWrapper>
+            <SignedOut><LoginScreen /></SignedOut>
+            <SignedIn><RoleRouter /></SignedIn>
+          </PageWrapper>
+        } />
 
-                <SignedIn>
-                  <SuperDashboard />
-                </SignedIn>
-              </>
-            }
-          />
+        <Route path="/sign-up" element={
+          <PageWrapper>
+            <SignedOut><SignUpScreen /></SignedOut>
+            <SignedIn><RoleRouter /></SignedIn>
+          </PageWrapper>
+        } />
 
-          {/* LOGIN */}
-          <Route
-            path="/login"
-            element={
-              <AppShell maxWidth="max-w-md">
-                <SignedOut>
-                  <LoginScreen />
-                </SignedOut>
+        <Route path="/" element={
+          <PageWrapper>
+            <SignedOut><LoginScreen /></SignedOut>
+            <SignedIn><RoleRouter /></SignedIn>
+          </PageWrapper>
+        } />
 
-                <SignedIn>
-                  <Navigate to="/" replace />
-                </SignedIn>
-              </AppShell>
-            }
-          />
+        <Route path="/nuevo-reporte" element={
+          <PageWrapper wide>
+            <SignedIn><CrearReporteScreen /></SignedIn>
+            <SignedOut><Navigate to="/login" replace /></SignedOut>
+          </PageWrapper>
+        } />
 
-          {/* REGISTER */}
-          <Route
-            path="/sign-up"
-            element={
-              <AppShell maxWidth="max-w-md">
-                <SignedOut>
-                  <SignUpScreen />
-                </SignedOut>
+        <Route path="/mis-reportes" element={
+          <PageWrapper>
+            <SignedIn><MisReportesScreen /></SignedIn>
+            <SignedOut><Navigate to="/login" replace /></SignedOut>
+          </PageWrapper>
+        } />
 
-                <SignedIn>
-                  <Navigate to="/" replace />
-                </SignedIn>
-              </AppShell>
-            }
-          />
+        <Route path="/reporte/:id" element={
+          <PageWrapper>
+            <SignedIn><DetalleReporteScreen /></SignedIn>
+            <SignedOut><Navigate to="/login" replace /></SignedOut>
+          </PageWrapper>
+        } />
 
-          {/* HOME */}
-          <Route
-            path="/"
-            element={
-              <AppShell maxWidth="max-w-md">
-                <SignedOut>
-                  <LoginScreen />
-                </SignedOut>
+        {/* ── Rutas del municipio (sin PageWrapper, tienen su propio layout) ── */}
+        <Route path="/municipality/admin/*" element={
+          <SignedIn><AdminDashboard /></SignedIn>
+        } />
 
-                <SignedIn>
-                  <RoleRedirect />
-                </SignedIn>
-              </AppShell>
-            }
-          />
+        <Route path="/municipality/operator/*" element={
+          <SignedIn><OperatorDashboard /></SignedIn>
+        } />
 
-          {/* NUEVO REPORTE */}
-          <Route
-            path="/nuevo-reporte"
-            element={
-              <AppShell maxWidth="max-w-6xl">
-                <SignedIn>
-                  <CrearReporteScreen />
-                </SignedIn>
-              </AppShell>
-            }
-          />
+        <Route path="*" element={<Navigate to="/" replace />} />
 
-          {/* MIS REPORTES */}
-          <Route
-            path="/mis-reportes"
-            element={
-              <AppShell maxWidth="max-w-4xl">
-                <SignedIn>
-                  <MisReportesScreen />
-                </SignedIn>
-              </AppShell>
-            }
-          />
-
-          {/* DETALLE */}
-          <Route
-            path="/reporte/:id"
-            element={
-              <AppShell maxWidth="max-w-4xl">
-                <SignedIn>
-                  <DetalleReporteScreen />
-                </SignedIn>
-              </AppShell>
-            }
-          />
-
-          {/* FALLBACK */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
-  );
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
-function RoleRedirect() {
-  const { user } = useUser();
-
-  const email = user?.primaryEmailAddress?.emailAddress;
-
-  const superUsers = [
-    'gabrielfernandezlbz@gmail.com',
-  ];
-
-  if (email && superUsers.includes(email)) {
-    return <Navigate to="/super" replace />;
-  }
-
-  return <HomeScreen />;
-}
-
-function AppShell({
-  children,
-  maxWidth,
-}: {
-  children: React.ReactNode;
-  maxWidth: string;
-}) {
+// ── PageWrapper: layout con fondo oscuro para las pantallas del ciudadano ──
+function PageWrapper({ children, wide = false }: { children: React.ReactNode, wide?: boolean }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-
-      {/* HEADER */}
-      <header className="fixed left-0 right-0 top-0 z-20 border-b border-white/10 bg-black/30 backdrop-blur-md">
-        <div className="container mx-auto flex items-center justify-end px-6 py-4">
+      <header className="fixed top-0 left-0 right-0 z-20 bg-black/30 backdrop-blur-md border-b border-white/10">
+        <div className="container mx-auto px-6 py-4 flex justify-end items-center">
           <SignedIn>
             <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </div>
       </header>
 
-      {/* MAIN */}
-      <main className="relative flex min-h-screen items-center justify-center px-4 pt-20">
-
-        {/* GRID BACKGROUND */}
+      <main className="relative min-h-screen flex items-center justify-center pt-20">
         <div className="absolute inset-0 overflow-hidden opacity-20">
-
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 1px 1px, white 1px, transparent 1px)',
-              backgroundSize: '40px 40px',
-            }}
-          />
-
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage:
-                'linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)',
-              backgroundSize: '60px 60px',
-            }}
-          />
-
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 1px)`,
+            backgroundSize: '40px 40px'
+          }} />
         </div>
-
-        {/* CONTENT */}
-        <div className={`relative z-10 w-full ${maxWidth}`}>
+        <div className={`relative z-10 w-full ${wide ? 'max-w-6xl' : 'max-w-md'} px-4`}>
           {children}
         </div>
-
       </main>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
