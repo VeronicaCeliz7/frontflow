@@ -9,6 +9,7 @@ import MisReportesScreen from './components/MisReportesScreen'
 import DetalleReporteScreen from './components/DetalleReporteScreen'
 import AdminDashboard from './features/municipality/pages/AdminDashboard'
 import OperatorDashboard from './features/municipality/pages/OperatorDashboard'
+import SuperDashboard from './components/super/SuperDashboard'  // ← AGREGADO
 
 // ── RoleRouter: lee el rol y redirige a la pantalla correcta ──
 function RoleRouter() {
@@ -26,6 +27,8 @@ function RoleRouter() {
   const role = user?.publicMetadata?.role as string
 
   // Según el rol, redirigir a la pantalla correspondiente
+  // ← AGREGADO (superadmin primero)
+  if (role === 'superadmin') return <Navigate to="/superadmin" replace />
   if (role === 'admin')    return <Navigate to="/municipality/admin" replace />
   if (role === 'operator') return <Navigate to="/municipality/operator" replace />
 
@@ -88,6 +91,11 @@ function App() {
 
         <Route path="/municipality/operator/*" element={
           <SignedIn><OperatorDashboard /></SignedIn>
+        } />
+
+        {/* ── Ruta de superadmin (AGREGADA) ── */}
+        <Route path="/superadmin/*" element={
+          <SignedIn><SuperDashboard /></SignedIn>
         } />
 
         <Route path="*" element={<Navigate to="/" replace />} />
