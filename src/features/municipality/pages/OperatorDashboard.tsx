@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import { ClipboardList, CheckCircle, Clock, AlertTriangle, Menu } from 'lucide-react'
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useUser } from '@clerk/clerk-react'
 
 import Sidebar from '../components/Sidebar.tsx'
 import StatCard from '../components/StatCard.tsx'
@@ -83,6 +84,9 @@ function OperatorHome() {
 
 function OperatorLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const navigate = useNavigate()
+  const { user } = useUser()
+  const role = user?.publicMetadata?.role
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -92,6 +96,17 @@ function OperatorLayout() {
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-400 hover:text-gray-600">
             <Menu size={22} />
           </button>
+
+          {/* Botón Volver a Superadmin (solo si es superadmin) */}
+          {role === 'superadmin' && (
+            <button
+              onClick={() => navigate('/superadmin')}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
+            >
+              👑 Volver a Superadmin
+            </button>
+          )}
+
           <div className="flex items-center gap-2 ml-auto">
             <span className="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">
               Empleado Municipal
