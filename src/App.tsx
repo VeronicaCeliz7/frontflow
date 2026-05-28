@@ -1,6 +1,6 @@
 import './App.css'
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'  // ← Agregado useNavigate
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import LoginScreen from './components/LoginScreen'
 import SignUpScreen from './components/SignUpScreen'
 import HomeScreen from './components/HomeScreen'
@@ -32,9 +32,15 @@ function RoleRouter() {
     return <Navigate to="/superadmin" replace />
   }
 
-  // ADMIN y OPERATOR: redirigen siempre a su panel
-  if (role === 'admin') return <Navigate to="/municipality/admin" replace />
-  if (role === 'operator') return <Navigate to="/municipality/operator" replace />
+  // ADMIN: solo redirige a /municipality/admin si NO está tratando de ir a "/"
+  if (role === 'admin' && location.pathname !== '/') {
+    return <Navigate to="/municipality/admin" replace />
+  }
+
+  // OPERATOR: solo redirige a /municipality/operator si NO está tratando de ir a "/"
+  if (role === 'operator' && location.pathname !== '/') {
+    return <Navigate to="/municipality/operator" replace />
+  }
 
   // Ciudadano o sin rol especial
   return <HomeScreen />
@@ -124,15 +130,37 @@ function PageWrapper({ children, wide = false }: { children: React.ReactNode, wi
       <header className="fixed top-0 left-0 right-0 z-20 bg-black/30 backdrop-blur-md border-b border-white/10">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           
-          {/* Botón para volver al Superdashboard (solo superadmin) */}
-          {role === 'superadmin' && (
-            <button
-              onClick={() => navigate('/superadmin')}
-              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
-            >
-              👑 Volver a Superadmin
-            </button>
-          )}
+          <div className="flex gap-2">
+            {/* Botón Volver a Administrador (solo si es admin o superadmin) */}
+            {(role === 'admin' || role === 'superadmin') && (
+              <button
+                onClick={() => navigate('/municipality/admin')}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              >
+                🏛️ Administrador
+              </button>
+            )}
+
+            {/* Botón Volver a Operador (solo si es operador o superadmin) */}
+            {(role === 'operator' || role === 'superadmin') && (
+              <button
+                onClick={() => navigate('/municipality/operator')}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+              >
+                👷 Operador
+              </button>
+            )}
+
+            {/* Botón Volver a Superadmin (solo superadmin) */}
+            {role === 'superadmin' && (
+              <button
+                onClick={() => navigate('/superadmin')}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
+              >
+                👑 Superadministrador
+              </button>
+            )}
+          </div>
 
           <div className="flex items-center gap-4 ml-auto">
             <SignedIn>

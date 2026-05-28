@@ -1,6 +1,6 @@
 import UsuariosPage from './UsuariosPage.tsx'
 import { useState } from 'react'
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { FileText, Users, AlertTriangle, CheckCircle, Menu, TrendingUp } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -119,6 +119,7 @@ function AdminHome() {
 function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useUser()
   const role = user?.publicMetadata?.role
 
@@ -131,21 +132,52 @@ function AdminLayout() {
             <Menu size={22} />
           </button>
 
-          {/* ÚNICO BOTÓN: Volver a Superadmin (solo si es superadmin) */}
+          {/* Menú de navegación (visible para admin y superadmin) */}
+          {(role === 'admin' || role === 'superadmin') && (
+            <div className="flex gap-2 ml-4">
+              <button
+                onClick={() => navigate('/municipality/admin')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                  location.pathname === '/municipality/admin' || location.pathname === '/municipality/admin/'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                🏛️ Administrador
+              </button>
+              <button
+                onClick={() => navigate('/municipality/operator')}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+              >
+                👷 Operador
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+              >
+                🧑 Ciudadano
+              </button>
+            </div>
+          )}
+
+          {/* Botón Volver a Superadmin (solo si es superadmin) */}
           {role === 'superadmin' && (
             <button
               onClick={() => navigate('/superadmin')}
-              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition ml-auto"
             >
-              👑 Volver a Superadmin
+              👑 Superadministrador
             </button>
           )}
 
-          <div className="flex items-center gap-2 ml-auto">
-            <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-              Admin del Municipio
-            </span>
-          </div>
+          {/* Etiqueta de rol (solo si NO es superadmin) */}
+          {role !== 'superadmin' && (
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                Administrador
+              </span>
+            </div>
+          )}
         </header>
         <main className="flex-1 overflow-y-auto p-5">
           <Routes>
