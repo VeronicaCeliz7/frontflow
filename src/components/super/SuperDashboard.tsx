@@ -221,6 +221,40 @@ export default function SuperDashboard() {
           </div>
         </header>
 
+        {/* Menú de navegación para superadmin */}
+        <div className="px-4 sm:px-6">
+          <div className="mb-6 flex gap-3 flex-wrap border-b border-white/10 pb-4">
+            <button
+              onClick={() => window.location.href = '/superadmin'}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition ${
+                window.location.pathname.startsWith('/superadmin')
+                  ? 'bg-violet-600 text-white'
+                  : 'bg-white/10 text-white hover:bg-white/20'
+              }`}
+            >
+              👑 Superadmin
+            </button>
+            <button
+              onClick={() => window.location.href = '/municipality/admin'}
+              className="px-4 py-2 rounded-xl text-sm font-bold bg-white/10 text-white hover:bg-white/20"
+            >
+              🏛️ Admin
+            </button>
+            <button
+              onClick={() => window.location.href = '/municipality/operator'}
+              className="px-4 py-2 rounded-xl text-sm font-bold bg-white/10 text-white hover:bg-white/20"
+            >
+              👷 Operador
+            </button>
+            <button
+              onClick={() => window.location.href = '/'}
+              className="px-4 py-2 rounded-xl text-sm font-bold bg-white/10 text-white hover:bg-white/20"
+            >
+              🧑 Ciudadano
+            </button>
+          </div>
+        </div>
+
         <div className="space-y-6 p-4 sm:p-6">
           {loading && (
             <section className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>

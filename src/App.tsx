@@ -1,6 +1,6 @@
 import './App.css'
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'  // ← Agregado useLocation
 import LoginScreen from './components/LoginScreen'
 import SignUpScreen from './components/SignUpScreen'
 import HomeScreen from './components/HomeScreen'
@@ -9,13 +9,14 @@ import MisReportesScreen from './components/MisReportesScreen'
 import DetalleReporteScreen from './components/DetalleReporteScreen'
 import AdminDashboard from './features/municipality/pages/AdminDashboard'
 import OperatorDashboard from './features/municipality/pages/OperatorDashboard'
-import SuperDashboard from './components/super/SuperDashboard'  // ← AGREGADO
+import SuperDashboard from './components/super/SuperDashboard'
+import { ThemeProvider } from './components/context/ThemeContext'
 
 // ── RoleRouter: lee el rol y redirige a la pantalla correcta ──
 function RoleRouter() {
   const { user, isLoaded } = useUser()
+  const location = useLocation()  // ← AGREGADO: para saber a qué ruta quiere ir
 
-  // Esperar a que Clerk cargue los datos del usuario
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -26,13 +27,16 @@ function RoleRouter() {
 
   const role = user?.publicMetadata?.role as string
 
-  // Según el rol, redirigir a la pantalla correspondiente
-  // ← AGREGADO (superadmin primero)
-  if (role === 'superadmin') return <Navigate to="/superadmin" replace />
-  if (role === 'admin')    return <Navigate to="/municipality/admin" replace />
+  // 🔹 SUPERADMIN: solo redirige a /superadmin si NO está tratando de ir a "/"
+  if (role === 'superadmin' && location.pathname !== '/') {
+    return <Navigate to="/superadmin" replace />
+  }
+
+  // 🔹 ADMIN y OPERATOR: redirigen siempre a su panel
+  if (role === 'admin') return <Navigate to="/municipality/admin" replace />
   if (role === 'operator') return <Navigate to="/municipality/operator" replace />
 
-  // Si no tiene rol especial, es ciudadano normal
+  // Ciudadano o sin rol especial
   return <HomeScreen />
 }
 
@@ -93,9 +97,13 @@ function App() {
           <SignedIn><OperatorDashboard /></SignedIn>
         } />
 
-        {/* ── Ruta de superadmin (AGREGADA) ── */}
+        {/* ── Ruta de superadmin (con ThemeProvider) ── */}
         <Route path="/superadmin/*" element={
-          <SignedIn><SuperDashboard /></SignedIn>
+          <SignedIn>
+            <ThemeProvider>
+              <SuperDashboard />
+            </ThemeProvider>
+          </SignedIn>
         } />
 
         <Route path="*" element={<Navigate to="/" replace />} />
