@@ -1,6 +1,6 @@
 import './App.css'
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'  // ← Agregado useLocation
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'  // ← Agregado useNavigate
 import LoginScreen from './components/LoginScreen'
 import SignUpScreen from './components/SignUpScreen'
 import HomeScreen from './components/HomeScreen'
@@ -15,7 +15,7 @@ import { ThemeProvider } from './components/context/ThemeContext'
 // ── RoleRouter: lee el rol y redirige a la pantalla correcta ──
 function RoleRouter() {
   const { user, isLoaded } = useUser()
-  const location = useLocation()  // ← AGREGADO: para saber a qué ruta quiere ir
+  const location = useLocation()
 
   if (!isLoaded) {
     return (
@@ -27,12 +27,12 @@ function RoleRouter() {
 
   const role = user?.publicMetadata?.role as string
 
-  // 🔹 SUPERADMIN: solo redirige a /superadmin si NO está tratando de ir a "/"
+  // SUPERADMIN: solo redirige a /superadmin si NO está tratando de ir a "/"
   if (role === 'superadmin' && location.pathname !== '/') {
     return <Navigate to="/superadmin" replace />
   }
 
-  // 🔹 ADMIN y OPERATOR: redirigen siempre a su panel
+  // ADMIN y OPERATOR: redirigen siempre a su panel
   if (role === 'admin') return <Navigate to="/municipality/admin" replace />
   if (role === 'operator') return <Navigate to="/municipality/operator" replace />
 
@@ -115,13 +115,30 @@ function App() {
 
 // ── PageWrapper: layout con fondo oscuro para las pantallas del ciudadano ──
 function PageWrapper({ children, wide = false }: { children: React.ReactNode, wide?: boolean }) {
+  const { user } = useUser()
+  const navigate = useNavigate()
+  const role = user?.publicMetadata?.role
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       <header className="fixed top-0 left-0 right-0 z-20 bg-black/30 backdrop-blur-md border-b border-white/10">
-        <div className="container mx-auto px-6 py-4 flex justify-end items-center">
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          
+          {/* Botón para volver al Superdashboard (solo superadmin) */}
+          {role === 'superadmin' && (
+            <button
+              onClick={() => navigate('/superadmin')}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
+            >
+              👑 Volver a Superadmin
+            </button>
+          )}
+
+          <div className="flex items-center gap-4 ml-auto">
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+          </div>
         </div>
       </header>
 
