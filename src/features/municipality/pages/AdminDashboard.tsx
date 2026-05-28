@@ -1,9 +1,10 @@
 import UsuariosPage from './UsuariosPage.tsx'
 import { useState } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import { FileText, Users, AlertTriangle, CheckCircle, Menu, TrendingUp } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useUser } from '@clerk/clerk-react'
 
 import Sidebar from '../components/Sidebar.tsx'
 import StatCard from '../components/StatCard.tsx'
@@ -117,6 +118,9 @@ function AdminHome() {
 
 function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const navigate = useNavigate()
+  const { user } = useUser()
+  const role = user?.publicMetadata?.role
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -126,6 +130,17 @@ function AdminLayout() {
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-400 hover:text-gray-600">
             <Menu size={22} />
           </button>
+
+          {/* ÚNICO BOTÓN: Volver a Superadmin (solo si es superadmin) */}
+          {role === 'superadmin' && (
+            <button
+              onClick={() => navigate('/superadmin')}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
+            >
+              👑 Volver a Superadmin
+            </button>
+          )}
+
           <div className="flex items-center gap-2 ml-auto">
             <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
               Admin del Municipio
@@ -134,9 +149,9 @@ function AdminLayout() {
         </header>
         <main className="flex-1 overflow-y-auto p-5">
           <Routes>
-             <Route index element={<AdminHome />} />
-             <Route path="reportes" element={<AdminHome />} />
-             <Route path="usuarios" element={<UsuariosPage />} />
+            <Route index element={<AdminHome />} />
+            <Route path="reportes" element={<AdminHome />} />
+            <Route path="usuarios" element={<UsuariosPage />} />
           </Routes>
         </main>
       </div>
