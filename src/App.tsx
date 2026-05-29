@@ -1,6 +1,6 @@
 import './App.css'
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import LoginScreen from './components/LoginScreen'
 import SignUpScreen from './components/SignUpScreen'
 import HomeScreen from './components/HomeScreen'
@@ -9,12 +9,14 @@ import MisReportesScreen from './components/MisReportesScreen'
 import DetalleReporteScreen from './components/DetalleReporteScreen'
 import AdminDashboard from './features/municipality/pages/AdminDashboard'
 import OperatorDashboard from './features/municipality/pages/OperatorDashboard'
+import SuperDashboard from './components/super/SuperDashboard'
+import { ThemeProvider } from './components/context/ThemeContext'
 
 // ── RoleRouter: lee el rol y redirige a la pantalla correcta ──
 function RoleRouter() {
   const { user, isLoaded } = useUser()
+  const location = useLocation()
 
-  // Esperar a que Clerk cargue los datos del usuario
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -25,11 +27,22 @@ function RoleRouter() {
 
   const role = user?.publicMetadata?.role as string
 
-  // Según el rol, redirigir a la pantalla correspondiente
-  if (role === 'admin')    return <Navigate to="/municipality/admin" replace />
-  if (role === 'operator') return <Navigate to="/municipality/operator" replace />
+  // SUPERADMIN: solo redirige a /superadmin si NO está tratando de ir a "/"
+  if (role === 'superadmin' && location.pathname !== '/') {
+    return <Navigate to="/superadmin" replace />
+  }
 
-  // Si no tiene rol especial, es ciudadano normal
+  // ADMIN: solo redirige a /municipality/admin si NO está tratando de ir a "/"
+  if (role === 'admin' && location.pathname !== '/') {
+    return <Navigate to="/municipality/admin" replace />
+  }
+
+  // OPERATOR: solo redirige a /municipality/operator si NO está tratando de ir a "/"
+  if (role === 'operator' && location.pathname !== '/') {
+    return <Navigate to="/municipality/operator" replace />
+  }
+
+  // Ciudadano o sin rol especial
   return <HomeScreen />
 }
 
@@ -90,6 +103,15 @@ function App() {
           <SignedIn><OperatorDashboard /></SignedIn>
         } />
 
+        {/* ── Ruta de superadmin (con ThemeProvider) ── */}
+        <Route path="/superadmin/*" element={
+          <SignedIn>
+            <ThemeProvider>
+              <SuperDashboard />
+            </ThemeProvider>
+          </SignedIn>
+        } />
+
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
@@ -99,13 +121,52 @@ function App() {
 
 // ── PageWrapper: layout con fondo oscuro para las pantallas del ciudadano ──
 function PageWrapper({ children, wide = false }: { children: React.ReactNode, wide?: boolean }) {
+  const { user } = useUser()
+  const navigate = useNavigate()
+  const role = user?.publicMetadata?.role
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       <header className="fixed top-0 left-0 right-0 z-20 bg-black/30 backdrop-blur-md border-b border-white/10">
-        <div className="container mx-auto px-6 py-4 flex justify-end items-center">
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+          
+          <div className="flex gap-2">
+            {/* Botón Volver a Administrador (solo si es admin o superadmin) */}
+            {(role === 'admin' || role === 'superadmin') && (
+              <button
+                onClick={() => navigate('/municipality/admin')}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              >
+                🏛️ Administrador
+              </button>
+            )}
+
+            {/* Botón Volver a Operador (solo si es operador o superadmin) */}
+            {(role === 'operator' || role === 'superadmin') && (
+              <button
+                onClick={() => navigate('/municipality/operator')}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+              >
+                👷 Operador
+              </button>
+            )}
+
+            {/* Botón Volver a Superadmin (solo superadmin) */}
+            {role === 'superadmin' && (
+              <button
+                onClick={() => navigate('/superadmin')}
+                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
+              >
+                👑 Superadministrador
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 ml-auto">
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+          </div>
         </div>
       </header>
 

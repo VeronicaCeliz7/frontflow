@@ -24,6 +24,7 @@ const CrearReporteScreen = () => {
   
   const [categoria, setCategoria] = useState('');
   const [ubicacion, setUbicacion] = useState<Ubicacion | null>(null);
+  const [direccionManual, setDireccionManual] = useState('');
   const [archivoUrl, setArchivoUrl] = useState('');
   const [archivoPublicId, setArchivoPublicId] = useState('');
   const [archivoTipo, setArchivoTipo] = useState<'image' | 'video' | ''>('');
@@ -51,9 +52,15 @@ const CrearReporteScreen = () => {
       return;
     }
     
-    // Validar ubicación
+    // Validar ubicación (mapa/coordenadas)
     if (!ubicacion) {
       setError('📍 La ubicación es obligatoria. Usá el GPS o hacé clic en el mapa para seleccionar una ubicación');
+      return;
+    }
+    
+    // Validar dirección manual
+    if (!direccionManual.trim()) {
+      setError('📍 La dirección es obligatoria. Escribí la calle y número, o una referencia del lugar');
       return;
     }
     
@@ -66,14 +73,9 @@ const CrearReporteScreen = () => {
     setIsSubmitting(true);
     setError('');
     
-    const direccionFinal = ubicacion?.direccion 
-      ? ubicacion.direccion 
-      : 'Dirección no especificada';
-    
+    const direccionFinal = direccionManual.trim();
     const latitudFinal = ubicacion?.coordenadas?.lat || 0;
     const longitudFinal = ubicacion?.coordenadas?.lng || 0;
-    console.log('🔍 formData COMPLETO:', JSON.stringify(formData, null, 2));
-
     
     try {
       const token = await getToken();
@@ -93,9 +95,7 @@ const CrearReporteScreen = () => {
         archivo_url: archivoUrl,
         archivo_public_id: archivoPublicId,
         archivo_tipo: archivoTipo,
-        // fecha_hora NO se envía - el backend la genera automáticamente
       };
-      console.log('🔍 DATOS QUE SE ENVÍAN:', JSON.stringify(datos, null, 2));
 
       await axios.post(`${API_URL}/reportes`, datos, {
         headers: {
@@ -269,24 +269,44 @@ const CrearReporteScreen = () => {
             </div>
           </div>
           
-          {/* Columna derecha - Mapa */}
-          <div>
-            <label className="block text-white font-medium mb-2">
-              Ubicación en el mapa * (obligatorio)
-            </label>
-            <MapaIncidente onUbicacionChange={setUbicacion} categoria={categoria} />
-            {ubicacion && (
-              <div className="mt-3 p-3 bg-blue-500/20 rounded-xl">
-                <p className="text-blue-200 text-sm">📍 {ubicacion.direccion}</p>
-              </div>
-            )}
-            {!ubicacion && (
-              <div className="mt-3 p-3 bg-yellow-500/20 border border-yellow-500/50 rounded-xl">
-                <p className="text-yellow-200 text-sm">
-                  ⚠️ La ubicación es obligatoria. Usá el botón GPS o hacé clic en el mapa.
-                </p>
-              </div>
-            )}
+          {/* Columna derecha - Mapa + Dirección manual */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-white font-medium mb-2">
+                📍 Ubicación en el mapa * (obligatorio)
+              </label>
+              <MapaIncidente onUbicacionChange={setUbicacion} categoria={categoria} />
+              {ubicacion && (
+                <div className="mt-3 p-3 bg-green-500/20 rounded-xl">
+                  <p className="text-green-200 text-sm">✅ Ubicación seleccionada (coordenadas guardadas)</p>
+                </div>
+              )}
+              {!ubicacion && (
+                <div className="mt-3 p-3 bg-yellow-500/20 border border-yellow-500/50 rounded-xl">
+                  <p className="text-yellow-200 text-sm">
+                    ⚠️ La ubicación es obligatoria. Usá el botón GPS o hacé clic en el mapa.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Dirección escrita por el usuario */}
+            <div>
+              <label className="block text-white font-medium mb-2">
+                📝 Dirección *
+              </label>
+              <input
+                type="text"
+                value={direccionManual}
+                onChange={(e) => setDireccionManual(e.target.value)}
+                className={inputClassName}
+                placeholder="Ej: Av. Libertador 3000, o 'Descampado - Ruta 8 km 42'"
+                required
+              />
+              <p className="text-gray-400 text-xs mt-1">
+                Escribí la dirección exacta o una referencia clara del lugar
+              </p>
+            </div>
           </div>
         </div>
         

@@ -21,17 +21,17 @@ const FileUpload = ({ onFileUploaded, onError }: FileUploadProps) => {
       return;
     }
 
-    // Límites específicos por tipo
-    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB para imágenes
-    const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB para videos
+    // ✅ NUEVOS LÍMITES (cambiados)
+    const MAX_IMAGE_SIZE = 3 * 1024 * 1024;   // 3 MB para imágenes
+    const MAX_VIDEO_SIZE = 10 * 1024 * 1024;  // 10 MB para videos
 
     if (file.type.startsWith('image/') && file.size > MAX_IMAGE_SIZE) {
-      onError('📸 La imagen no puede superar los 10MB');
+      onError('📸 La imagen no puede superar los 3MB');
       return;
     }
     
     if (file.type.startsWith('video/') && file.size > MAX_VIDEO_SIZE) {
-      onError('🎥 El video no puede superar los 50MB');
+      onError('🎥 El video no puede superar los 10MB');
       return;
     }
 
