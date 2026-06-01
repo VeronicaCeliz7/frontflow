@@ -11,6 +11,10 @@ import Sidebar from '../components/Sidebar.tsx'
 import StatCard from '../components/StatCard.tsx'
 import IncidentTable from '../components/IncidentTable.tsx'
 import IncidentDetailModal from '../components/IncidentDetailModal'
+
+import OperadoresPage from './OperadoresPage'
+import OperatorDetailPage from './OperatorDetailPage'
+
 const queryClient = new QueryClient()
 
 const barData = [
@@ -39,6 +43,12 @@ const mockIncidents = [
 ]
 
 function AdminHome() {
+  const { user } = useUser()
+
+  const nombreAdmin = `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
+  const municipio = user?.publicMetadata?.municipio || 'villa-maria'
+  
+  
   const [statusFilter, setStatusFilter] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
 
@@ -55,11 +65,11 @@ function AdminHome() {
 
       <div>
         <h1 className="text-2xl font-bold text-gray-800">
-          Bienvenido, Administrador 👋
+           Bienvenido, {nombreAdmin || 'Administrador'} 👋
         </h1>
 
         <p className="text-gray-400 text-sm mt-1">
-          Panel de administración del municipio
+          Administrás: Municipalidad de Villa María
         </p>
       </div>
 
@@ -332,6 +342,8 @@ function AdminLayout() {
             <Route index element={<AdminHome />} />
             <Route path="reportes" element={<AdminHome />} />
             <Route path="usuarios" element={<UsuariosPage />} />
+            <Route path="operadores" element={<OperadoresPage />} />
+            <Route path="operadores/:id" element={<OperatorDetailPage />} />
           </Routes>
         </main>
       </div>

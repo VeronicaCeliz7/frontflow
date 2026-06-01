@@ -1,28 +1,58 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth, useUser } from '@clerk/clerk-react'
 
-const operadores = [
-  {
-    id: 'op1',
-    nombre: 'Juan Pérez',
-    asignados: 18,
-    resueltos: 42
-  },
-  {
-    id: 'op2',
-    nombre: 'María López',
-    asignados: 12,
-    resueltos: 37
-  },
-  {
-    id: 'op3',
-    nombre: 'Carlos Ruiz',
-    asignados: 9,
-    resueltos: 28
-  }
-]
+interface Operador {
+  id: string
+  clerkUserId: string
+  nombre: string
+  email: string
+  role: string
+  municipio: string
+}
 
 export default function OperadoresPage() {
   const navigate = useNavigate()
+  const { getToken } = useAuth()
+  const { user } = useUser()
+
+  const municipio =
+    (user?.publicMetadata?.municipio as string) || 'villa-maria'
+
+  const [operadores, setOperadores] = useState<Operador[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const cargarOperadores = async () => {
+    try {
+      const token = await getToken()
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+      const response = await fetch(
+        `${API_URL}/api/users/municipio/lista?municipio=${encodeURIComponent(municipio)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      const data = await response.json()
+
+      const soloOperadores = (data.usuarios || []).filter(
+        (u: Operador) => u.role === 'operador' || u.role === 'operator'
+      )
+
+      setOperadores(soloOperadores)
+    } catch (error) {
+      console.error('Error cargando operadores:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    cargarOperadores()
+  }, [municipio])
 
   return (
     <div className="space-y-6">
@@ -33,51 +63,54 @@ export default function OperadoresPage() {
         </h1>
 
         <p className="text-gray-400 mt-1">
-          Personal asignado al municipio
+          Personal asignado al municipio: {municipio}
         </p>
       </div>
 
       <div className="grid gap-4">
-        {operadores.map(op => (
-          <div
-            key={op.id}
-            className="bg-white border rounded-2xl p-5 shadow-sm"
-          >
-            <div className="flex justify-between items-center">
-
-              <div>
-                <h2 className="font-semibold text-lg">
-                  {op.nombre}
-                </h2>
-
-                <p className="text-sm text-gray-500">
-                  Incidentes asignados: {op.asignados}
-                </p>
-
-                <p className="text-sm text-green-600">
-                  Resueltos: {op.resueltos}
-                </p>
-              </div>
-
-              <button
-                onClick={() =>
-                  navigate(`/municipality/admin/operadores/${op.id}`)
-                }
-                className="
-                  bg-blue-600
-                  text-white
-                  px-4
-                  py-2
-                  rounded-lg
-                  hover:bg-blue-700
-                "
-              >
-                Ver panel
-              </button>
-
-            </div>
+        {loading ? (
+          <p className="text-gray-500 text-sm">Cargando operadores...</p>
+        ) : operadores.length === 0 ? (
+          <div className="bg-white border rounded-2xl p-5 shadow-sm">
+            <p className="text-gray-500 text-sm">
+              Todavía no hay operadores creados para este municipio.
+            </p>
           </div>
-        ))}
+        ) : (
+          operadores.map(op => (
+            <div
+              key={op.clerkUserId || op.id}
+              className="bg-white border rounded-2xl p-5 shadow-sm"
+            >
+              <div className="flex justify-between items-center">
+
+                <div>
+                  <h2 className="font-semibold text-lg">
+                    {op.nombre}
+                  </h2>
+
+                  <p className="text-sm text-gray-500">
+                    {op.email}
+                  </p>
+
+                  <p className="text-sm text-gray-400">
+                    Municipio: {op.municipio}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() =>
+                    navigate(`/municipality/admin/operadores/${op.clerkUserId}`)
+                  }
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Ver panel
+                </button>
+
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   )

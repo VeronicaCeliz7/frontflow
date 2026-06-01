@@ -43,11 +43,11 @@ export default function Sidebar({ isOpen, onClose, role }: Props) {
   }
 ]
 
-  const operatorLinks = [
-    { to: '/municipality/operator',           icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/municipality/operator/asignados', icon: ClipboardList,   label: 'Mis incidentes' },
-    { to: '/municipality/operator/reportes',  icon: FileText,        label: 'Reportes' },
-  ]
+ const operatorLinks = [
+  { to: '/municipality/operator', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/municipality/operator/asignados', icon: ClipboardList, label: 'Mis incidentes' },
+  { to: '/municipality/operator/reportes', icon: FileText, label: 'Reportes' },
+] 
 
   const links = isAdmin ? adminLinks : operatorLinks
   const activeClass = isAdmin ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'

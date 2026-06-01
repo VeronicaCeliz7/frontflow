@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { UserPlus, Users, Mail, Building2, Shield } from 'lucide-react'
+import { useAuth } from '@clerk/clerk-react'
 
 interface FormData {
   nombre: string
   apellido: string
   email: string
-  role: 'operator' | 'admin'
+  role: 'operador' | 'admin'
   municipio: string
 }
 
@@ -18,29 +19,61 @@ interface Usuario {
 }
 
 export default function UsuariosPage() {
+  const { getToken } = useAuth()
+
   const [form, setForm] = useState<FormData>({
     nombre: '',
     apellido: '',
     email: '',
-    role: 'operator',
+    role: 'operador',
     municipio: 'villa-maria'
   })
 
-  const [loading, setLoading]   = useState(false)
-  const [mensaje, setMensaje]   = useState<{ tipo: 'ok' | 'error', texto: string } | null>(null)
-  const [usuarios, setUsuarios] = useState<Usuario[]>([
-    { id: '1', nombre: 'Juan Pérez',    email: 'operador@villamaria.gob.ar', role: 'operator', municipio: 'villa-maria' },
-    { id: '2', nombre: 'Ana González',  email: 'ana@villamaria.gob.ar',      role: 'operator', municipio: 'villa-maria' },
-  ])
+  const [loading, setLoading] = useState(false)
+  const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+  const cargarUsuarios = async () => {
+    try {
+      const token = await getToken()
+
+      const response = await fetch(
+        `${API_URL}/api/users/municipio/lista?municipio=${encodeURIComponent(form.municipio)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al cargar usuarios')
+      }
+
+      setUsuarios(data.usuarios || [])
+    } catch (error) {
+      console.error('Error cargando usuarios:', error)
+    }
+  }
+
+  useEffect(() => {
+    cargarUsuarios()
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   const handleSubmit = async () => {
-    // Validar campos
-    if (!form.nombre || !form.email) {
-      setMensaje({ tipo: 'error', texto: 'Nombre y email son obligatorios' })
+    if (!form.nombre || !form.email || !form.municipio) {
+      setMensaje({
+        tipo: 'error',
+        texto: 'Nombre, email y municipio son obligatorios'
+      })
       return
     }
 
@@ -48,11 +81,14 @@ export default function UsuariosPage() {
     setMensaje(null)
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+      const token = await getToken()
 
       const response = await fetch(`${API_URL}/api/users/municipio/invitar`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(form)
       })
 
@@ -62,21 +98,27 @@ export default function UsuariosPage() {
         throw new Error(data.error || 'Error al crear usuario')
       }
 
-      // Agregar a la lista local
-      setUsuarios(prev => [...prev, {
-        id: data.usuario.id,
-        nombre: data.usuario.nombre,
-        email: data.usuario.email,
-        role: data.usuario.role,
-        municipio: data.usuario.municipio
-      }])
+      await cargarUsuarios()
 
-      // Limpiar formulario
-      setForm({ nombre: '', apellido: '', email: '', role: 'operator', municipio: 'villa-maria' })
-      setMensaje({ tipo: 'ok', texto: `Usuario ${data.usuario.nombre} creado exitosamente` })
+      setForm({
+        nombre: '',
+        apellido: '',
+        email: '',
+        role: 'operador',
+        municipio: 'villa-maria'
+      })
 
+      setMensaje({
+        tipo: 'ok',
+        texto: data.passwordTemporal
+          ? `Usuario ${data.usuario.nombre} creado exitosamente. Contraseña temporal: ${data.passwordTemporal}`
+          : `Usuario ${data.usuario.nombre} creado exitosamente`
+      })
     } catch (error: any) {
-      setMensaje({ tipo: 'error', texto: error.message })
+      setMensaje({
+        tipo: 'error',
+        texto: error.message || 'Error inesperado'
+      })
     } finally {
       setLoading(false)
     }
@@ -87,10 +129,11 @@ export default function UsuariosPage() {
 
       <div>
         <h1 className="text-2xl font-bold text-gray-800">Gestión de usuarios</h1>
-        <p className="text-gray-400 text-sm mt-1">Invitá operadores y administradores a tu municipio</p>
+        <p className="text-gray-400 text-sm mt-1">
+          Invitá operadores y administradores a tu municipio
+        </p>
       </div>
 
-      {/* Formulario de invitación */}
       <div className="bg-white rounded-2xl p-6 border border-gray-100">
         <div className="flex items-center gap-2 mb-5">
           <div className="bg-blue-600 p-2 rounded-lg">
@@ -147,7 +190,7 @@ export default function UsuariosPage() {
                 onChange={handleChange}
                 className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 bg-white"
               >
-                <option value="operator">Operador (Empleado municipal)</option>
+                <option value="operador">Operador (Empleado municipal)</option>
                 <option value="admin">Admin (Jefe de área)</option>
               </select>
             </div>
@@ -168,13 +211,14 @@ export default function UsuariosPage() {
           </div>
         </div>
 
-        {/* Mensaje de éxito o error */}
         {mensaje && (
-          <div className={`mt-4 px-4 py-3 rounded-xl text-sm font-medium ${
-            mensaje.tipo === 'ok'
-              ? 'bg-green-50 text-green-700 border border-green-200'
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>
+          <div
+            className={`mt-4 px-4 py-3 rounded-xl text-sm font-medium ${
+              mensaje.tipo === 'ok'
+                ? 'bg-green-50 text-green-700 border border-green-200'
+                : 'bg-red-50 text-red-700 border border-red-200'
+            }`}
+          >
             {mensaje.texto}
           </div>
         )}
@@ -189,7 +233,6 @@ export default function UsuariosPage() {
         </button>
       </div>
 
-      {/* Lista de usuarios del municipio */}
       <div className="bg-white rounded-2xl p-6 border border-gray-100">
         <div className="flex items-center gap-2 mb-5">
           <div className="bg-blue-600 p-2 rounded-lg">
@@ -208,23 +251,34 @@ export default function UsuariosPage() {
                 <th className="text-left py-3 px-2 text-gray-400 font-medium">Municipio</th>
               </tr>
             </thead>
+
             <tbody>
               {usuarios.map((u) => (
                 <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50">
                   <td className="py-3 px-2 font-medium text-gray-700">{u.nombre}</td>
                   <td className="py-3 px-2 text-gray-500">{u.email}</td>
                   <td className="py-3 px-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      u.role === 'admin'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-green-100 text-green-700'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        u.role === 'admin'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-green-100 text-green-700'
+                      }`}
+                    >
                       {u.role === 'admin' ? 'Administrador' : 'Operador'}
                     </span>
                   </td>
                   <td className="py-3 px-2 text-gray-500">{u.municipio}</td>
                 </tr>
               ))}
+
+              {usuarios.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="py-6 text-center text-gray-400">
+                    Todavía no hay usuarios cargados para este municipio.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

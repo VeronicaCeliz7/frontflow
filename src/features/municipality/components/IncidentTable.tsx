@@ -78,6 +78,7 @@ export default function IncidentTable({
 
         <tbody>
           {incidents.map((inc) => (
+              
             <tr
               key={inc._id}
               onClick={() => onView?.(inc)}
@@ -88,7 +89,7 @@ export default function IncidentTable({
                 transition-colors
                 cursor-pointer
               "
-            >
+          >
               <td className="py-3 px-2 text-gray-400 font-mono text-xs">
                 #{inc._id?.slice(-5).toUpperCase()}
               </td>
@@ -152,9 +153,10 @@ export default function IncidentTable({
                       disabled:opacity-50
                     "
                   >
-                    <option value="open">Abierto</option>
-                    <option value="in_progress">En progreso</option>
-                    <option value="resolved">Resuelto</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en_proceso">En proceso</option>
+                    <option value="resuelto">Resuelto</option>
+                    <option value="rechazado">Rechazado</option>
                   </select>
 
                   <ChevronDown

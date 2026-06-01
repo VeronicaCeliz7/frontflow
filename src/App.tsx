@@ -12,7 +12,6 @@ import OperatorDashboard from './features/municipality/pages/OperatorDashboard'
 import SuperDashboard from './components/super/SuperDashboard'
 import { ThemeProvider } from './components/context/ThemeContext'
 
-// ── RoleRouter: lee el rol y redirige a la pantalla correcta ──
 function RoleRouter() {
   const { user, isLoaded } = useUser()
   const location = useLocation()
@@ -25,25 +24,34 @@ function RoleRouter() {
     )
   }
 
-  const role = user?.publicMetadata?.role as string
+  const role = user?.publicMetadata?.role as string | undefined
 
-  // SUPERADMIN: solo redirige a /superadmin si NO está tratando de ir a "/"
-  if (role === 'superadmin' && location.pathname !== '/') {
+  const isSuperAdmin = role === 'superadmin'
+  const isAdmin = role === 'admin'
+  const isOperator = role === 'operator' || role === 'operador'
+
+  if (isSuperAdmin && !location.pathname.startsWith('/superadmin')) {
     return <Navigate to="/superadmin" replace />
   }
 
-  // ADMIN: solo redirige a /municipality/admin si NO está tratando de ir a "/"
-  if (role === 'admin' && location.pathname !== '/') {
-    return <Navigate to="/municipality/admin" replace />
-  }
+  if (isAdmin && location.pathname === '/login') {
+  return <Navigate to="/municipality/admin" replace />
+}
 
-  // OPERATOR: solo redirige a /municipality/operator si NO está tratando de ir a "/"
-  if (role === 'operator' && location.pathname !== '/') {
-    return <Navigate to="/municipality/operator" replace />
-  }
+  if (isOperator && location.pathname === '/login') {
+  return <Navigate to="/municipality/operator" replace />
+}
 
-  // Ciudadano o sin rol especial
   return <HomeScreen />
+}
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <SignedIn>{children}</SignedIn>
+      <SignedOut><Navigate to="/login" replace /></SignedOut>
+    </>
+  )
 }
 
 function App() {
@@ -51,7 +59,6 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* ── Rutas del ciudadano ───────────────────────────── */}
         <Route path="/login" element={
           <PageWrapper>
             <SignedOut><LoginScreen /></SignedOut>
@@ -75,41 +82,46 @@ function App() {
 
         <Route path="/nuevo-reporte" element={
           <PageWrapper wide>
-            <SignedIn><CrearReporteScreen /></SignedIn>
-            <SignedOut><Navigate to="/login" replace /></SignedOut>
+            <ProtectedRoute>
+              <CrearReporteScreen />
+            </ProtectedRoute>
           </PageWrapper>
         } />
 
         <Route path="/mis-reportes" element={
           <PageWrapper>
-            <SignedIn><MisReportesScreen /></SignedIn>
-            <SignedOut><Navigate to="/login" replace /></SignedOut>
+            <ProtectedRoute>
+              <MisReportesScreen />
+            </ProtectedRoute>
           </PageWrapper>
         } />
 
         <Route path="/reporte/:id" element={
           <PageWrapper>
-            <SignedIn><DetalleReporteScreen /></SignedIn>
-            <SignedOut><Navigate to="/login" replace /></SignedOut>
+            <ProtectedRoute>
+              <DetalleReporteScreen />
+            </ProtectedRoute>
           </PageWrapper>
         } />
 
-        {/* ── Rutas del municipio (sin PageWrapper, tienen su propio layout) ── */}
         <Route path="/municipality/admin/*" element={
-          <SignedIn><AdminDashboard /></SignedIn>
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
         } />
 
         <Route path="/municipality/operator/*" element={
-          <SignedIn><OperatorDashboard /></SignedIn>
+          <ProtectedRoute>
+            <OperatorDashboard />
+          </ProtectedRoute>
         } />
 
-        {/* ── Ruta de superadmin (con ThemeProvider) ── */}
         <Route path="/superadmin/*" element={
-          <SignedIn>
+          <ProtectedRoute>
             <ThemeProvider>
               <SuperDashboard />
             </ThemeProvider>
-          </SignedIn>
+          </ProtectedRoute>
         } />
 
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -118,21 +130,29 @@ function App() {
     </BrowserRouter>
   )
 }
-
-// ── PageWrapper: layout con fondo oscuro para las pantallas del ciudadano ──
 function PageWrapper({ children, wide = false }: { children: React.ReactNode, wide?: boolean }) {
   const { user } = useUser()
   const navigate = useNavigate()
-  const role = user?.publicMetadata?.role
+
+  const role = user?.publicMetadata?.role as string | undefined
+  const roles = (user?.publicMetadata?.roles as string[]) || []
+
+  const isSuperAdmin = role === 'superadmin' || roles.includes('superadmin')
+  const isAdmin = role === 'admin' || roles.includes('admin')
+  const isOperator =
+    role === 'operator' ||
+    role === 'operador' ||
+    roles.includes('operator') ||
+    roles.includes('operador')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       <header className="fixed top-0 left-0 right-0 z-20 bg-black/30 backdrop-blur-md border-b border-white/10">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          
+
           <div className="flex gap-2">
-            {/* Botón Volver a Administrador (solo si es admin o superadmin) */}
-            {(role === 'admin' || role === 'superadmin') && (
+
+            {(isAdmin || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/municipality/admin')}
                 className="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
@@ -141,8 +161,7 @@ function PageWrapper({ children, wide = false }: { children: React.ReactNode, wi
               </button>
             )}
 
-            {/* Botón Volver a Operador (solo si es operador o superadmin) */}
-            {(role === 'operator' || role === 'superadmin') && (
+            {(isOperator || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/municipality/operator')}
                 className="px-3 py-1.5 text-xs font-bold rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
@@ -151,14 +170,22 @@ function PageWrapper({ children, wide = false }: { children: React.ReactNode, wi
               </button>
             )}
 
-            {/* Botón Volver a Superadmin (solo superadmin) */}
-            {role === 'superadmin' && (
+            {isSuperAdmin && (
               <button
                 onClick={() => navigate('/superadmin')}
                 className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
               >
                 👑 Superadministrador
               </button>
+            )}
+
+            {(isAdmin || isOperator || isSuperAdmin) && (
+              <button
+              onClick={() => navigate('/')}
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+           >
+              🧑 Ciudadano
+           </button>
             )}
           </div>
 
@@ -172,11 +199,15 @@ function PageWrapper({ children, wide = false }: { children: React.ReactNode, wi
 
       <main className="relative min-h-screen flex items-center justify-center pt-20">
         <div className="absolute inset-0 overflow-hidden opacity-20">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 1px)`,
-            backgroundSize: '40px 40px'
-          }} />
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 1px)`,
+              backgroundSize: '40px 40px'
+            }}
+          />
         </div>
+
         <div className={`relative z-10 w-full ${wide ? 'max-w-6xl' : 'max-w-md'} px-4`}>
           {children}
         </div>
