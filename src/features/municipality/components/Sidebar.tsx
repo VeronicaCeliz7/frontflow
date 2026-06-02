@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useClerk } from '@clerk/clerk-react'
 import { LayoutDashboard, FileText, Users, Settings, LogOut, ClipboardList, X, Building2 } from 'lucide-react'
-
+import { UserCog } from 'lucide-react'
 interface Props {
   isOpen: boolean
   onClose: () => void
@@ -12,17 +12,42 @@ export default function Sidebar({ isOpen, onClose, role }: Props) {
   const isAdmin = role === 'admin'
   const { signOut } = useClerk()
   const adminLinks = [
-    { to: '/municipality/admin',          icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/municipality/admin/reportes', icon: FileText,        label: 'Reportes' },
-    { to: '/municipality/admin/usuarios', icon: Users,           label: 'Usuarios' },
-    { to: '/municipality/admin/config',   icon: Settings,        label: 'Configuración' },
-  ]
+  {
+    to: '/municipality/admin',
+    icon: LayoutDashboard,
+    label: 'Dashboard'
+  },
 
-  const operatorLinks = [
-    { to: '/municipality/operator',           icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/municipality/operator/asignados', icon: ClipboardList,   label: 'Mis incidentes' },
-    { to: '/municipality/operator/reportes',  icon: FileText,        label: 'Reportes' },
-  ]
+  {
+    to: '/municipality/admin/reportes',
+    icon: FileText,
+    label: 'Reportes'
+  },
+
+  {
+    to: '/municipality/admin/usuarios',
+    icon: Users,
+    label: 'Usuarios'
+  },
+
+  {
+    to: '/municipality/admin/operadores',
+    icon: UserCog,
+    label: 'Operadores'
+  },
+
+  {
+    to: '/municipality/admin/config',
+    icon: Settings,
+    label: 'Configuración'
+  }
+]
+
+ const operatorLinks = [
+  { to: '/municipality/operator', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/municipality/operator/asignados', icon: ClipboardList, label: 'Mis incidentes' },
+  { to: '/municipality/operator/reportes', icon: FileText, label: 'Reportes' },
+] 
 
   const links = isAdmin ? adminLinks : operatorLinks
   const activeClass = isAdmin ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
