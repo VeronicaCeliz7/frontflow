@@ -6,46 +6,40 @@ import UrbanFlowLogo from './UrbanFlowLogo';
 const SignUpScreen = () => {
   return (
     <div className="text-center space-y-6">
-      <div className="flex flex-col items-center gap-3">
-        <UrbanFlowLogo size="large" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tighter">
-            <span className="text-white">URBAN</span>
-            <span className="text-blue-500">FLOW</span>
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Crea tu cuenta para reportar incidencias
-          </p>
-        </div>
+      {/* Logo */}
+      <div className="flex justify-center">
+        <UrbanFlowLogo size="large" showText={true} />
       </div>
       
+      {/* Formulario de Clerk - estilos minimalistas */}
       <SignUp 
         routing="virtual"
         signInUrl="/login"
         appearance={{
           elements: {
             rootBox: "w-full",
-            card: "bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl",
-            headerTitle: "text-white text-xl font-semibold",
-            headerSubtitle: "text-gray-300",
-            formFieldLabel: "text-gray-200 text-sm",
-            formFieldInput: "bg-white/20 border-white/30 text-white rounded-lg",
-            formButtonPrimary: "w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition",
-            footerActionLink: "text-blue-400 hover:text-blue-300",
-            dividerLine: "bg-white/20",
+            card: "bg-white border border-gray-200 rounded-lg shadow-none",
+            headerTitle: "text-gray-900 text-xl font-semibold",
+            headerSubtitle: "text-gray-500",
+            formFieldLabel: "text-gray-700 text-sm font-medium",
+            formFieldInput: "bg-white border-gray-300 text-gray-900 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500",
+            formButtonPrimary: "w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors",
+            footerActionLink: "text-blue-600 hover:text-blue-700",
+            dividerLine: "bg-gray-200",
             dividerText: "text-gray-400 text-xs",
           }
         }}
       />
       
-      <p className="text-gray-400 text-sm">
+      {/* Enlace para iniciar sesión */}
+      <p className="text-gray-500 text-sm">
         ¿Ya tienes cuenta?{' '}
-        <Link to="/login" className="text-blue-400 hover:text-blue-300">
+        <Link to="/login" className="text-blue-600 hover:text-blue-700">
           Inicia sesión
         </Link>
       </p>
       
-      <p className="text-gray-500 text-xs text-center mt-4">
+      <p className="text-gray-400 text-xs text-center mt-4">
         Secured by Clerk
       </p>
     </div>

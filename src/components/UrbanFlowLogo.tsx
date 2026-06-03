@@ -3,14 +3,14 @@ interface UrbanFlowLogoProps {
   size?: 'small' | 'medium' | 'large';
   className?: string;
   showText?: boolean;
-  rotated?: boolean;  // 👈 Nueva prop opcional
+  rotated?: boolean;
 }
 
 const UrbanFlowLogo = ({ 
   size = 'medium',
   className = '',
   showText = true,
-  rotated = true  // 👈 Por defecto rotado
+  rotated = true
 }: UrbanFlowLogoProps) => {
   const sizeClasses = {
     small: 'w-10 h-10',
@@ -38,10 +38,7 @@ const UrbanFlowLogo = ({
         style={{ transform: rotated ? 'rotate(180deg)' : 'rotate(0deg)' }}
       >
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Fondo circular azul suave */}
           <circle cx="50" cy="50" r="48" fill="#E8F0FE" />
-          
-          {/* Cuadrícula de ciudad (calles) */}
           <g stroke="#3B82F6" strokeWidth="1.5" strokeLinecap="round" opacity="0.6">
             <line x1="30" y1="20" x2="30" y2="80" />
             <line x1="50" y1="20" x2="50" y2="80" />
@@ -50,8 +47,6 @@ const UrbanFlowLogo = ({
             <line x1="20" y1="50" x2="80" y2="50" />
             <line x1="20" y1="65" x2="80" y2="65" />
           </g>
-          
-          {/* Marcador de Google Maps (gota) */}
           <g transform="translate(50, 45)">
             <path
               d="M0,-20 C12,-10 18,4 18,14 C18,24 10,30 0,30 C-10,30 -18,24 -18,14 C-18,4 -12,-10 0,-20Z"
@@ -66,11 +61,10 @@ const UrbanFlowLogo = ({
       {/* Texto del logo (opcional) */}
       {showText && (
         <div className="text-center mt-3">
-          <h1 className={`${textSizes[size]} font-bold tracking-tighter`}>
-            <span className="text-white">URBAN</span>
-            <span className="text-blue-500">FLOW</span>
+          <h1 className={`${textSizes[size]} font-bold tracking-tighter text-gray-900`}>
+            URBANFLOW
           </h1>
-          <p className={`${subtextSizes[size]} text-gray-400 mt-0.5`}>
+          <p className={`${subtextSizes[size]} text-gray-500 mt-0.5`}>
             Reporta incidencias en tu ciudad
           </p>
         </div>
