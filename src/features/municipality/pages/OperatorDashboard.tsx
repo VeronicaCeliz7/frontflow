@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
-import { ClipboardList, CheckCircle, Clock, AlertTriangle, Menu } from 'lucide-react'
+import { ClipboardList, CheckCircle, Clock, AlertTriangle, Menu, Building2, HardHat, User, Crown } from 'lucide-react'
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { useAuth, useUser } from '@clerk/clerk-react'
 
@@ -35,10 +35,8 @@ function OperatorHome() {
     try {
       const token = await getToken()
       if (!token) return alert('Token no encontrado')
-
       await takeIncident(token, id)
       await queryClient.invalidateQueries({ queryKey: ['incidents'] })
-
       alert('Incidente tomado correctamente')
     } catch (error: any) {
       alert(error?.response?.data?.error || 'Error al tomar incidente')
@@ -49,10 +47,8 @@ function OperatorHome() {
     try {
       const token = await getToken()
       if (!token) return alert('Token no encontrado')
-
       await updateIncidentStatus(token, { id, status })
       await queryClient.invalidateQueries({ queryKey: ['incidents'] })
-
       alert('Estado actualizado')
     } catch (error: any) {
       alert(error?.response?.data?.error || 'Error al actualizar estado')
@@ -65,13 +61,12 @@ function OperatorHome() {
   const criticos = incidents.filter((i: any) => i.prioridad === 'critica').length
 
   return (
-    <div className="space-y-6">
-
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-xl font-semibold text-gray-900">
           Hola, {nombreOperador || 'Operador'} 👋
         </h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <p className="text-gray-500 text-sm mt-0.5">
           Gestión de incidentes del municipio: {municipio}
         </p>
       </div>
@@ -83,32 +78,30 @@ function OperatorHome() {
         <StatCard title="Críticos" value={criticos} icon={AlertTriangle} color="red" subtitle="Alta prioridad" />
       </div>
 
-      <div className="bg-white rounded-2xl p-5 border border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-700">
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-gray-900 text-sm">
             {vista === 'pendientes'
               ? 'Incidentes pendientes del municipio'
               : 'Mis incidentes asignados'}
           </h2>
-
           <div className="flex gap-2">
             <button
               onClick={() => setVista('pendientes')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
                 vista === 'pendientes'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-600'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               Pendientes
             </button>
-
             <button
               onClick={() => setVista('mios')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
                 vista === 'mios'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-600'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               Mis incidentes
@@ -119,51 +112,33 @@ function OperatorHome() {
         {isLoading ? (
           <p className="text-sm text-gray-500">Cargando incidentes...</p>
         ) : incidents.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No hay incidentes para mostrar.
-          </p>
+          <p className="text-sm text-gray-500">No hay incidentes para mostrar.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-3 px-2 text-gray-400 font-medium">Título</th>
-                  <th className="text-left py-3 px-2 text-gray-400 font-medium">Dirección</th>
-                  <th className="text-left py-3 px-2 text-gray-400 font-medium">Estado</th>
-                  <th className="text-left py-3 px-2 text-gray-400 font-medium">Municipio</th>
-                  <th className="text-left py-3 px-2 text-gray-400 font-medium">Operador</th>
-                  <th className="text-left py-3 px-2 text-gray-400 font-medium">Acción</th>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Título</th>
+                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Dirección</th>
+                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Estado</th>
+                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Municipio</th>
+                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Operador</th>
+                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Acción</th>
                 </tr>
               </thead>
-
               <tbody>
                 {incidents.map((incidente: any) => (
-                  <tr key={incidente._id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-3 px-2 font-medium text-gray-700">
-                      {incidente.titulo}
-                    </td>
-
-                    <td className="py-3 px-2 text-gray-500">
-                      {incidente.direccion}
-                    </td>
-
-                    <td className="py-3 px-2 text-gray-500">
-                      {incidente.estado}
-                    </td>
-
-                    <td className="py-3 px-2 text-gray-500">
-                      {incidente.municipio || '-'}
-                    </td>
-
-                    <td className="py-3 px-2 text-gray-500">
-                      {incidente.operadorAsignadoNombre || 'Sin asignar'}
-                    </td>
-
+                  <tr key={incidente._id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-3 px-2 font-medium text-gray-900">{incidente.titulo}</td>
+                    <td className="py-3 px-2 text-gray-600">{incidente.direccion}</td>
+                    <td className="py-3 px-2 text-gray-600 capitalize">{incidente.estado}</td>
+                    <td className="py-3 px-2 text-gray-600">{incidente.municipio || '-'}</td>
+                    <td className="py-3 px-2 text-gray-600">{incidente.operadorAsignadoNombre || 'Sin asignar'}</td>
                     <td className="py-3 px-2">
                       {vista === 'pendientes' && incidente.estado === 'pendiente' && !incidente.operadorAsignadoId ? (
                         <button
                           onClick={() => tomarIncidente(incidente._id)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold"
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition"
                         >
                           Tomar incidente
                         </button>
@@ -171,7 +146,7 @@ function OperatorHome() {
                         <select
                           value={incidente.estado}
                           onChange={(e) => cambiarEstado(incidente._id, e.target.value)}
-                          className="border border-gray-200 rounded-lg px-2 py-1 text-xs bg-white"
+                          className="border border-gray-300 rounded-md px-2 py-1 text-xs bg-white text-gray-700"
                         >
                           <option value="pendiente">Pendiente</option>
                           <option value="en_proceso">En proceso</option>
@@ -202,81 +177,71 @@ function OperatorLayout() {
 
   const isSuperAdmin = role === 'superadmin' || roles.includes('superadmin')
   const isAdmin = role === 'admin' || roles.includes('admin')
-  const isOperator =
-    role === 'operator' ||
-    role === 'operador' ||
-    roles.includes('operator') ||
-    roles.includes('operador')
+  const isOperator = role === 'operator' || role === 'operador' || roles.includes('operator') || roles.includes('operador')
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} role="operator" />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-100 px-5 py-4 flex items-center gap-3">
-
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-gray-400 hover:text-gray-600"
-          >
-            <Menu size={22} />
+        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-500 hover:text-gray-700">
+            <Menu size={20} />
           </button>
 
           <div className="flex gap-2 ml-4">
-
             {(isAdmin || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/municipality/admin')}
-                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
               >
-                🏛️ Administrador
+                <Building2 size={14} />
+                Administrador
               </button>
             )}
-
             {(isOperator || isAdmin || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/municipality/operator')}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
                   location.pathname.startsWith('/municipality/operator')
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                👷 Operador
+                <HardHat size={14} />
+                Operador
               </button>
             )}
-
             {(isAdmin || isOperator || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/')}
-                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
               >
-                🧑 Ciudadano
+                <User size={14} />
+                Ciudadano
               </button>
             )}
-
             {isSuperAdmin && (
               <button
                 onClick={() => navigate('/superadmin')}
-                className="px-3 py-1.5 text-xs font-bold rounded-lg bg-violet-600 text-white hover:bg-violet-700 transition"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
               >
-                👑 Superadministrador
+                <Crown size={14} />
+                Superadministrador
               </button>
             )}
-
           </div>
 
           {!isSuperAdmin && (
             <div className="flex items-center gap-2 ml-auto">
-              <span className="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">
+              <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
                 Empleado Municipal
               </span>
             </div>
           )}
-
         </header>
 
-        <main className="flex-1 overflow-y-auto p-5">
+        <main className="flex-1 overflow-y-auto p-4">
           <Routes>
             <Route index element={<OperatorHome />} />
             <Route path="asignados" element={<OperatorHome />} />

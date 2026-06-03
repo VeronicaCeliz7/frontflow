@@ -16,39 +16,39 @@ const LoginScreen = () => {
 
   return (
     <div className="text-center space-y-6">
-      {/* Logo - el componente ya incluye el texto "URBANFLOW" y el subtítulo */}
+      {/* Logo */}
       <UrbanFlowLogo size="large" showText={true} />
       
-      {/* Formulario de Clerk con registro habilitado */}
+      {/* Formulario de Clerk - estilos shadcn minimalistas */}
       <SignIn 
         routing="virtual"
         signUpUrl="/sign-up"
         appearance={{
           elements: {
             rootBox: "w-full",
-            card: "bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl",
-            headerTitle: "text-white text-xl font-semibold",
-            headerSubtitle: "text-gray-300",
-            formFieldLabel: "text-gray-200 text-sm",
-            formFieldInput: "bg-white/20 border-white/30 text-white rounded-lg",
-            formButtonPrimary: "w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition",
-            socialButtonsBlockButton: "bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl",
-            footerActionLink: "text-blue-400 hover:text-blue-300",
-            dividerLine: "bg-white/20",
+            card: "bg-white border border-gray-200 rounded-lg shadow-none",
+            headerTitle: "text-gray-900 text-xl font-semibold",
+            headerSubtitle: "text-gray-500",
+            formFieldLabel: "text-gray-700 text-sm font-medium",
+            formFieldInput: "bg-white border-gray-300 text-gray-900 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500",
+            formButtonPrimary: "w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors",
+            socialButtonsBlockButton: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md transition-colors",
+            footerActionLink: "text-blue-600 hover:text-blue-700",
+            dividerLine: "bg-gray-200",
             dividerText: "text-gray-400 text-xs",
           }
         }}
       />
       
       {/* Enlace para registrarse */}
-      <p className="text-gray-400 text-sm">
+      <p className="text-gray-500 text-sm">
         ¿No tienes cuenta?{' '}
-        <Link to="/sign-up" className="text-blue-400 hover:text-blue-300">
+        <Link to="/sign-up" className="text-blue-600 hover:text-blue-700">
           Regístrate
         </Link>
       </p>
       
-      <p className="text-gray-500 text-xs text-center mt-4">
+      <p className="text-gray-400 text-xs text-center mt-4">
         Secured by Clerk
       </p>
     </div>

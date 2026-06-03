@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';  // 👈 IMPORTANTE
 import { UserButton } from '@clerk/clerk-react';
-import { useTheme } from '../context/ThemeContext';
 import SuperSidebar from './SuperSidebar';
 import SuperMap from './SuperMap';
+import { Crown, Building2, HardHat, User } from 'lucide-react';  // 👈 Íconos profesionales
 
 import {
   getSuperDashboard,
@@ -10,7 +11,6 @@ import {
   getSuperUsuarios,
   getSuperReportes,
 } from '../../Services/superApi';
-
 
 type SuperSection =
   | 'panel'
@@ -79,6 +79,7 @@ type Reporte = {
 };
 
 export default function SuperDashboard() {
+  const navigate = useNavigate();  // 👈 Hook de navegación
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState<SuperSection>('panel');
@@ -90,9 +91,6 @@ export default function SuperDashboard() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === 'dark';
 
   useEffect(() => {
     async function loadData() {
@@ -119,11 +117,11 @@ export default function SuperDashboard() {
     loadData();
   }, []);
 
-  const pageBg = isDark ? 'bg-slate-950 text-white' : 'bg-slate-100 text-slate-950';
-  const headerBg = isDark ? 'border-slate-800 bg-slate-950/90' : 'border-slate-200 bg-white/90';
-  const cardBg = isDark ? 'border-slate-800 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-950';
-  const softCardBg = isDark ? 'border-slate-800 bg-slate-950' : 'border-slate-200 bg-slate-50';
-  const mutedText = isDark ? 'text-slate-400' : 'text-slate-500';
+  // Estilos fijos shadcn (modo claro, minimalista)
+  const pageBg = 'bg-gray-50';
+  const cardBg = 'bg-white border border-gray-200 rounded-lg p-4 shadow-none';
+  const softCardBg = 'bg-white border border-gray-200 rounded-lg p-4 shadow-none';
+  const mutedText = 'text-gray-500';
 
   const criticalCount =
     dashboard?.graficos.reportesPorPrioridad.find((item) => item._id === 'critica')?.total ?? 0;
@@ -186,17 +184,18 @@ export default function SuperDashboard() {
       />
 
       <main className="min-w-0 flex-1">
-        <header className={`sticky top-0 z-20 border-b px-4 py-4 backdrop-blur sm:px-6 ${headerBg}`}>
+        {/* Header minimalista */}
+        <header className="sticky top-0 z-20 bg-white border-b border-gray-200 px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-4">
             <button
               onClick={() => setMobileOpen(true)}
-              className="rounded-xl border border-slate-300 px-3 py-2 font-black lg:hidden"
+              className="rounded-md border border-gray-300 px-3 py-2 font-medium text-gray-700 hover:bg-gray-50 lg:hidden"
             >
               ☰
             </button>
 
             <div className="min-w-0">
-              <h2 className="truncate text-xl font-black sm:text-2xl">
+              <h2 className="truncate text-xl font-semibold text-gray-900 sm:text-2xl">
                 Centro de Decisión UrbanFlow
               </h2>
               <p className={`text-xs sm:text-sm ${mutedText}`}>
@@ -205,66 +204,62 @@ export default function SuperDashboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={toggleTheme}
-                className={`rounded-xl border px-4 py-2 text-lg font-bold transition ${
-                  isDark
-                    ? 'border-slate-700 bg-slate-900 hover:bg-slate-800'
-                    : 'border-slate-300 bg-white hover:bg-slate-100'
-                }`}
-              >
-                {isDark ? '☀️' : '🌙'}
-              </button>
-
               <UserButton afterSignOutUrl="/" />
             </div>
           </div>
         </header>
 
-        {/* Menú de navegación para superadmin */}
-        <div className="px-4 sm:px-6">
-          <div className="mb-6 flex gap-3 flex-wrap border-b border-white/10 pb-4">
-            <button
-              onClick={() => window.location.href = '/superadmin'}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition ${
-                window.location.pathname.startsWith('/superadmin')
-                  ? 'bg-violet-600 text-white'
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-            >
-              👑 Superadmin
-            </button>
-            <button
-              onClick={() => window.location.href = '/municipality/admin'}
-              className="px-4 py-2 rounded-xl text-sm font-bold bg-white/10 text-white hover:bg-white/20"
-            >
-              🏛️ Admin
-            </button>
-            <button
-              onClick={() => window.location.href = '/municipality/operator'}
-              className="px-4 py-2 rounded-xl text-sm font-bold bg-white/10 text-white hover:bg-white/20"
-            >
-              👷 Operador
-            </button>
-            <button
-              onClick={() => window.location.href = '/'}
-              className="px-4 py-2 rounded-xl text-sm font-bold bg-white/10 text-white hover:bg-white/20"
-            >
-              🧑 Ciudadano
-            </button>
-          </div>
-        </div>
+        {/* Menú de navegación entre roles (CORREGIDO con navigate e íconos lucide-react) */}
+<div className="px-4 sm:px-6">
+  <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-200 pb-4">
+    <button
+      onClick={() => navigate('/superadmin')}
+      className={`rounded-md px-4 py-2 text-sm font-medium transition flex items-center gap-2 ${
+        window.location.pathname.startsWith('/superadmin')
+          ? 'bg-blue-600 text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}
+    >
+      <Crown size={16} />
+      Superadmin
+    </button>
+    <button
+      onClick={() => navigate('/municipality/admin')}
+      className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 flex items-center gap-2"
+    >
+      <Building2 size={16} />
+      Admin
+    </button>
+    <button
+      onClick={() => navigate('/municipality/operator')}
+      className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 flex items-center gap-2"
+    >
+      <HardHat size={16} />
+      Operador
+    </button>
+    <button
+      onClick={() => window.location.href = '/'}
+      className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 flex items-center gap-2"
+    >
+      <User size={16} />
+      Ciudadano
+    </button>
+  </div>
+</div>
+
+
+
 
         <div className="space-y-6 p-4 sm:p-6">
           {loading && (
-            <section className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-              <p className="font-bold">Cargando datos reales del backend...</p>
+            <section className={cardBg}>
+              <p className="font-medium text-gray-700">Cargando datos reales del backend...</p>
             </section>
           )}
 
           {error && (
-            <section className="rounded-2xl border border-red-300 bg-red-50 p-5 text-red-700 shadow-sm">
-              <p className="font-bold">{error}</p>
+            <section className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
+              <p className="font-medium">{error}</p>
             </section>
           )}
 
@@ -272,23 +267,23 @@ export default function SuperDashboard() {
             <>
               {activeSection === 'panel' && (
                 <>
+                  {/* Tarjetas de resumen */}
                   <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     {stats.map((item) => (
                       <button
                         key={item.title}
                         onClick={() => setActiveSection(item.section)}
-                        className={`rounded-2xl border p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${cardBg}`}
+                        className="rounded-lg border border-gray-200 bg-white p-4 text-left shadow-none transition hover:bg-gray-50"
                       >
                         <div className="flex items-center justify-between gap-4">
                           <div>
-                            <p className={`text-sm font-bold ${isDark ? 'text-blue-200' : 'text-violet-700'}`}>
+                            <p className="text-sm font-medium text-blue-600">
                               {item.title}
                             </p>
-                            <h3 className="mt-2 text-3xl font-black">{item.value}</h3>
+                            <h3 className="mt-2 text-3xl font-bold text-gray-900">{item.value}</h3>
                             <p className={`mt-1 text-xs ${mutedText}`}>{item.subtitle}</p>
                           </div>
-
-                          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-violet-700 text-2xl">
+                          <div className="grid h-12 w-12 place-items-center rounded-lg bg-blue-600 text-2xl text-white">
                             {item.icon}
                           </div>
                         </div>
@@ -296,64 +291,66 @@ export default function SuperDashboard() {
                     ))}
                   </section>
 
+                  {/* Tarjetas de prioridad / resolución (versión suave, minimalista) */}
                   <section className="grid gap-4 lg:grid-cols-4">
-                    <div className="rounded-2xl bg-red-600 p-5 text-white shadow-sm">
-                      <p className="text-sm font-bold">Críticos</p>
-                      <h3 className="mt-2 text-3xl font-black">{criticalCount}</h3>
-                      <p className="mt-1 text-xs text-red-100">Atención inmediata</p>
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 shadow-none">
+                      <p className="text-sm font-bold text-red-800">Críticos</p>
+                      <h3 className="mt-2 text-3xl font-black text-red-900">{criticalCount}</h3>
+                      <p className="mt-1 text-xs text-red-700">Atención inmediata</p>
                     </div>
 
-                    <div className="rounded-2xl bg-orange-500 p-5 text-white shadow-sm">
-                      <p className="text-sm font-bold">Alta prioridad</p>
-                      <h3 className="mt-2 text-3xl font-black">{highCount}</h3>
-                      <p className="mt-1 text-xs text-orange-100">Requieren seguimiento</p>
+                    <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 shadow-none">
+                      <p className="text-sm font-bold text-orange-800">Alta prioridad</p>
+                      <h3 className="mt-2 text-3xl font-black text-orange-900">{highCount}</h3>
+                      <p className="mt-1 text-xs text-orange-700">Requieren seguimiento</p>
                     </div>
 
-                    <div className="rounded-2xl bg-yellow-500 p-5 text-slate-950 shadow-sm">
-                      <p className="text-sm font-bold">Pendientes</p>
-                      <h3 className="mt-2 text-3xl font-black">{pendingCount}</h3>
-                      <p className="mt-1 text-xs">Backlog operativo</p>
+                    <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 shadow-none">
+                      <p className="text-sm font-bold text-yellow-800">Pendientes</p>
+                      <h3 className="mt-2 text-3xl font-black text-yellow-900">{pendingCount}</h3>
+                      <p className="mt-1 text-xs text-yellow-700">Backlog operativo</p>
                     </div>
 
-                    <div className="rounded-2xl bg-emerald-600 p-5 text-white shadow-sm">
-                      <p className="text-sm font-bold">Resolución</p>
-                      <h3 className="mt-2 text-3xl font-black">{resolutionRate}%</h3>
-                      <p className="mt-1 text-xs text-emerald-100">Reportes resueltos</p>
+                    <div className="rounded-lg border border-green-200 bg-green-50 p-4 shadow-none">
+                      <p className="text-sm font-bold text-green-800">Resolución</p>
+                      <h3 className="mt-2 text-3xl font-black text-green-900">{resolutionRate}%</h3>
+                      <p className="mt-1 text-xs text-green-700">Reportes resueltos</p>
                     </div>
                   </section>
 
+                  {/* Detalle de estados, prioridades y categorías */}
                   <section className="grid gap-6 xl:grid-cols-3">
-                    <div className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                      <h3 className="text-lg font-black">Reportes por estado</h3>
+                    <div className={cardBg}>
+                      <h3 className="text-lg font-bold text-gray-900">Reportes por estado</h3>
                       <div className="mt-4 space-y-3">
                         {dashboard.graficos.reportesPorEstado.map((item) => (
                           <div key={item._id} className="flex items-center justify-between">
-                            <span className="capitalize">{item._id}</span>
-                            <strong>{item.total}</strong>
+                            <span className="capitalize text-gray-700">{item._id}</span>
+                            <strong className="text-gray-900">{item.total}</strong>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                      <h3 className="text-lg font-black">Reportes por prioridad</h3>
+                    <div className={cardBg}>
+                      <h3 className="text-lg font-bold text-gray-900">Reportes por prioridad</h3>
                       <div className="mt-4 space-y-3">
                         {dashboard.graficos.reportesPorPrioridad.map((item) => (
                           <div key={item._id} className="flex items-center justify-between">
-                            <span className="capitalize">{item._id}</span>
-                            <strong>{item.total}</strong>
+                            <span className="capitalize text-gray-700">{item._id}</span>
+                            <strong className="text-gray-900">{item.total}</strong>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                      <h3 className="text-lg font-black">Categorías IA</h3>
+                    <div className={cardBg}>
+                      <h3 className="text-lg font-bold text-gray-900">Categorías IA</h3>
                       <div className="mt-4 space-y-3">
                         {dashboard.graficos.reportesPorCategoria.slice(0, 6).map((item) => (
                           <div key={item._id} className="flex items-center justify-between">
-                            <span className="capitalize">{item._id || 'sin categoría'}</span>
-                            <strong>{item.total}</strong>
+                            <span className="capitalize text-gray-700">{item._id || 'sin categoría'}</span>
+                            <strong className="text-gray-900">{item.total}</strong>
                           </div>
                         ))}
                       </div>
@@ -363,22 +360,22 @@ export default function SuperDashboard() {
               )}
 
               {activeSection === 'clientes' && (
-                <section className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                  <h3 className="text-2xl font-black">Gestión de Clientes</h3>
+                <section className={cardBg}>
+                  <h3 className="text-2xl font-bold text-gray-900">Gestión de Clientes</h3>
                   <p className={`mt-2 ${mutedText}`}>
                     Organizaciones reales conectadas a UrbanFlow, con localización y acceso directo al mapa.
                   </p>
 
                   <div className="mt-6">
-                  <SuperMap clientes={clientes} />
+                    <SuperMap clientes={clientes} />
                   </div>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {clientes.map((cliente) => (
-                      <article key={cliente._id} className={`rounded-2xl border p-5 ${softCardBg}`}>
+                      <article key={cliente._id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-none">
                         <div className="flex items-center justify-between gap-3">
-                          <h4 className="font-black">{cliente.nombre}</h4>
-                          <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
+                          <h4 className="font-bold text-gray-900">{cliente.nombre}</h4>
+                          <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-medium text-white">
                             Activo
                           </span>
                         </div>
@@ -387,7 +384,7 @@ export default function SuperDashboard() {
                           {cliente.tipo.replace('_', ' ')}
                         </p>
 
-                        <p className="mt-3 text-sm font-semibold">
+                        <p className="mt-3 text-sm font-semibold text-gray-700">
                           {cliente.localidad}, {cliente.provincia}, {cliente.pais}
                         </p>
 
@@ -399,7 +396,7 @@ export default function SuperDashboard() {
                           href={`https://www.openstreetmap.org/?mlat=${cliente.latitud}&mlon=${cliente.longitud}#map=15/${cliente.latitud}/${cliente.longitud}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-4 inline-block rounded-xl bg-violet-700 px-4 py-2 text-sm font-bold text-white"
+                          className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                         >
                           Ver georreferencia
                         </a>
@@ -409,60 +406,59 @@ export default function SuperDashboard() {
                 </section>
               )}
 
-              {activeSection === 'usuarios' && (
-                <section className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                  <h3 className="text-2xl font-black">Usuarios y Roles</h3>
-                  <p className={`mt-2 ${mutedText}`}>
-                    Lectura operativa de usuarios reales registrados en la base.
-                  </p>
+              
+{activeSection === 'usuarios' && (
+  <section className={cardBg}>
+    <h3 className="text-2xl font-bold text-gray-900">Usuarios y Roles</h3>
+    <p className={`mt-2 ${mutedText}`}>
+      Lectura operativa de usuarios reales registrados en la base.
+    </p>
 
-                  <div className="mt-6 overflow-x-auto">
-                    <table className="w-full min-w-225 text-left text-sm">
-                      <thead>
-                        <tr className={`border-b ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-                          <th className="py-3">Usuario</th>
-                          <th>Email</th>
-                          <th>Rol</th>
-                          <th>Cliente</th>
-                          <th>Localidad</th>
-                          <th>Estado</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {usuarios.slice(0, 80).map((usuario) => (
-                          <tr key={usuario._id} className={`border-b ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-                            <td className="py-4 font-semibold">
-                              {[usuario.nombre, usuario.apellido].filter(Boolean).join(' ') || 'Sin nombre'}
-                            </td>
-                            <td>{usuario.email}</td>
-                            <td className="capitalize">{usuario.rol}</td>
-                            <td>{usuario.clienteNombre || 'UrbanFlow'}</td>
-                            <td>{usuario.localidad || '-'}</td>
-                            <td>
-                              <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
-                                {usuario.activo === false ? 'Inactivo' : 'Activo'}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </section>
-              )}
-
+    <div className="mt-6 overflow-x-auto">
+      <table className="w-full min-w-[225px] text-left text-sm">
+        <thead>
+          <tr className="border-b border-gray-200">
+            <th className="py-3">Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Cliente</th>
+            <th>Localidad</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {usuarios.slice(0, 80).map((usuario) => (
+            <tr key={usuario._id} className="border-b border-gray-200 hover:bg-gray-50">
+              <td className="py-4 font-semibold text-gray-900">
+                {[usuario.nombre, usuario.apellido].filter(Boolean).join(' ') || 'Sin nombre'}
+              </td>
+              <td className="text-gray-700">{usuario.email}</td>
+              <td className="capitalize text-gray-700">{usuario.rol}</td>
+              <td className="text-gray-700">{usuario.clienteNombre || 'UrbanFlow'}</td>
+              <td className="text-gray-700">{usuario.localidad || '-'}</td>
+              <td>
+                <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-medium text-white">
+                  {usuario.activo === false ? 'Inactivo' : 'Activo'}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+)}
               {activeSection === 'incidentes' && (
-                <section className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                  <h3 className="text-2xl font-black">Centro Operativo de Incidentes</h3>
+                <section className={cardBg}>
+                  <h3 className="text-2xl font-bold text-gray-900">Centro Operativo de Incidentes</h3>
                   <p className={`mt-2 ${mutedText}`}>
                     Incidentes reales con prioridad, estado, categoría y georreferencia operativa.
                   </p>
 
                   <div className="mt-6 overflow-x-auto">
-                    <table className="w-full min-w-275 text-left text-sm">
+                    <table className="w-full min-w-[275px] text-left text-sm">
                       <thead>
-                        <tr className={`border-b ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+                        <tr className="border-b border-gray-200">
                           <th className="py-3">Título</th>
                           <th>Cliente</th>
                           <th>Estado</th>
@@ -476,21 +472,21 @@ export default function SuperDashboard() {
 
                       <tbody>
                         {reportes.slice(0, 100).map((reporte) => (
-                          <tr key={reporte._id} className={`border-b ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-                            <td className="py-4 font-semibold">{reporte.titulo}</td>
-                            <td>{reporte.clienteNombre || '-'}</td>
-                            <td className="capitalize">{reporte.estado}</td>
-                            <td className="capitalize">{reporte.prioridad}</td>
-                            <td className="capitalize">{reporte.categoria_asignada_por_ia || 'sin categoría'}</td>
-                            <td>{reporte.localidad || '-'}</td>
-                            <td>{new Date(reporte.fecha_hora).toLocaleString('es-AR')}</td>
+                          <tr key={reporte._id} className="border-b border-gray-200 hover:bg-gray-50">
+                            <td className="py-4 font-semibold text-gray-900">{reporte.titulo}</td>
+                            <td className="text-gray-700">{reporte.clienteNombre || '-'}</td>
+                            <td className="capitalize text-gray-700">{reporte.estado}</td>
+                            <td className="capitalize text-gray-700">{reporte.prioridad}</td>
+                            <td className="capitalize text-gray-700">{reporte.categoria_asignada_por_ia || 'sin categoría'}</td>
+                            <td className="text-gray-700">{reporte.localidad || '-'}</td>
+                            <td className="text-gray-700">{new Date(reporte.fecha_hora).toLocaleString('es-AR')}</td>
                             <td>
                               {reporte.latitud && reporte.longitud ? (
                                 <a
                                   href={`https://www.openstreetmap.org/?mlat=${reporte.latitud}&mlon=${reporte.longitud}#map=16/${reporte.latitud}/${reporte.longitud}`}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="rounded-xl bg-violet-700 px-3 py-2 text-xs font-bold text-white"
+                                  className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
                                 >
                                   Ver
                                 </a>
@@ -507,28 +503,28 @@ export default function SuperDashboard() {
               )}
 
               {activeSection === 'informes' && (
-                <section className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                  <h3 className="text-2xl font-black">Informes Ejecutivos</h3>
+                <section className={cardBg}>
+                  <h3 className="text-2xl font-bold text-gray-900">Informes Ejecutivos</h3>
 
                   <div className="mt-6 grid gap-4 lg:grid-cols-3">
-                    <div className={`rounded-2xl border p-5 ${softCardBg}`}>
-                      <p className="font-black">Situación actual</p>
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-none">
+                      <p className="font-bold text-gray-900">Situación actual</p>
                       <p className={`mt-2 text-sm ${mutedText}`}>
                         Hay {dashboard.resumen.totalReportes} incidentes registrados, con{' '}
                         {criticalCount + highCount} casos de prioridad alta o crítica.
                       </p>
                     </div>
 
-                    <div className={`rounded-2xl border p-5 ${softCardBg}`}>
-                      <p className="font-black">Foco operativo</p>
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-none">
+                      <p className="font-bold text-gray-900">Foco operativo</p>
                       <p className={`mt-2 text-sm ${mutedText}`}>
                         La categoría más frecuente es {mostFrequentCategory?._id || 'sin datos'},
                         con {mostFrequentCategory?.total || 0} reportes.
                       </p>
                     </div>
 
-                    <div className={`rounded-2xl border p-5 ${softCardBg}`}>
-                      <p className="font-black">Recomendación</p>
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-none">
+                      <p className="font-bold text-gray-900">Recomendación</p>
                       <p className={`mt-2 text-sm ${mutedText}`}>
                         Priorizar incidentes críticos, pendientes y zonas con acumulación de reportes.
                       </p>
@@ -538,44 +534,44 @@ export default function SuperDashboard() {
               )}
 
               {activeSection === 'analitica' && (
-                <section className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                  <h3 className="text-2xl font-black">Analítica Inteligente</h3>
+                <section className={cardBg}>
+                  <h3 className="text-2xl font-bold text-gray-900">Analítica Inteligente</h3>
                   <p className={`mt-2 ${mutedText}`}>
                     Lectura comparativa para detectar saturación operativa.
                   </p>
 
                   <div className="mt-6 grid gap-6 xl:grid-cols-3">
-                    <div className={`rounded-2xl border p-5 ${softCardBg}`}>
-                      <h4 className="font-black">Estados</h4>
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-none">
+                      <h4 className="font-bold text-gray-900">Estados</h4>
                       <div className="mt-4 space-y-3">
                         {dashboard.graficos.reportesPorEstado.map((item) => (
                           <div key={item._id} className="flex justify-between">
-                            <span className="capitalize">{item._id}</span>
-                            <strong>{item.total}</strong>
+                            <span className="capitalize text-gray-700">{item._id}</span>
+                            <strong className="text-gray-900">{item.total}</strong>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className={`rounded-2xl border p-5 ${softCardBg}`}>
-                      <h4 className="font-black">Prioridades</h4>
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-none">
+                      <h4 className="font-bold text-gray-900">Prioridades</h4>
                       <div className="mt-4 space-y-3">
                         {dashboard.graficos.reportesPorPrioridad.map((item) => (
                           <div key={item._id} className="flex justify-between">
-                            <span className="capitalize">{item._id}</span>
-                            <strong>{item.total}</strong>
+                            <span className="capitalize text-gray-700">{item._id}</span>
+                            <strong className="text-gray-900">{item.total}</strong>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className={`rounded-2xl border p-5 ${softCardBg}`}>
-                      <h4 className="font-black">Categorías</h4>
+                    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-none">
+                      <h4 className="font-bold text-gray-900">Categorías</h4>
                       <div className="mt-4 space-y-3">
                         {dashboard.graficos.reportesPorCategoria.slice(0, 8).map((item) => (
                           <div key={item._id} className="flex justify-between">
-                            <span className="capitalize">{item._id || 'sin categoría'}</span>
-                            <strong>{item.total}</strong>
+                            <span className="capitalize text-gray-700">{item._id || 'sin categoría'}</span>
+                            <strong className="text-gray-900">{item.total}</strong>
                           </div>
                         ))}
                       </div>
@@ -585,23 +581,23 @@ export default function SuperDashboard() {
               )}
 
               {activeSection === 'configuracion' && (
-                <section className={`rounded-2xl border p-5 shadow-sm ${cardBg}`}>
-                  <h3 className="text-2xl font-black">Configuración del Sistema</h3>
+                <section className={cardBg}>
+                  <h3 className="text-2xl font-bold text-gray-900">Configuración del Sistema</h3>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    <div className="rounded-2xl bg-emerald-600 p-5 text-white">
-                      <p className="text-sm font-bold">Backend</p>
-                      <h4 className="mt-2 text-2xl font-black">Conectado</h4>
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-none">
+                      <p className="text-sm font-medium text-gray-700">Backend</p>
+                      <h4 className="mt-2 text-2xl font-bold text-gray-900">Conectado</h4>
                     </div>
 
-                    <div className="rounded-2xl bg-emerald-600 p-5 text-white">
-                      <p className="text-sm font-bold">MongoDB Atlas</p>
-                      <h4 className="mt-2 text-2xl font-black">Operativo</h4>
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-none">
+                      <p className="text-sm font-medium text-gray-700">MongoDB Atlas</p>
+                      <h4 className="mt-2 text-2xl font-bold text-gray-900">Operativo</h4>
                     </div>
 
-                    <div className="rounded-2xl bg-violet-700 p-5 text-white">
-                      <p className="text-sm font-bold">IA</p>
-                      <h4 className="mt-2 text-2xl font-black">Próximo paso</h4>
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-none">
+                      <p className="text-sm font-medium text-gray-700">IA</p>
+                      <h4 className="mt-2 text-2xl font-bold text-gray-900">Próximo paso</h4>
                     </div>
                   </div>
                 </section>
