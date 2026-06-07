@@ -47,11 +47,11 @@ const DetalleReporteScreen = () => {
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'pendiente': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'en_proceso': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'resuelto': return 'bg-green-100 text-green-800 border-green-200';
-      case 'rechazado': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'pendiente': return 'bg-yellow-50 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
+      case 'en_proceso': return 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
+      case 'resuelto': return 'bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800';
+      case 'rechazado': return 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
+      default: return 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -87,8 +87,8 @@ const DetalleReporteScreen = () => {
 
   if (error || !reporte) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-6 md:p-8">
-        <p className="text-red-600">{error || 'Reporte no encontrado'}</p>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 md:p-8">
+        <p className="text-red-600 dark:text-red-400">{error || 'Reporte no encontrado'}</p>
         <button
           onClick={() => navigate('/mis-reportes')}
           className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
@@ -100,16 +100,16 @@ const DetalleReporteScreen = () => {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 md:p-8">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 md:p-8">
       <button
         onClick={() => navigate('/mis-reportes')}
-        className="mb-6 text-gray-500 hover:text-gray-700 transition flex items-center gap-2"
+        className="mb-6 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition flex items-center gap-2"
       >
         ← Volver a Mis Reportes
       </button>
 
       <div className="flex justify-between items-start flex-wrap gap-4 mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
           {reporte.titulo}
         </h1>
         <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getEstadoColor(reporte.estado)}`}>
@@ -119,57 +119,57 @@ const DetalleReporteScreen = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
-            <p className="text-gray-500 text-sm mb-1">Descripción del incidente</p>
-            <p className="text-gray-800">{reporte.columna_unica}</p>
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Descripción del incidente</p>
+            <p className="text-gray-800 dark:text-gray-200">{reporte.columna_unica}</p>
           </div>
 
           {reporte.observaciones && (
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
-              <p className="text-gray-500 text-sm mb-1">Observaciones</p>
-              <p className="text-gray-800">{reporte.observaciones}</p>
+            <div className="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Observaciones</p>
+              <p className="text-gray-800 dark:text-gray-200">{reporte.observaciones}</p>
             </div>
           )}
 
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
-            <p className="text-gray-500 text-sm mb-1">Categoría asignada por IA</p>
-            <p className="text-gray-800">
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Categoría asignada por IA</p>
+            <p className="text-gray-800 dark:text-gray-200">
               {reporte.categoria_asignada_por_ia || 'Pendiente de clasificar'}
             </p>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
-            <p className="text-gray-500 text-sm mb-1">Dirección</p>
-            <p className="text-gray-800">{reporte.direccion}</p>
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Dirección</p>
+            <p className="text-gray-800 dark:text-gray-200">{reporte.direccion}</p>
             {reporte.latitud !== 0 && reporte.longitud !== 0 && (
               <a
                 href={`https://www.google.com/maps?q=${reporte.latitud},${reporte.longitud}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 text-sm mt-2 inline-block hover:underline"
+                className="text-blue-600 dark:text-blue-400 text-sm mt-2 inline-block hover:underline"
               >
                 Ver en Google Maps →
               </a>
             )}
           </div>
 
-          <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
-            <p className="text-gray-500 text-sm mb-1">Fecha y hora</p>
-            <p className="text-gray-800">{formatearFecha(reporte.fecha_hora)}</p>
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Fecha y hora</p>
+            <p className="text-gray-800 dark:text-gray-200">{formatearFecha(reporte.fecha_hora)}</p>
           </div>
         </div>
       </div>
 
       {reporte.archivo_url && (
-        <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
-          <p className="text-gray-500 text-sm mb-2">📎 Archivo adjunto</p>
+        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+          <p className="text-gray-500 dark:text-gray-400 text-sm mb-2">📎 Archivo adjunto</p>
           <a 
             href={reporte.archivo_url} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline text-sm flex items-center gap-2"
+            className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-2"
           >
             🔗 Ver archivo adjunto (foto/video)
           </a>

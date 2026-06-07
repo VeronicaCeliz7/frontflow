@@ -7,15 +7,17 @@ const rows = [
 
 export default function SuperIncidentsTable() {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-none">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-lg font-black text-slate-900 dark:text-white">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
             Incidentes recientes
           </h3>
-          <p className="text-sm text-slate-500">Vista global de todos los clientes.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Vista global de todos los clientes.
+          </p>
         </div>
-        <button className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-bold text-white hover:bg-violet-700">
+        <button className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
           Exportar
         </button>
       </div>
@@ -23,7 +25,7 @@ export default function SuperIncidentsTable() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
-            <tr className="border-b border-slate-200 text-slate-500 dark:border-slate-800">
+            <tr className="border-b border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400">
               <th className="py-3">ID</th>
               <th>Título</th>
               <th>Cliente</th>
@@ -33,9 +35,9 @@ export default function SuperIncidentsTable() {
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row[0]} className="border-b border-slate-100 dark:border-slate-800">
+              <tr key={row[0]} className="border-b border-gray-100 dark:border-gray-800">
                 {row.map((cell, i) => (
-                  <td key={i} className="py-4 text-slate-700 dark:text-slate-300">
+                  <td key={i} className="py-4 text-gray-700 dark:text-gray-300">
                     {cell}
                   </td>
                 ))}

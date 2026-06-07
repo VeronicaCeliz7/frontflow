@@ -57,10 +57,10 @@ function AdminHome() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Bienvenido, {nombreAdmin || 'Administrador'} 👋
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
           Administrás: Municipalidad de Villa María
         </p>
       </div>
@@ -73,20 +73,20 @@ function AdminHome() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <h2 className="font-semibold text-gray-900 text-sm mb-3">Incidentes por categoría</h2>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-3">Incidentes por categoría</h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={barData} barSize={32}>
               <XAxis dataKey="categoria" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis hide />
-              <Tooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: 'none' }} />
+              <Tooltip contentStyle={{ borderRadius: 8, border: 'none', boxShadow: 'none', backgroundColor: '#fff', color: '#111' }} />
               <Bar dataKey="cantidad" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <h2 className="font-semibold text-gray-900 text-sm mb-3">Incidentes por estado</h2>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-3">Incidentes por estado</h2>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value">
@@ -99,14 +99,14 @@ function AdminHome() {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-          <h2 className="font-semibold text-gray-900 text-sm">Incidentes recientes</h2>
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Incidentes recientes</h2>
           <div className="flex gap-2 flex-wrap">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-xs border border-gray-300 rounded-md px-3 py-1.5 text-gray-600 bg-white"
+              className="text-xs border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800"
             >
               <option value="">Todos los estados</option>
               <option value="open">Abierto</option>
@@ -116,7 +116,7 @@ function AdminHome() {
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="text-xs border border-gray-300 rounded-md px-3 py-1.5 text-gray-600 bg-white"
+              className="text-xs border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800"
             >
               <option value="">Todas las prioridades</option>
               <option value="baja">Baja</option>
@@ -141,15 +141,15 @@ function AdminLayout() {
   const role = user?.publicMetadata?.role
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} role="admin" />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-500 hover:text-gray-700">
+        <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <Menu size={20} />
           </button>
 
-          {/* Menú de navegación con íconos lucide-react */}
+          {/* Menú de navegación con íconos lucide-react y modo oscuro */}
           {(role === 'admin' || role === 'superadmin') && (
             <div className="flex gap-2 ml-4">
               <button
@@ -157,7 +157,7 @@ function AdminLayout() {
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
                   location.pathname === '/municipality/admin' || location.pathname === '/municipality/admin/'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
                 <Building2 size={14} />
@@ -165,14 +165,14 @@ function AdminLayout() {
               </button>
               <button
                 onClick={() => navigate('/municipality/operator')}
-                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <HardHat size={14} />
                 Operador
               </button>
               <button
                 onClick={() => navigate('/')}
-                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <User size={14} />
                 Ciudadano
@@ -184,7 +184,7 @@ function AdminLayout() {
           {role === 'superadmin' && (
             <button
               onClick={() => navigate('/superadmin')}
-              className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5 ml-auto"
+              className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5 ml-auto"
             >
               <Crown size={14} />
               Superadministrador
@@ -194,7 +194,7 @@ function AdminLayout() {
           {/* Etiqueta de rol */}
           {role !== 'superadmin' && (
             <div className="flex items-center gap-2 ml-auto">
-              <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+              <span className="text-xs font-medium bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full">
                 Administrador
               </span>
             </div>

@@ -10,7 +10,8 @@ import DetalleReporteScreen from './components/DetalleReporteScreen'
 import AdminDashboard from './features/municipality/pages/AdminDashboard'
 import OperatorDashboard from './features/municipality/pages/OperatorDashboard'
 import SuperDashboard from './components/super/SuperDashboard'
-import { ThemeProvider } from './components/context/ThemeContext'
+import { ThemeProvider } from './context/ThemeContext'
+import { ThemeToggle } from './components/ThemeToggle'
 import { Building2, HardHat, Crown, User } from 'lucide-react'
 
 // ============================================
@@ -28,36 +29,37 @@ function PageWrapper({ children, wide = false }: { children: React.ReactNode; wi
   const isOperator = role === 'operator' || role === 'operador' || roles.includes('operator') || roles.includes('operador')
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="fixed top-0 left-0 right-0 z-20 bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
+      <header className="fixed top-0 left-0 right-0 z-20 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
         <div className="px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center max-w-7xl mx-auto">
           <div className="flex gap-2">
             {(isAdmin || isSuperAdmin) && (
-              <button onClick={() => navigate('/municipality/admin')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5">
+              <button onClick={() => navigate('/municipality/admin')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5">
                 <Building2 size={14} />
                 Administrador
               </button>
             )}
             {(isOperator || isSuperAdmin) && (
-              <button onClick={() => navigate('/municipality/operator')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5">
+              <button onClick={() => navigate('/municipality/operator')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5">
                 <HardHat size={14} />
                 Operador
               </button>
             )}
             {isSuperAdmin && (
-              <button onClick={() => navigate('/superadmin')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5">
+              <button onClick={() => navigate('/superadmin')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5">
                 <Crown size={14} />
                 Superadministrador
               </button>
             )}
             {(isAdmin || isOperator || isSuperAdmin) && (
-              <button onClick={() => navigate('/')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5">
+              <button onClick={() => navigate('/')} className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5">
                 <User size={14} />
                 Ciudadano
               </button>
             )}
           </div>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <SignedIn>
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
@@ -139,74 +141,74 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={
-          <PageWrapper>
-            <SignedOut><LoginScreen /></SignedOut>
-            <SignedIn><RoleRouter /></SignedIn>
-          </PageWrapper>
-        } />
+      <ThemeProvider>
+        <Routes>
+          <Route path="/login" element={
+            <PageWrapper>
+              <SignedOut><LoginScreen /></SignedOut>
+              <SignedIn><RoleRouter /></SignedIn>
+            </PageWrapper>
+          } />
 
-        <Route path="/sign-up" element={
-          <PageWrapper>
-            <SignedOut><SignUpScreen /></SignedOut>
-            <SignedIn><RoleRouter /></SignedIn>
-          </PageWrapper>
-        } />
+          <Route path="/sign-up" element={
+            <PageWrapper>
+              <SignedOut><SignUpScreen /></SignedOut>
+              <SignedIn><RoleRouter /></SignedIn>
+            </PageWrapper>
+          } />
 
-        <Route path="/" element={
-          <PageWrapper>
-            <SignedOut><LoginScreen /></SignedOut>
-            <SignedIn><RoleRouter /></SignedIn>
-          </PageWrapper>
-        } />
+          <Route path="/" element={
+            <PageWrapper>
+              <SignedOut><LoginScreen /></SignedOut>
+              <SignedIn><RoleRouter /></SignedIn>
+            </PageWrapper>
+          } />
 
-        <Route path="/nuevo-reporte" element={
-          <PageWrapper wide>
+          <Route path="/nuevo-reporte" element={
+            <PageWrapper wide>
+              <ProtectedRoute>
+                <CrearReporteScreen />
+              </ProtectedRoute>
+            </PageWrapper>
+          } />
+
+          <Route path="/mis-reportes" element={
+            <PageWrapper wide>
+              <ProtectedRoute>
+                <MisReportesScreen />
+              </ProtectedRoute>
+            </PageWrapper>
+          } />
+
+          <Route path="/reporte/:id" element={
+            <PageWrapper>
+              <ProtectedRoute>
+                <DetalleReporteScreen />
+              </ProtectedRoute>
+            </PageWrapper>
+          } />
+
+          <Route path="/municipality/admin/*" element={
             <ProtectedRoute>
-              <CrearReporteScreen />
+              <AdminDashboard />
             </ProtectedRoute>
-          </PageWrapper>
-        } />
+          } />
 
-        <Route path="/mis-reportes" element={
-          <PageWrapper wide>
+          <Route path="/municipality/operator/*" element={
             <ProtectedRoute>
-              <MisReportesScreen />
+              <OperatorDashboard />
             </ProtectedRoute>
-          </PageWrapper>
-        } />
+          } />
 
-        <Route path="/reporte/:id" element={
-          <PageWrapper>
+          <Route path="/superadmin/*" element={
             <ProtectedRoute>
-              <DetalleReporteScreen />
-            </ProtectedRoute>
-          </PageWrapper>
-        } />
-
-        <Route path="/municipality/admin/*" element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/municipality/operator/*" element={
-          <ProtectedRoute>
-            <OperatorDashboard />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/superadmin/*" element={
-          <ProtectedRoute>
-            <ThemeProvider>
               <SuperDashboard />
-            </ThemeProvider>
-          </ProtectedRoute>
-        } />
+            </ProtectedRoute>
+          } />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }
