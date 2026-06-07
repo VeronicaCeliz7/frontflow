@@ -63,10 +63,10 @@ function OperatorHome() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Hola, {nombreOperador || 'Operador'} 👋
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
           Gestión de incidentes del municipio: {municipio}
         </p>
       </div>
@@ -78,9 +78,9 @@ function OperatorHome() {
         <StatCard title="Críticos" value={criticos} icon={AlertTriangle} color="red" subtitle="Alta prioridad" />
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-gray-900 text-sm">
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
             {vista === 'pendientes'
               ? 'Incidentes pendientes del municipio'
               : 'Mis incidentes asignados'}
@@ -91,7 +91,7 @@ function OperatorHome() {
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
                 vista === 'pendientes'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
               Pendientes
@@ -101,7 +101,7 @@ function OperatorHome() {
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition ${
                 vista === 'mios'
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
               Mis incidentes
@@ -110,30 +110,30 @@ function OperatorHome() {
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-gray-500">Cargando incidentes...</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Cargando incidentes...</p>
         ) : incidents.length === 0 ? (
-          <p className="text-sm text-gray-500">No hay incidentes para mostrar.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">No hay incidentes para mostrar.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Título</th>
-                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Dirección</th>
-                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Estado</th>
-                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Municipio</th>
-                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Operador</th>
-                  <th className="text-left py-3 px-2 text-gray-500 font-medium">Acción</th>
+                <tr className="border-b border-gray-200 dark:border-gray-800">
+                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Título</th>
+                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Dirección</th>
+                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Estado</th>
+                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Municipio</th>
+                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Operador</th>
+                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Acción</th>
                 </tr>
               </thead>
               <tbody>
                 {incidents.map((incidente: any) => (
-                  <tr key={incidente._id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-2 font-medium text-gray-900">{incidente.titulo}</td>
-                    <td className="py-3 px-2 text-gray-600">{incidente.direccion}</td>
-                    <td className="py-3 px-2 text-gray-600 capitalize">{incidente.estado}</td>
-                    <td className="py-3 px-2 text-gray-600">{incidente.municipio || '-'}</td>
-                    <td className="py-3 px-2 text-gray-600">{incidente.operadorAsignadoNombre || 'Sin asignar'}</td>
+                  <tr key={incidente._id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="py-3 px-2 font-medium text-gray-900 dark:text-gray-100">{incidente.titulo}</td>
+                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300">{incidente.direccion}</td>
+                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 capitalize">{incidente.estado}</td>
+                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300">{incidente.municipio || '-'}</td>
+                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300">{incidente.operadorAsignadoNombre || 'Sin asignar'}</td>
                     <td className="py-3 px-2">
                       {vista === 'pendientes' && incidente.estado === 'pendiente' && !incidente.operadorAsignadoId ? (
                         <button
@@ -146,7 +146,7 @@ function OperatorHome() {
                         <select
                           value={incidente.estado}
                           onChange={(e) => cambiarEstado(incidente._id, e.target.value)}
-                          className="border border-gray-300 rounded-md px-2 py-1 text-xs bg-white text-gray-700"
+                          className="border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                         >
                           <option value="pendiente">Pendiente</option>
                           <option value="en_proceso">En proceso</option>
@@ -180,12 +180,12 @@ function OperatorLayout() {
   const isOperator = role === 'operator' || role === 'operador' || roles.includes('operator') || roles.includes('operador')
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} role="operator" />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-500 hover:text-gray-700">
+        <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
             <Menu size={20} />
           </button>
 
@@ -193,7 +193,7 @@ function OperatorLayout() {
             {(isAdmin || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/municipality/admin')}
-                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <Building2 size={14} />
                 Administrador
@@ -205,7 +205,7 @@ function OperatorLayout() {
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition flex items-center gap-1.5 ${
                   location.pathname.startsWith('/municipality/operator')
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
                 <HardHat size={14} />
@@ -215,7 +215,7 @@ function OperatorLayout() {
             {(isAdmin || isOperator || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/')}
-                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <User size={14} />
                 Ciudadano
@@ -224,7 +224,7 @@ function OperatorLayout() {
             {isSuperAdmin && (
               <button
                 onClick={() => navigate('/superadmin')}
-                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <Crown size={14} />
                 Superadministrador
@@ -234,7 +234,7 @@ function OperatorLayout() {
 
           {!isSuperAdmin && (
             <div className="flex items-center gap-2 ml-auto">
-              <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+              <span className="text-xs font-medium bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full">
                 Empleado Municipal
               </span>
             </div>

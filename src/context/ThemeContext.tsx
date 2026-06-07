@@ -25,7 +25,7 @@ export function ThemeProvider({
 
     if (savedTheme) return savedTheme;
 
-    return 'dark';
+    return 'light';  // 👈 CAMBIADO a 'light'
   });
 
   useEffect(() => {
