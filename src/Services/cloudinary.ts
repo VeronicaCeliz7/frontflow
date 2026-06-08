@@ -38,3 +38,6 @@ export const subirArchivoACloudinary = async (file: File): Promise<{ url: string
     throw error;
   }
 };
+
+console.log('CLOUD NAME =', CLOUDINARY_CLOUD_NAME)
+console.log('UPLOAD PRESET =', CLOUDINARY_UPLOAD_PRESET)

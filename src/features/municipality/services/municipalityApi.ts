@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
 const getAuthHeaders = (token: string) => ({
   headers: { Authorization: `Bearer ${token}` }
@@ -27,7 +27,7 @@ export const getIncidents = async (
   if (filters.categoria) params.append('categoria', filters.categoria)
   if (filters.page) params.append('page', filters.page)
 
-  params.append('limit', filters.limit || '10')
+  
 
   const { data } = await axios.get(
     `${API_URL}/api/reportes?${params.toString()}`,

@@ -33,7 +33,7 @@ export default function UsuariosPage() {
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
   const cargarUsuarios = async () => {
     try {

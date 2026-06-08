@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
 // ============ SINCRONIZACIÓN DE USUARIO ============
 
 // Obtener el token de Clerk y sincronizar usuario con MongoDB
