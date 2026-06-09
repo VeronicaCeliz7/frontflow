@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
 import { Reporte } from '../types/reporte';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
 
 const DetalleReporteScreen = () => {
   const { id } = useParams<{ id: string }>();

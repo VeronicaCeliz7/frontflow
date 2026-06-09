@@ -21,7 +21,7 @@ export default function OperatorDetailPage() {
   const cargarReportesOperador = async () => {
     try {
       const token = await getToken()
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
       const response = await fetch(
         `${API_URL}/api/reportes?operadorId=${id}`,

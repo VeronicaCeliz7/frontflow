@@ -28,7 +28,8 @@ function OperatorHome() {
       : { operadorId }
 
   const { data, isLoading } = useIncidents(filtros)
-
+   console.log('FILTROS OPERADOR:', filtros)
+   console.log('DATA OPERADOR:', data)
   const incidents = data?.data || []
 
   const tomarIncidente = async (id: string) => {
