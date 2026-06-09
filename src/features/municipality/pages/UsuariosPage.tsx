@@ -126,69 +126,68 @@ export default function UsuariosPage() {
 
   return (
     <div className="space-y-6">
-
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Gestión de usuarios</h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Gestión de usuarios</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
           Invitá operadores y administradores a tu municipio
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
+      <div className="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-800 shadow-none">
         <div className="flex items-center gap-2 mb-5">
-          <div className="bg-blue-600 p-2 rounded-lg">
+          <div className="bg-blue-600 p-2 rounded-md">
             <UserPlus size={18} className="text-white" />
           </div>
-          <h2 className="font-semibold text-gray-700">Invitar nuevo usuario</h2>
+          <h2 className="font-semibold text-gray-700 dark:text-gray-300">Invitar nuevo usuario</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Nombre *</label>
+            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Nombre *</label>
             <input
               name="nombre"
               value={form.nombre}
               onChange={handleChange}
               placeholder="Juan"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+              className="w-full border border-gray-200 dark:border-gray-700 rounded-md px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 dark:bg-gray-800 dark:text-gray-100"
             />
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Apellido</label>
+            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Apellido</label>
             <input
               name="apellido"
               value={form.apellido}
               onChange={handleChange}
               placeholder="Pérez"
-              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+              className="w-full border border-gray-200 dark:border-gray-700 rounded-md px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 dark:bg-gray-800 dark:text-gray-100"
             />
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Email *</label>
+            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Email *</label>
             <div className="relative">
-              <Mail size={15} className="absolute left-3 top-3 text-gray-400" />
+              <Mail size={15} className="absolute left-3 top-3 text-gray-400 dark:text-gray-500" />
               <input
                 name="email"
                 type="email"
                 value={form.email}
                 onChange={handleChange}
                 placeholder="operador@municipio.gob.ar"
-                className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+                className="w-full border border-gray-200 dark:border-gray-700 rounded-md pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Rol *</label>
+            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Rol *</label>
             <div className="relative">
-              <Shield size={15} className="absolute left-3 top-3 text-gray-400" />
+              <Shield size={15} className="absolute left-3 top-3 text-gray-400 dark:text-gray-500" />
               <select
                 name="role"
                 value={form.role}
                 onChange={handleChange}
-                className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 bg-white"
+                className="w-full border border-gray-200 dark:border-gray-700 rounded-md pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 dark:bg-gray-800 dark:text-gray-100"
               >
                 <option value="operador">Operador (Empleado municipal)</option>
                 <option value="admin">Admin (Jefe de área)</option>
@@ -197,15 +196,15 @@ export default function UsuariosPage() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Municipio *</label>
+            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">Municipio *</label>
             <div className="relative">
-              <Building2 size={15} className="absolute left-3 top-3 text-gray-400" />
+              <Building2 size={15} className="absolute left-3 top-3 text-gray-400 dark:text-gray-500" />
               <input
                 name="municipio"
                 value={form.municipio}
                 onChange={handleChange}
                 placeholder="villa-maria"
-                className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-400"
+                className="w-full border border-gray-200 dark:border-gray-700 rounded-md pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
           </div>
@@ -213,10 +212,10 @@ export default function UsuariosPage() {
 
         {mensaje && (
           <div
-            className={`mt-4 px-4 py-3 rounded-xl text-sm font-medium ${
+            className={`mt-4 px-4 py-3 rounded-md text-sm font-medium ${
               mensaje.tipo === 'ok'
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : 'bg-red-50 text-red-700 border border-red-200'
+                ? 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800'
+                : 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
             }`}
           >
             {mensaje.texto}
@@ -226,55 +225,55 @@ export default function UsuariosPage() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"
+          className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
         >
           <UserPlus size={16} />
           {loading ? 'Creando usuario...' : 'Invitar usuario'}
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
+      <div className="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-800 shadow-none">
         <div className="flex items-center gap-2 mb-5">
-          <div className="bg-blue-600 p-2 rounded-lg">
+          <div className="bg-blue-600 p-2 rounded-md">
             <Users size={18} className="text-white" />
           </div>
-          <h2 className="font-semibold text-gray-700">Usuarios del municipio</h2>
+          <h2 className="font-semibold text-gray-700 dark:text-gray-300">Usuarios del municipio</h2>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left py-3 px-2 text-gray-400 font-medium">Nombre</th>
-                <th className="text-left py-3 px-2 text-gray-400 font-medium">Email</th>
-                <th className="text-left py-3 px-2 text-gray-400 font-medium">Rol</th>
-                <th className="text-left py-3 px-2 text-gray-400 font-medium">Municipio</th>
+              <tr className="border-b border-gray-200 dark:border-gray-800">
+                <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Nombre</th>
+                <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Email</th>
+                <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Rol</th>
+                <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Municipio</th>
               </tr>
             </thead>
 
             <tbody>
               {usuarios.map((u) => (
-                <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-3 px-2 font-medium text-gray-700">{u.nombre}</td>
-                  <td className="py-3 px-2 text-gray-500">{u.email}</td>
+                <tr key={u.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <td className="py-3 px-2 font-medium text-gray-700 dark:text-gray-300">{u.nombre}</td>
+                  <td className="py-3 px-2 text-gray-500 dark:text-gray-400">{u.email}</td>
                   <td className="py-3 px-2">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-semibold ${
                         u.role === 'admin'
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-green-100 text-green-700'
+                          ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400'
+                          : 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400'
                       }`}
                     >
                       {u.role === 'admin' ? 'Administrador' : 'Operador'}
                     </span>
                   </td>
-                  <td className="py-3 px-2 text-gray-500">{u.municipio}</td>
+                  <td className="py-3 px-2 text-gray-500 dark:text-gray-400">{u.municipio}</td>
                 </tr>
               ))}
 
               {usuarios.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-6 text-center text-gray-400">
+                  <td colSpan={4} className="py-6 text-center text-gray-400 dark:text-gray-500">
                     Todavía no hay usuarios cargados para este municipio.
                   </td>
                 </tr>
@@ -283,7 +282,6 @@ export default function UsuariosPage() {
           </table>
         </div>
       </div>
-
     </div>
   )
 }

@@ -88,10 +88,10 @@ function AdminHome() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Bienvenido, {nombreAdmin || 'Administrador'} 👋
         </h1>
-        <p className="text-gray-500 text-sm mt-0.5">
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
           Administrás: Municipalidad de Villa María
         </p>
       </div>
@@ -201,7 +201,7 @@ function AdminHome() {
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <h2 className="font-semibold text-gray-900 text-sm">
             Incidentes recientes
@@ -211,7 +211,7 @@ function AdminHome() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-xs border border-gray-300 rounded-md px-3 py-1.5 text-gray-600 bg-white"
+              className="text-xs border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800"
             >
               <option value="">Todos los estados</option>
               <option value="pendiente">Pendiente</option>
@@ -223,7 +223,7 @@ function AdminHome() {
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="text-xs border border-gray-300 rounded-md px-3 py-1.5 text-gray-600 bg-white"
+              className="text-xs border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800"
             >
               <option value="">Todas las prioridades</option>
               <option value="baja">Baja</option>
@@ -268,7 +268,7 @@ function AdminLayout() {
     roles.includes('operador')
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} role="admin" />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -288,7 +288,7 @@ function AdminLayout() {
                   location.pathname === '/municipality/admin' ||
                   location.pathname === '/municipality/admin/'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }`}
               >
                 <Building2 size={14} />
@@ -299,7 +299,7 @@ function AdminLayout() {
             {(isOperator || isAdmin || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/municipality/operator')}
-                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <HardHat size={14} />
                 Operador
@@ -309,7 +309,7 @@ function AdminLayout() {
             {(isAdmin || isOperator || isSuperAdmin) && (
               <button
                 onClick={() => navigate('/')}
-                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <User size={14} />
                 Ciudadano
@@ -329,7 +329,7 @@ function AdminLayout() {
 
           {!isSuperAdmin && (
             <div className="flex items-center gap-2 ml-auto">
-              <span className="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+              <span className="text-xs font-medium bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full">
                 Administrador
               </span>
             </div>

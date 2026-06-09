@@ -9,8 +9,8 @@ import UrbanFlowLogo from './UrbanFlowLogo';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
 
-// Clase unificada para todos los inputs (minimalista)
-const inputClassName = "w-full px-4 py-2 bg-white border border-gray-300 rounded-md text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors";
+// Clase unificada para todos los inputs (con soporte oscuro)
+const inputClassName = "w-full px-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors";
 
 const CrearReporteScreen = () => {
   const navigate = useNavigate();
@@ -127,19 +127,19 @@ const CrearReporteScreen = () => {
   });
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 md:p-8">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 md:p-8">
       <div className="flex flex-col items-center mb-6">
         <UrbanFlowLogo size="large" showText={true} />
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mt-4">
           Reportar Incidente
         </h1>
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-gray-400">
           Contanos qué está pasando en tu ciudad
         </p>
       </div>
       
       {error && (
-        <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+        <div className="mb-6 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-md text-red-600 dark:text-red-400 text-sm">
           {error}
         </div>
       )}
@@ -150,7 +150,7 @@ const CrearReporteScreen = () => {
           <div className="space-y-5">
             {/* Selector de categoría */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">
+              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                 Categoría del incidente *
               </label>
               <select
@@ -176,7 +176,7 @@ const CrearReporteScreen = () => {
 
             {/* Título */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">
+              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                 Título del incidente *
               </label>
               <input
@@ -190,7 +190,7 @@ const CrearReporteScreen = () => {
             
             {/* Descripción */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">
+              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                 Describe el incidente *
               </label>
               <textarea
@@ -204,7 +204,7 @@ const CrearReporteScreen = () => {
             
             {/* Observaciones */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">
+              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                 Observaciones adicionales
               </label>
               <textarea
@@ -218,12 +218,12 @@ const CrearReporteScreen = () => {
             
             {/* Fecha y hora - automática */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">
+              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                 📅 Fecha y hora del reporte
               </label>
-              <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                <p className="text-gray-600 text-sm">✅ Se registrará automáticamente al enviar</p>
-                <p className="text-gray-400 text-xs mt-1">
+              <div className="p-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+                <p className="text-gray-600 dark:text-gray-300 text-sm">✅ Se registrará automáticamente al enviar</p>
+                <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
                   📍 Fecha: {fechaFormateada} - ⏰ Hora: {horaFormateada} hs
                 </p>
               </div>
@@ -231,7 +231,7 @@ const CrearReporteScreen = () => {
             
             {/* Subida de archivos */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">
+              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                 Foto o video * (obligatorio)
               </label>
               <FileUpload
@@ -256,18 +256,18 @@ const CrearReporteScreen = () => {
           {/* Columna derecha - Mapa + Dirección manual */}
           <div className="space-y-5">
             <div>
-              <label className="block text-gray-700 font-medium mb-1">
+              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                 📍 Ubicación en el mapa * (obligatorio)
               </label>
               <MapaIncidente onUbicacionChange={setUbicacion} categoria={categoria} />
               {ubicacion && (
-                <div className="mt-2 p-2 bg-gray-50 border border-gray-200 rounded-md">
-                  <p className="text-gray-600 text-sm">✅ Ubicación seleccionada</p>
+                <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+                  <p className="text-gray-600 dark:text-gray-300 text-sm">✅ Ubicación seleccionada</p>
                 </div>
               )}
               {!ubicacion && (
-                <div className="mt-2 p-2 bg-gray-50 border border-gray-200 rounded-md">
-                  <p className="text-gray-500 text-sm">
+                <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">
                     ⚠️ La ubicación es obligatoria. Usá el botón GPS o hacé clic en el mapa.
                   </p>
                 </div>
@@ -276,7 +276,7 @@ const CrearReporteScreen = () => {
 
             {/* Dirección escrita por el usuario */}
             <div>
-              <label className="block text-gray-700 font-medium mb-1">
+              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-1">
                 📝 Dirección *
               </label>
               <input
@@ -287,7 +287,7 @@ const CrearReporteScreen = () => {
                 placeholder="Ej: Av. Libertador 3000, o 'Descampado - Ruta 8 km 42'"
                 required
               />
-              <p className="text-gray-400 text-xs mt-1">
+              <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
                 Escribí la dirección exacta o una referencia clara del lugar
               </p>
             </div>
@@ -298,7 +298,7 @@ const CrearReporteScreen = () => {
           <button
             type="button"
             onClick={() => navigate('/')}
-            className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md transition-colors"
+            className="px-6 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-md transition-colors"
           >
             Cancelar
           </button>
