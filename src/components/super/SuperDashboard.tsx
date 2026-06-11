@@ -4,6 +4,7 @@ import { UserButton } from '@clerk/clerk-react';
 import SuperSidebar from './SuperSidebar';
 import SuperMap from './SuperMap';
 import { Crown, Building2, HardHat, User } from 'lucide-react';
+import IAHeatmap from '../IAHeatmap'
 
 import {
   getSuperDashboard,
@@ -308,7 +309,12 @@ export default function SuperDashboard() {
                     </div>
                   </section>
 
-                  <section className="grid gap-6 xl:grid-cols-3">
+<section className="mt-6">
+  <IAHeatmap />
+</section>
+
+<section className="mt-6 grid gap-6 xl:grid-cols-3">
+
                     <div className={cardBg}>
                       <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Reportes por estado</h3>
                       <div className="mt-4 space-y-3">
