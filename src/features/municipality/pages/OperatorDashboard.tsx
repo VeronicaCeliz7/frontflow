@@ -20,12 +20,12 @@ function OperatorHome() {
   const municipio = (user?.publicMetadata?.municipio as string) || 'villa-maria'
   const operadorId = user?.id || ''
 
-  const [vista, setVista] = useState<'pendientes' | 'mios'>('pendientes')
-
+  const [vista, setVista] = useState<'pendientes' | 'mios'>('pendientes')    
+  
   const filtros =
-    vista === 'pendientes'
-      ? { municipio, estado: 'pendiente', sinAsignar: 'true' }
-      : { operadorId }
+  vista === 'pendientes'
+    ? { municipio, sinAsignar: 'true' }
+    : { operadorId }
 
   const { data, isLoading } = useIncidents(filtros)
    console.log('FILTROS OPERADOR:', filtros)

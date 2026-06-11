@@ -33,7 +33,7 @@ const CrearReporteScreen = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    console.log('🔥 HANDLE SUBMIT EJECUTADO');
     if (!formData.titulo.trim()) {
       setError('El título es obligatorio');
       return;
@@ -88,6 +88,9 @@ const CrearReporteScreen = () => {
         archivo_public_id: archivoPublicId,
         archivo_tipo: archivoTipo,
       };
+
+        console.log('🚀 ENVIANDO REPORTE A:', `${API_URL}/reportes`)
+        console.log('📦 DATOS REPORTE:', datos)
 
       await axios.post(`${API_URL}/reportes`, datos, {
         headers: {
@@ -236,20 +239,21 @@ const CrearReporteScreen = () => {
               </label>
               <FileUpload
                 onFileUploaded={(url, publicId, tipo) => {
-                  console.log('ARCHIVO SUBIDO:', { url, publicId, tipo })
+                   console.log('ARCHIVO SUBIDO:', { url, publicId, tipo });
 
-                  setArchivoUrl(url);
-                  setArchivoPublicId(publicId);
-                  setArchivoTipo(tipo);
-                  {archivoUrl && (
-                <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
-                  ✅ Archivo cargado correctamente
-                </div>
-                )}
+                   setArchivoUrl(url);
+                   setArchivoPublicId(publicId);
+                   setArchivoTipo(tipo);
+                   setError('');
                 }}
-               
                 onError={setError}
-              />
+               />
+
+               {archivoUrl && (
+                 <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm">
+                    ✅ Archivo cargado correctamente
+                 </div>
+               )}
             </div>
           </div>
           

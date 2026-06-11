@@ -38,7 +38,7 @@ export const getIncidents = async (
 }
 
 export const takeIncident = async (token: string, id: string) => {
-  const { data } = await axios.patch(
+  const { data } = await axios.put(
     `${API_URL}/api/reportes/${id}/tomar`,
     {},
     getAuthHeaders(token)
