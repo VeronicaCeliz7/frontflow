@@ -11,6 +11,9 @@ import { takeIncident, updateIncidentStatus } from '../services/municipalityApi'
 
 import AIInsightCard from '../../../components/AIInsightCard';
 
+import ClimaPredictivoCard from '../../../components/ClimaPredictivoCard'
+import IAHeatmap from '../../../components/IAHeatmap'
+
 const queryClient = new QueryClient()
 
 function OperatorHome() {
@@ -80,6 +83,14 @@ function OperatorHome() {
         <StatCard title="Resueltos" value={resueltos} icon={CheckCircle} color="green" subtitle="Finalizados" />
         <StatCard title="Críticos" value={criticos} icon={AlertTriangle} color="red" subtitle="Alta prioridad" />
       </div>
+
+<div className="mt-5">
+  <ClimaPredictivoCard />
+</div>
+
+<div className="mt-5">
+  <IAHeatmap />
+</div>
 
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">

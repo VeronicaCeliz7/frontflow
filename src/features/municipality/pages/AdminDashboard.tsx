@@ -35,6 +35,8 @@ import { useIncidents } from '../hooks/useIncidents'
 
 import OperadoresPage from './OperadoresPage'
 import OperatorDetailPage from './OperatorDetailPage'
+import ClimaPredictivoCard from '../../../components/ClimaPredictivoCard'
+import IAHeatmap from '../../../components/IAHeatmap'
 
 const queryClient = new QueryClient()
 
@@ -85,6 +87,8 @@ function AdminHome() {
     { name: 'Rechazados', value: rechazados }
   ].filter((item) => item.value > 0)
 
+
+  
   return (
     <div className="space-y-5">
       <div>
@@ -132,6 +136,14 @@ function AdminHome() {
           Hay {criticos} incidente(s) crítico(s) en el municipio.
         </div>
       )}
+
+<div className="mt-5">
+  <ClimaPredictivoCard />
+</div>
+
+<div className="mt-5">
+  <IAHeatmap />
+</div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="bg-white border border-gray-200 rounded-lg p-4">
