@@ -65,17 +65,48 @@ type Usuario = {
 
 type Reporte = {
   _id: string;
+
   titulo: string;
+
   clienteNombre?: string;
+
   estado: string;
+
   prioridad: string;
+
   categoria_asignada_por_ia?: string;
+
   localidad?: string;
+
   provincia?: string;
+
   pais?: string;
+
   latitud?: number;
+
   longitud?: number;
+
   fecha_hora: string;
+
+  ia_procesado?: boolean;
+
+  ai_priority_score?: number;
+
+  posible_duplicado?: boolean;
+
+  reporte_duplicado_id?: string | null;
+
+  duplicado_score?: number;
+
+  duplicado_distancia_metros?: number | null;
+
+  proveedor_ia?: string;
+
+  modelo_ia?: string;
+
+  vectorizado?: boolean;
+
+  vector_modelo?: string | null;
 };
 
 export default function SuperDashboard() {
@@ -403,6 +434,68 @@ export default function SuperDashboard() {
                   <p className={`mt-2 ${mutedText}`}>
                     Incidentes reales con prioridad, estado, categoría y georreferencia operativa.
                   </p>
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4">
+                    <p className="text-xs text-indigo-300 font-semibold">IA procesó</p>
+                    <p className="mt-2 text-3xl font-bold text-gray-100">
+                      {reportes.filter((r) => r.ia_procesado).length}
+                    </p>
+                    <p className="text-xs text-gray-400">Incidentes enriquecidos</p>
+                  </div>
+
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+                    <p className="text-xs text-red-300 font-semibold">Críticos IA</p>
+                    <p className="mt-2 text-3xl font-bold text-gray-100">
+                      {reportes.filter((r) => r.prioridad === 'critica' || r.prioridad === 'crítica').length}
+                    </p>
+                    <p className="text-xs text-gray-400">Atención inmediata</p>
+                  </div>
+
+                  <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-4">
+                    <p className="text-xs text-purple-300 font-semibold">Duplicados IA</p>
+                    <p className="mt-2 text-3xl font-bold text-gray-100">
+                      {reportes.filter((r) => r.posible_duplicado).length}
+                    </p>
+                    <p className="text-xs text-gray-400">Agrupación inteligente</p>
+                  </div>
+
+                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                    <p className="text-xs text-emerald-300 font-semibold">Vectorizados</p>
+                    <p className="mt-2 text-3xl font-bold text-gray-100">
+                      {reportes.filter((r) => r.vectorizado).length}
+                    </p>
+                    <p className="text-xs text-gray-400">Motor semántico futuro</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-xl border border-gray-700 bg-gray-900/40 p-4">
+                  <p className="text-sm font-semibold text-gray-100">
+                    Motor IA UrbanFlow
+                  </p>
+
+                  <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div className="rounded-lg bg-gray-800/70 p-3">
+                      <p className="text-gray-400">Proveedor IA</p>
+                      <p className="mt-1 font-semibold text-gray-100">
+                        Gemini + fallback local
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg bg-gray-800/70 p-3">
+                      <p className="text-gray-400">Estado</p>
+                      <p className="mt-1 font-semibold text-emerald-300">
+                        Operativo y resiliente
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg bg-gray-800/70 p-3">
+                      <p className="text-gray-400">Próxima evolución</p>
+                      <p className="mt-1 font-semibold text-indigo-300">
+                        Embeddings + mapas de calor
+                      </p>
+                    </div>
+                  </div>
+                </div>
                   <div className="mt-6 overflow-x-auto">
                     <table className="w-full min-w-[275px] text-left text-sm">
                       <thead>
@@ -412,6 +505,7 @@ export default function SuperDashboard() {
                           <th className="py-3 text-gray-700 dark:text-gray-300">Estado</th>
                           <th className="py-3 text-gray-700 dark:text-gray-300">Prioridad</th>
                           <th className="py-3 text-gray-700 dark:text-gray-300">Categoría</th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">Motor IA</th>
                           <th className="py-3 text-gray-700 dark:text-gray-300">Localidad</th>
                           <th className="py-3 text-gray-700 dark:text-gray-300">Fecha</th>
                           <th className="py-3 text-gray-700 dark:text-gray-300">Mapa</th>
@@ -425,6 +519,26 @@ export default function SuperDashboard() {
                             <td className="capitalize text-gray-700 dark:text-gray-300">{reporte.estado}</td>
                             <td className="capitalize text-gray-700 dark:text-gray-300">{reporte.prioridad}</td>
                             <td className="capitalize text-gray-700 dark:text-gray-300">{reporte.categoria_asignada_por_ia || 'sin categoría'}</td>
+                            <td className="text-gray-700 dark:text-gray-300">
+                            <div className="flex flex-col gap-1 text-xs min-w-[140px]">
+                              <span className="rounded bg-indigo-100 px-2 py-1 font-medium text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                                Score {reporte.ai_priority_score ?? 0}/100
+                              </span>
+
+                              {reporte.posible_duplicado && (
+                                <span className="rounded bg-purple-100 px-2 py-1 font-medium text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">
+                                  Duplicado
+                                  {typeof reporte.duplicado_distancia_metros === 'number'
+                                    ? ` · ${reporte.duplicado_distancia_metros} m`
+                                    : ''}
+                                </span>
+                              )}
+
+                              <span className="rounded bg-gray-100 px-2 py-1 font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                                {reporte.vectorizado ? 'Vectorizado' : 'Vector pendiente'}
+                              </span>
+                            </div>
+                          </td>
                             <td className="text-gray-700 dark:text-gray-300">{reporte.localidad || '-'}</td>
                             <td className="text-gray-700 dark:text-gray-300">{new Date(reporte.fecha_hora).toLocaleString('es-AR')}</td>
                             <td>
