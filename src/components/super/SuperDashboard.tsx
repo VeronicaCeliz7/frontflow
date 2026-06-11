@@ -5,6 +5,7 @@ import SuperSidebar from './SuperSidebar';
 import SuperMap from './SuperMap';
 import { Crown, Building2, HardHat, User } from 'lucide-react';
 import IAHeatmap from '../IAHeatmap'
+import ClimaPredictivoCard from '../ClimaPredictivoCard'
 
 import {
   getSuperDashboard,
@@ -308,6 +309,10 @@ export default function SuperDashboard() {
                       <p className="mt-1 text-xs text-green-700 dark:text-green-500">Reportes resueltos</p>
                     </div>
                   </section>
+
+<section className="mt-6">
+  <ClimaPredictivoCard />
+</section>
 
 <section className="mt-6">
   <IAHeatmap />
