@@ -9,12 +9,42 @@ interface Incident {
   prioridad: string
   estado: string
   createdAt: string | Date
+
+  categoria_asignada_por_ia?: string
+  ai_priority_score?: number
+  posible_duplicado?: boolean
+  duplicado_score?: number
+  duplicado_distancia_metros?: number | null
 }
 
 interface IncidentTableProps {
   incidents: Incident[]
   isLoading: boolean
   onView?: (incident: Incident) => void
+}
+
+const prioridadLabel = (prioridad?: string) => {
+  if (prioridad === 'critica' || prioridad === 'crítica') return 'crítica'
+  if (prioridad === 'alta') return 'alta'
+  if (prioridad === 'media') return 'media'
+  if (prioridad === 'baja') return 'baja'
+  return 'N/A'
+}
+
+const prioridadClass = (prioridad?: string) => {
+  if (prioridad === 'critica' || prioridad === 'crítica') {
+    return 'bg-red-100 text-red-700'
+  }
+
+  if (prioridad === 'alta') {
+    return 'bg-orange-100 text-orange-700'
+  }
+
+  if (prioridad === 'media') {
+    return 'bg-blue-100 text-blue-700'
+  }
+
+  return 'bg-gray-100 text-gray-600'
 }
 
 export default function IncidentTable({
@@ -61,6 +91,7 @@ export default function IncidentTable({
             {[
               'ID',
               'Título',
+              'IA',
               'Prioridad',
               'Estado',
               'Fecha',
@@ -78,7 +109,6 @@ export default function IncidentTable({
 
         <tbody>
           {incidents.map((inc) => (
-              
             <tr
               key={inc._id}
               onClick={() => onView?.(inc)}
@@ -89,7 +119,7 @@ export default function IncidentTable({
                 transition-colors
                 cursor-pointer
               "
-          >
+            >
               <td className="py-3 px-2 text-gray-400 font-mono text-xs">
                 #{inc._id?.slice(-5).toUpperCase()}
               </td>
@@ -99,18 +129,35 @@ export default function IncidentTable({
               </td>
 
               <td className="py-3 px-2">
+                <div className="flex flex-col gap-1 text-xs min-w-[145px]">
+                  <span className="px-2 py-1 rounded bg-blue-100 text-blue-700 font-medium">
+                    {inc.categoria_asignada_por_ia || 'Sin IA'}
+                  </span>
+
+                  {typeof inc.ai_priority_score === 'number' && (
+                    <span className="px-2 py-1 rounded bg-indigo-100 text-indigo-700 font-medium">
+                      Score IA {inc.ai_priority_score}/100
+                    </span>
+                  )}
+
+                  {inc.posible_duplicado && (
+                    <span className="px-2 py-1 rounded bg-purple-100 text-purple-700 font-medium">
+                      Duplicado
+                      {typeof inc.duplicado_distancia_metros === 'number'
+                        ? ` · ${inc.duplicado_distancia_metros} m`
+                        : ''}
+                    </span>
+                  )}
+                </div>
+              </td>
+
+              <td className="py-3 px-2">
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                    inc.prioridad === 'crítica'
-                      ? 'bg-red-100 text-red-700'
-                      : inc.prioridad === 'alta'
-                      ? 'bg-orange-100 text-orange-700'
-                      : inc.prioridad === 'media'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
+                  className={`px-2 py-1 rounded-full text-xs font-semibold ${prioridadClass(
+                    inc.prioridad
+                  )}`}
                 >
-                  {inc.prioridad}
+                  {prioridadLabel(inc.prioridad)}
                 </span>
               </td>
 
