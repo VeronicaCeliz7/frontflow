@@ -9,6 +9,11 @@ import StatCard from '../components/StatCard'
 import { useIncidents } from '../hooks/useIncidents'
 import { takeIncident, updateIncidentStatus } from '../services/municipalityApi'
 
+import AIInsightCard from '../../../components/AIInsightCard';
+
+import ClimaPredictivoCard from '../../../components/ClimaPredictivoCard'
+import IAHeatmap from '../../../components/IAHeatmap'
+
 const queryClient = new QueryClient()
 
 function OperatorHome() {
@@ -79,6 +84,14 @@ function OperatorHome() {
         <StatCard title="Críticos" value={criticos} icon={AlertTriangle} color="red" subtitle="Alta prioridad" />
       </div>
 
+<div className="mt-5">
+  <ClimaPredictivoCard />
+</div>
+
+<div className="mt-5">
+  <IAHeatmap />
+</div>
+
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
@@ -124,6 +137,7 @@ function OperatorHome() {
                   <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Estado</th>
                   <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Municipio</th>
                   <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Operador</th>
+                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium min-w-[180px]">Motor IA</th>
                   <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Acción</th>
                 </tr>
               </thead>
@@ -135,6 +149,45 @@ function OperatorHome() {
                     <td className="py-3 px-2 text-gray-600 dark:text-gray-300 capitalize">{incidente.estado}</td>
                     <td className="py-3 px-2 text-gray-600 dark:text-gray-300">{incidente.municipio || '-'}</td>
                     <td className="py-3 px-2 text-gray-600 dark:text-gray-300">{incidente.operadorAsignadoNombre || 'Sin asignar'}</td>
+                    
+                    <td className="py-3 px-2">
+                    <div className="flex flex-col gap-1 text-xs">
+
+                      <span className="px-2 py-1 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium">
+                        {incidente.categoria_asignada_por_ia || 'Sin IA'}
+                      </span>
+
+                      <span
+                        className={`px-2 py-1 rounded font-medium ${
+                          incidente.prioridad === 'critica'
+                            ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                            : incidente.prioridad === 'alta'
+                            ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300'
+                            : incidente.prioridad === 'media'
+                            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300'
+                            : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                        }`}
+                      >
+                        {incidente.prioridad === 'critica'
+                        ? 'crítica'
+                        : incidente.prioridad === 'alta'
+                        ? 'alta'
+                        : incidente.prioridad === 'media'
+                        ? 'media'
+                        : incidente.prioridad === 'baja'
+                        ? 'baja'
+                        : 'N/A'}
+                      </span>
+
+                      {incidente.posible_duplicado && (
+                        <span className="px-2 py-1 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 font-medium">
+                          Duplicado
+                        </span>
+                      )}
+
+                    </div>
+                  </td>
+
                     <td className="py-3 px-2">
                       {vista === 'pendientes' && incidente.estado === 'pendiente' && !incidente.operadorAsignadoId ? (
                         <button

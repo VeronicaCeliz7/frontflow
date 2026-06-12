@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Reporte } from '../types/reporte';
 import UrbanFlowLogo from './UrbanFlowLogo';
-import { Calendar, MapPin, ChevronRight } from 'lucide-react';
+import { Calendar, MapPin, ChevronRight, Brain, AlertTriangle, GitMerge } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
 
@@ -52,6 +52,38 @@ const MisReportesScreen = () => {
       default: return estado;
     }
   };
+
+const getPrioridadTexto = (prioridad?: string) => {
+  switch (prioridad) {
+    case 'critica':
+    case 'crítica':
+      return 'Crítica';
+    case 'alta':
+      return 'Alta';
+    case 'media':
+      return 'Media';
+    case 'baja':
+      return 'Baja';
+    default:
+      return 'Sin prioridad';
+  }
+};
+
+const getPrioridadBadge = (prioridad?: string) => {
+  switch (prioridad) {
+    case 'critica':
+    case 'crítica':
+      return 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
+    case 'alta':
+      return 'bg-orange-50 dark:bg-orange-950/50 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800';
+    case 'media':
+      return 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
+    case 'baja':
+      return 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+    default:
+      return 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+  }
+};
 
   const formatearFecha = (fecha: Date) => {
     const date = new Date(fecha);
@@ -122,6 +154,27 @@ const MisReportesScreen = () => {
                       {reporte.direccion?.substring(0, 40)}
                     </span>
                   </div>
+
+<div className="flex flex-wrap gap-2 mt-2 text-xs">
+  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800">
+    <Brain size={12} />
+    {reporte.categoria_asignada_por_ia || 'IA pendiente'}
+  </span>
+
+  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border ${getPrioridadBadge(reporte.prioridad)}`}>
+    <AlertTriangle size={12} />
+    {getPrioridadTexto(reporte.prioridad)}
+    {typeof reporte.ai_priority_score === 'number' && ` · ${reporte.ai_priority_score}/100`}
+  </span>
+
+  {reporte.posible_duplicado && (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800">
+      <GitMerge size={12} />
+      Posible duplicado
+    </span>
+  )}
+</div>
+
                 </div>
                 <div className="flex flex-col items-end gap-1.5 shrink-0 pr-1">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getEstadoBadge(reporte.estado)}`}>
