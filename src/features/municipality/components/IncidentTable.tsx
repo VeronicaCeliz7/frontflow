@@ -200,10 +200,11 @@ export default function IncidentTable({
                       disabled:opacity-50
                     "
                   >
-                    <option value="pendiente">Pendiente</option>
-                    <option value="en_proceso">En proceso</option>
-                    <option value="resuelto">Resuelto</option>
-                    <option value="rechazado">Rechazado</option>
+<option value="pendiente">Pendiente</option>
+<option value="asignado" disabled>Asignado</option>
+<option value="en_proceso">En proceso</option>
+<option value="resuelto">Resuelto</option>
+<option value="rechazado">Rechazado</option>
                   </select>
 
                   <ChevronDown

@@ -51,3 +51,22 @@ export const updateIncidentStatus = async (token: string, { id, status }: { id: 
   const { data } = await axios.put(`${API_URL}/api/reportes/${id}`, { estado: status }, getAuthHeaders(token))
   return data
 }
+
+export const assignIncidentOperator = async (
+  token: string,
+  {
+    id,
+    operadorId
+  }: {
+    id: string
+    operadorId: string
+  }
+) => {
+  const { data } = await axios.patch(
+    `${API_URL}/api/reportes/${id}/asignar-operador`,
+    { operadorId },
+    getAuthHeaders(token)
+  )
+
+  return data
+}
