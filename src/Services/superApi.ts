@@ -1,4 +1,5 @@
-const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}`;
+
 async function apiGet(path: string) {
   const response = await fetch(`${API_URL}${path}`);
 
@@ -9,7 +10,7 @@ async function apiGet(path: string) {
   return response.json();
 }
 
-export const getSuperDashboard = () => apiGet('/super/dashboard');
-export const getSuperClientes = () => apiGet('/super/clientes');
-export const getSuperUsuarios = () => apiGet('/super/usuarios');
-export const getSuperReportes = () => apiGet('/super/reportes');
+export const getSuperDashboard = () => apiGet('/api/super/dashboard');
+export const getSuperClientes = () => apiGet('/api/super/clientes');
+export const getSuperUsuarios = () => apiGet('/api/super/usuarios');
+export const getSuperReportes = () => apiGet('/api/super/reportes');
