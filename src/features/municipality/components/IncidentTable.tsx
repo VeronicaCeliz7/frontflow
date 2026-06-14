@@ -228,9 +228,11 @@ export default function IncidentTable({
                     "
                   >
 <option value="pendiente">Pendiente</option>
-<option value="asignado" disabled>Asignado</option>
+<option value="asignado">Asignado</option>
 <option value="en_proceso">En proceso</option>
 <option value="resuelto">Resuelto</option>
+<option value="verificado">Verificado</option>
+<option value="cerrado">Cerrado</option>
 <option value="rechazado">Rechazado</option>
                   </select>
 

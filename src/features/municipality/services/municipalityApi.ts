@@ -48,8 +48,19 @@ export const takeIncident = async (token: string, id: string) => {
   return data
 }
 
-export const updateIncidentStatus = async (token: string, { id, status }: { id: string, status: string }) => {
-  const { data } = await axios.put(`${API_URL}/api/reportes/${id}`, { estado: status }, getAuthHeaders(token))
+export const updateIncidentStatus = async (
+  token: string,
+  { id, status }: { id: string, status: string }
+) => {
+  const { data } = await axios.patch(
+    `${API_URL}/api/reportes/${id}/estado`,
+    {
+      estado: status,
+      observacion: 'Actualizacion desde frontend'
+    },
+    getAuthHeaders(token)
+  )
+
   return data
 }
 
