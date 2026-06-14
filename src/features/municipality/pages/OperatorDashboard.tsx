@@ -32,7 +32,12 @@ function OperatorHome() {
     ? { municipio, sinAsignar: 'true' }
     : { operadorId }
 
+    console.log('👷 operadorId frontend:', operadorId)
+    console.log('👁️ vista actual:', vista)
+    console.log('🔎 filtros enviados:', filtros) 
+
   const { data, isLoading } = useIncidents(filtros)
+   console.log('📦 respuesta incidentes operador:', data)
    console.log('FILTROS OPERADOR:', filtros)
    console.log('DATA OPERADOR:', data)
   const incidents = data?.data || []
