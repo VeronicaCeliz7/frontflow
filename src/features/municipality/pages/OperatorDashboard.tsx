@@ -29,7 +29,7 @@ function OperatorHome() {
 
   const filtros =
     vista === 'pendientes'
-      ? { municipio, estado: 'pendiente', sinAsignar: 'true' }
+      ? { municipio, estado: 'pendiente', sinAsignar: 'true', soloPrincipales: 'true' }
       : { operadorId }
 
   const { data, isLoading } = useIncidents(filtros)

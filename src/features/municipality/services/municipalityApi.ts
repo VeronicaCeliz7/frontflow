@@ -23,6 +23,7 @@ export const getIncidents = async (
   if (filters.municipio) params.append('municipio', filters.municipio)
   if (filters.operadorId) params.append('operadorId', filters.operadorId)
   if (filters.sinAsignar) params.append('sinAsignar', filters.sinAsignar)
+  if (filters.soloPrincipales) params.append('soloPrincipales', filters.soloPrincipales)
 
   if (filters.categoria) params.append('categoria', filters.categoria)
   if (filters.page) params.append('page', filters.page)
