@@ -1,8 +1,17 @@
 import { NavLink } from 'react-router-dom'
 import { useClerk } from '@clerk/clerk-react'
-import { LayoutDashboard, FileText, Users, Settings, LogOut, ClipboardList, X, Building2 } from 'lucide-react'
-import { UserCog } from 'lucide-react'
 import UrbanFlowLogo from "../../../components/UrbanFlowLogo";
+
+import {
+  LayoutDashboard,
+  FileText,
+  Users,
+  UserCog,
+  Settings,
+  LogOut,
+  ClipboardList,
+  X
+} from 'lucide-react'
 
 interface Props {
   isOpen: boolean
