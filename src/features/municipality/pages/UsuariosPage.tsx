@@ -60,6 +60,8 @@ export default function UsuariosPage() {
       )
 
       const data = await response.json()
+      console.log('📦 USUARIOS MUNICIPIO:', data)
+      
       if (!response.ok) throw new Error(data.error || 'Error al cargar usuarios')
 
       setUsuarios(data.usuarios || [])
@@ -115,6 +117,8 @@ export default function UsuariosPage() {
       })
 
       const data = await response.json()
+      
+      
       if (!response.ok) throw new Error(data.error || 'Error al crear usuario')
 
       await cargarUsuarios()
