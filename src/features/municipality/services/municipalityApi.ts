@@ -23,6 +23,7 @@ export const getIncidents = async (
   if (filters.municipio) params.append('municipio', filters.municipio)
   if (filters.operadorId) params.append('operadorId', filters.operadorId)
   if (filters.sinAsignar) params.append('sinAsignar', filters.sinAsignar)
+  if (filters.soloPrincipales) params.append('soloPrincipales', filters.soloPrincipales)
 
   if (filters.categoria) params.append('categoria', filters.categoria)
   if (filters.page) params.append('page', filters.page)
@@ -47,7 +48,37 @@ export const takeIncident = async (token: string, id: string) => {
   return data
 }
 
-export const updateIncidentStatus = async (token: string, { id, status }: { id: string, status: string }) => {
-  const { data } = await axios.put(`${API_URL}/api/reportes/${id}`, { estado: status }, getAuthHeaders(token))
+export const updateIncidentStatus = async (
+  token: string,
+  { id, status }: { id: string, status: string }
+) => {
+  const { data } = await axios.patch(
+    `${API_URL}/api/reportes/${id}/estado`,
+    {
+      estado: status,
+      observacion: 'Actualizacion desde frontend'
+    },
+    getAuthHeaders(token)
+  )
+
+  return data
+}
+
+export const assignIncidentOperator = async (
+  token: string,
+  {
+    id,
+    operadorId
+  }: {
+    id: string
+    operadorId: string
+  }
+) => {
+  const { data } = await axios.patch(
+    `${API_URL}/api/reportes/${id}/asignar-operador`,
+    { operadorId },
+    getAuthHeaders(token)
+  )
+
   return data
 }

@@ -4,7 +4,6 @@ import { divIcon } from 'leaflet';
 import { Ubicacion } from '../types/reporte';
 import 'leaflet/dist/leaflet.css';
 import { renderToString } from 'react-dom/server';
-import { FaCrosshairs, FaLocationArrow } from 'react-icons/fa';
 
 // Función para obtener color según categoría
 const getColorByCategoria = (categoria: string): string => {
@@ -124,7 +123,6 @@ const MapaIncidente = ({
           </>
         ) : (
           <>
-            <FaLocationArrow size={14} />
             <span>Usar mi ubicación actual</span>
           </>
         )}
