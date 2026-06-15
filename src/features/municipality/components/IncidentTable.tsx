@@ -15,6 +15,11 @@ interface Incident {
   posible_duplicado?: boolean
   duplicado_score?: number
   duplicado_distancia_metros?: number | null
+  duplicado_estado?: string
+  duplicado_sugerido_id?: string | null
+  incidenteGrupoId?: string | null
+  esIncidentePrincipal?: boolean
+  reportesRelacionadosCount?: number
 }
 
 interface IncidentTableProps {
@@ -148,6 +153,28 @@ export default function IncidentTable({
                         : ''}
                     </span>
                   )}
+                  {inc.duplicado_estado === 'sugerido' && (
+  <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 font-medium">
+    IA sugiere duplicado
+    {inc.duplicado_score
+      ? ` · ${Math.round(inc.duplicado_score * 100)}%`
+      : ''}
+  </span>
+)}
+
+{inc.duplicado_estado === 'automatico' && (
+  <span className="px-2 py-1 rounded bg-green-100 text-green-800 font-medium">
+    Agrupado por IA
+  </span>
+)}
+
+{inc.esIncidentePrincipal &&
+  typeof inc.reportesRelacionadosCount === 'number' &&
+  inc.reportesRelacionadosCount > 0 && (
+    <span className="px-2 py-1 rounded bg-cyan-100 text-cyan-800 font-medium">
+      Principal · {inc.reportesRelacionadosCount} relacionados
+    </span>
+)}
                 </div>
               </td>
 
@@ -200,10 +227,13 @@ export default function IncidentTable({
                       disabled:opacity-50
                     "
                   >
-                    <option value="pendiente">Pendiente</option>
-                    <option value="en_proceso">En proceso</option>
-                    <option value="resuelto">Resuelto</option>
-                    <option value="rechazado">Rechazado</option>
+<option value="pendiente">Pendiente</option>
+<option value="asignado">Asignado</option>
+<option value="en_proceso">En proceso</option>
+<option value="resuelto">Resuelto</option>
+<option value="verificado">Verificado</option>
+<option value="cerrado">Cerrado</option>
+<option value="rechazado">Rechazado</option>
                   </select>
 
                   <ChevronDown

@@ -9,8 +9,6 @@ import StatCard from '../components/StatCard'
 import { useIncidents } from '../hooks/useIncidents'
 import { takeIncident, updateIncidentStatus } from '../services/municipalityApi'
 
-import AIInsightCard from '../../../components/AIInsightCard';
-
 import ClimaPredictivoCard from '../../../components/ClimaPredictivoCard'
 import IAHeatmap from '../../../components/IAHeatmap'
 
@@ -27,19 +25,13 @@ function OperatorHome() {
 
   const [vista, setVista] = useState<'pendientes' | 'mios'>('pendientes')    
   
+  
   const filtros =
-  vista === 'pendientes'
-    ? { municipio, sinAsignar: 'true' }
-    : { operadorId }
-
-    console.log('👷 operadorId frontend:', operadorId)
-    console.log('👁️ vista actual:', vista)
-    console.log('🔎 filtros enviados:', filtros) 
+    vista === 'pendientes'
+      ? { municipio, sinAsignar: 'true', soloPrincipales: 'true' }
+      : { operadorId }
 
   const { data, isLoading } = useIncidents(filtros)
-   console.log('📦 respuesta incidentes operador:', data)
-   console.log('FILTROS OPERADOR:', filtros)
-   console.log('DATA OPERADOR:', data)
   const incidents = data?.data || []
 
   const tomarIncidente = async (id: string) => {
