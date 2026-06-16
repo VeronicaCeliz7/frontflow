@@ -226,10 +226,18 @@ function AdminHome() {
               className="text-xs border border-gray-300 dark:border-gray-700 rounded-md px-3 py-1.5 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800"
             >
               <option value="">Todos los estados</option>
-              <option value="pendiente">Pendiente</option>
+              <option value="reportado">Reportado</option>
+              <option value="validacion_inicial">Validación inicial</option>
+              <option value="aceptado">Aceptado</option>
+              <option value="asignado">Asignado</option>
               <option value="en_proceso">En proceso</option>
               <option value="resuelto">Resuelto</option>
+              <option value="verificado">Verificado</option>
+              <option value="cerrado">Cerrado</option>
               <option value="rechazado">Rechazado</option>
+              <option value="duplicado">Duplicado</option>
+              <option value="informacion_insuficiente">Información insuficiente</option>
+              <option value="fuera_de_jurisdiccion">Fuera de jurisdicción</option>
             </select>
 
             <select
