@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Reporte } from '../types/reporte';
 import UrbanFlowLogo from './UrbanFlowLogo';
-import { Calendar, MapPin, ChevronRight, Brain, AlertTriangle, GitMerge, FileText, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Calendar, MapPin, ChevronRight, Brain, AlertTriangle, GitMerge, FileText, CheckCircle, Clock } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
 
@@ -63,7 +63,7 @@ const MisReportesScreen = () => {
   const pendientes = reportes.filter((r) => r.estado === 'pendiente').length;
   const enProceso = reportes.filter((r) => r.estado === 'en_proceso').length;
   const resueltos = reportes.filter((r) => r.estado === 'resuelto').length;
-  const rechazados = reportes.filter((r) => r.estado === 'rechazado').length;
+  // const rechazados = reportes.filter((r) => r.estado === 'rechazado').length;
   const criticos = reportes.filter((r) => r.prioridad === 'critica' || r.prioridad === 'crítica').length;
 
   const getEstadoBadge = (estado: string) => {
