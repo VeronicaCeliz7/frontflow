@@ -12,10 +12,17 @@ interface FormData {
 
 interface Usuario {
   id: string
+  clerkUserId: string
   nombre: string
+  apellido: string
+  nombreCompleto: string
   email: string
   role: string
   municipio: string
+  activo: boolean
+  createdAt: string
+  updatedAt: string
+  ultimoAcceso: string | null
 }
 
 const MUNICIPIOS = [
@@ -47,6 +54,9 @@ export default function UsuariosPage() {
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
   const [usuarios, setUsuarios] = useState<Usuario[]>([])
   const [showModal, setShowModal] = useState(false)
+  const [busqueda, setBusqueda] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState('todos')
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Usuario | null>(null)
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -60,9 +70,10 @@ export default function UsuariosPage() {
       )
 
       const data = await response.json()
-      console.log('📦 USUARIOS MUNICIPIO:', data)
-      
-      if (!response.ok) throw new Error(data.error || 'Error al cargar usuarios')
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al cargar usuarios')
+      }
 
       setUsuarios(data.usuarios || [])
     } catch (error) {
@@ -117,9 +128,10 @@ export default function UsuariosPage() {
       })
 
       const data = await response.json()
-      
-      
-      if (!response.ok) throw new Error(data.error || 'Error al crear usuario')
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear usuario')
+      }
 
       await cargarUsuarios()
 
@@ -130,6 +142,7 @@ export default function UsuariosPage() {
         role: 'operador',
         municipio: 'villa-maria'
       })
+
       setMunicipioOtro('')
 
       setMensaje({
@@ -146,6 +159,42 @@ export default function UsuariosPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const usuariosFiltrados = usuarios.filter((u) => {
+    const texto = `${u.nombre} ${u.apellido} ${u.email}`.toLowerCase()
+    const coincideBusqueda = texto.includes(busqueda.toLowerCase())
+
+    const coincideEstado =
+      filtroEstado === 'todos'
+        ? true
+        : filtroEstado === 'activos'
+        ? u.activo
+        : !u.activo
+
+    return coincideBusqueda && coincideEstado
+  })
+
+  const formatearFecha = (fecha?: string | null) => {
+    if (!fecha) return '-'
+
+    return new Date(fecha).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  }
+
+  const formatearFechaHora = (fecha?: string | null) => {
+    if (!fecha) return 'Sin acceso registrado'
+
+    return new Date(fecha).toLocaleString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   return (
@@ -182,6 +231,26 @@ export default function UsuariosPage() {
           </h2>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-3 mb-5">
+          <input
+            type="text"
+            placeholder="Buscar operador por nombre, apellido o email..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full border border-gray-200 dark:border-gray-700 rounded-md px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 dark:bg-gray-800 dark:text-gray-100"
+          />
+
+          <select
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value)}
+            className="w-full border border-gray-200 dark:border-gray-700 rounded-md px-4 py-2.5 text-sm focus:outline-none focus:border-blue-400 dark:bg-gray-800 dark:text-gray-100"
+          >
+            <option value="todos">Todos</option>
+            <option value="activos">Activos</option>
+            <option value="inactivos">Inactivos</option>
+          </select>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -190,29 +259,72 @@ export default function UsuariosPage() {
                 <th className="text-left py-3 px-2 text-gray-500 font-medium">Email</th>
                 <th className="text-left py-3 px-2 text-gray-500 font-medium">Rol</th>
                 <th className="text-left py-3 px-2 text-gray-500 font-medium">Municipio</th>
+                <th className="text-left py-3 px-2 text-gray-900 dark:text-gray-100 font-semibold">Estado</th>
+                <th className="text-left py-3 px-2 text-gray-900 dark:text-gray-100 font-semibold">Alta</th>
+                <th className="text-left py-3 px-2 text-gray-900 dark:text-gray-100 font-semibold">Último acceso</th>
+                <th className="text-left py-3 px-2 text-gray-900 dark:text-gray-100 font-semibold">Acciones</th>
               </tr>
             </thead>
 
             <tbody>
-              {usuarios.map((u) => (
-                <tr key={u.id} className="border-b border-gray-100 dark:border-gray-800">
+              {usuariosFiltrados.map((u) => (
+                <tr
+                  key={u.id}
+                  className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
                   <td className="py-3 px-2 font-medium text-gray-700 dark:text-gray-300">
                     {u.nombre}
                   </td>
-                  <td className="py-3 px-2 text-gray-500">{u.email}</td>
+
+                  <td className="py-3 px-2 text-gray-500">
+                    {u.email}
+                  </td>
+
                   <td className="py-3 px-2">
                     <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                       Operador
                     </span>
                   </td>
-                  <td className="py-3 px-2 text-gray-500">{u.municipio}</td>
+
+                  <td className="py-3 px-2 text-gray-500">
+                    {u.municipio}
+                  </td>
+
+                  <td className="py-3 px-2">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        u.activo
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
+                      }`}
+                    >
+                      {u.activo ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+
+                  <td className="py-3 px-2 text-gray-500">
+                    {formatearFecha(u.createdAt)}
+                  </td>
+
+                  <td className="py-3 px-2 text-gray-500">
+                    {formatearFechaHora(u.ultimoAcceso)}
+                  </td>
+
+                  <td className="py-3 px-2">
+                    <button
+                      onClick={() => setUsuarioSeleccionado(u)}
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Ver detalle
+                    </button>
+                  </td>
                 </tr>
               ))}
 
-              {usuarios.length === 0 && (
+              {usuariosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-6 text-center text-gray-400">
-                    Todavía no hay operadores cargados.
+                  <td colSpan={8} className="py-6 text-center text-gray-400">
+                    No se encontraron operadores con los filtros aplicados.
                   </td>
                 </tr>
               )}
@@ -277,18 +389,18 @@ export default function UsuariosPage() {
                   </label>
                   <div className="flex items-center border border-gray-200 rounded-md bg-white focus-within:border-blue-400">
                     <div className="px-3 text-gray-400 flex items-center">
-                       <Mail size={15} />
-                   </div>
+                      <Mail size={15} />
+                    </div>
 
-                   <input
+                    <input
                       name="email"
                       type="email"
-                     value={form.email}
-                     onChange={handleChange}
-                     placeholder="operador@municipio.gob.ar"
-                     className="w-full py-2.5 pr-4 text-sm focus:outline-none bg-transparent"
+                      value={form.email}
+                      onChange={handleChange}
+                      placeholder="operador@municipio.gob.ar"
+                      className="w-full py-2.5 pr-4 text-sm focus:outline-none bg-transparent"
                     />
-                   </div>
+                  </div>
                 </div>
 
                 <div>
@@ -296,13 +408,13 @@ export default function UsuariosPage() {
                   <div className="flex items-center border border-gray-200 rounded-md bg-gray-50">
                     <div className="px-3 text-gray-400 flex items-center">
                       <Shield size={15} />
-                   </div>
+                    </div>
 
-                   <input
-                     value="Operador municipal"
-                     disabled
-                     className="w-full py-2.5 pr-4 text-sm bg-transparent text-gray-500 focus:outline-none"
-                     />
+                    <input
+                      value="Operador municipal"
+                      disabled
+                      className="w-full py-2.5 pr-4 text-sm bg-transparent text-gray-500 focus:outline-none"
+                    />
                   </div>
                 </div>
 
@@ -320,11 +432,11 @@ export default function UsuariosPage() {
                       value={form.municipio}
                       onChange={handleChange}
                       className="w-full py-2.5 pr-4 text-sm focus:outline-none bg-transparent"
-                   >
-                     {MUNICIPIOS.map((m) => (
-                       <option key={m.value} value={m.value}>
-                         {m.label}
-                       </option>
+                    >
+                      {MUNICIPIOS.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -374,6 +486,103 @@ export default function UsuariosPage() {
                   {loading ? 'Creando operador...' : 'Invitar operador'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {usuarioSeleccionado && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-2xl border border-gray-200 dark:border-gray-800 shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                  Detalle del operador
+                </h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Información administrativa del usuario municipal.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setUsuarioSeleccionado(null)}
+                className="p-2 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Nombre</p>
+                <p className="font-medium text-gray-800 dark:text-gray-100">
+                  {usuarioSeleccionado.nombreCompleto || usuarioSeleccionado.nombre}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Email</p>
+                <p className="font-medium text-gray-800 dark:text-gray-100">
+                  {usuarioSeleccionado.email}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Rol</p>
+                <span className="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                  {usuarioSeleccionado.role === 'admin' ? 'Administrador' : 'Operador'}
+                </span>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Estado</p>
+                <span
+                  className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${
+                    usuarioSeleccionado.activo
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
+                  }`}
+                >
+                  {usuarioSeleccionado.activo ? 'Activo' : 'Inactivo'}
+                </span>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Municipio</p>
+                <p className="font-medium text-gray-800 dark:text-gray-100">
+                  {usuarioSeleccionado.municipio}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Fecha de alta</p>
+                <p className="font-medium text-gray-800 dark:text-gray-100">
+                  {formatearFecha(usuarioSeleccionado.createdAt)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Último acceso</p>
+                <p className="font-medium text-gray-800 dark:text-gray-100">
+                  {formatearFechaHora(usuarioSeleccionado.ultimoAcceso)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs mb-1">ID Clerk</p>
+                <p className="font-mono text-xs text-gray-600 dark:text-gray-300 break-all">
+                  {usuarioSeleccionado.clerkUserId}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-800">
+              <button
+                onClick={() => setUsuarioSeleccionado(null)}
+                className="px-5 py-2.5 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         </div>
