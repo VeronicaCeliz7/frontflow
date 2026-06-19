@@ -12,6 +12,7 @@ import { takeIncident, updateIncidentStatus } from '../services/municipalityApi'
 import ClimaPredictivoCard from '../../../components/ClimaPredictivoCard'
 import IAHeatmap from '../../../components/IAHeatmap'
 
+
 const queryClient = new QueryClient()
 
 function OperatorHome() {
@@ -24,7 +25,7 @@ function OperatorHome() {
   const operadorId = user?.id || ''
 
   const [vista, setVista] = useState<'pendientes' | 'mios'>('pendientes')    
-  
+  const [filtroEstado, setFiltroEstado] = useState('todos')
   
   const filtros =
     vista === 'pendientes'
@@ -33,6 +34,28 @@ function OperatorHome() {
 
   const { data, isLoading } = useIncidents(filtros)
   const incidents = data?.data || []
+
+  const incidentesFiltrados = incidents.filter((r: any) => {
+  if (filtroEstado === 'todos') return true
+
+  if (filtroEstado === 'pendientes') {
+    return ['reportado', 'validacion_inicial', 'aceptado', 'asignado', 'pendiente'].includes(r.estado)
+  }
+
+  if (filtroEstado === 'en_proceso') {
+    return r.estado === 'en_proceso'
+  }
+
+  if (filtroEstado === 'resueltos') {
+    return ['resuelto', 'verificado', 'cerrado'].includes(r.estado)
+  }
+
+  if (filtroEstado === 'criticos') {
+    return r.prioridad === 'critica'
+  }
+
+  return true
+})
 
   const tomarIncidente = async (id: string) => {
     try {
@@ -92,10 +115,10 @@ function OperatorHome() {
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-            {vista === 'pendientes'
-              ? 'Incidentes pendientes del municipio'
-              : 'Mis incidentes asignados'}
-          </h2>
+  {vista === 'pendientes'
+    ? 'Incidentes pendientes del municipio'
+    : 'Mis incidentes asignados'}
+</h2>
           <div className="flex gap-2">
             <button
               onClick={() => setVista('pendientes')}
@@ -119,7 +142,27 @@ function OperatorHome() {
             </button>
           </div>
         </div>
-
+<div className="flex flex-wrap gap-2 mb-4">
+  {[
+    { key: 'todos', label: 'Todos' },
+    { key: 'pendientes', label: 'Pendientes' },
+    { key: 'en_proceso', label: 'En proceso' },
+    { key: 'resueltos', label: 'Resueltos' },
+    { key: 'criticos', label: 'Críticos' }
+  ].map((filtro) => (
+    <button
+      key={filtro.key}
+      onClick={() => setFiltroEstado(filtro.key)}
+      className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+        filtroEstado === filtro.key
+          ? 'bg-blue-600 text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300'
+      }`}
+    >
+      {filtro.label}
+    </button>
+  ))}
+</div>
         {isLoading ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">Cargando incidentes...</p>
         ) : incidents.length === 0 ? (
@@ -139,7 +182,7 @@ function OperatorHome() {
                 </tr>
               </thead>
               <tbody>
-                {incidents.map((incidente: any) => (
+                {incidentesFiltrados.map((incidente: any) => (
                   <tr key={incidente._id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
                     <td className="py-3 px-2 font-medium text-gray-900 dark:text-gray-100">{incidente.titulo}</td>
                     <td className="py-3 px-2 text-gray-600 dark:text-gray-300">{incidente.direccion}</td>

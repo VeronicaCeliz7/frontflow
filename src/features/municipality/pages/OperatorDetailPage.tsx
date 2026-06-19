@@ -47,6 +47,8 @@ export default function OperatorDetailPage() {
   const [reporteSeleccionado, setReporteSeleccionado] = useState<Reporte | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const [filtroEstado, setFiltroEstado] = useState('todos')
+
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
   const cargarReportesOperador = async () => {
@@ -169,7 +171,33 @@ export default function OperatorDetailPage() {
 
     return prioridad ? labels[prioridad] || prioridad : '-'
   }
+const reportesFiltrados = reportes.filter((r) => {
+  if (filtroEstado === 'todos') return true
 
+  if (filtroEstado === 'pendientes') {
+    return [
+      'reportado',
+      'validacion_inicial',
+      'aceptado',
+      'asignado',
+      'pendiente'
+    ].includes(r.estado)
+  }
+
+  if (filtroEstado === 'en_proceso') {
+    return r.estado === 'en_proceso'
+  }
+
+  if (filtroEstado === 'resueltos') {
+    return ['resuelto', 'verificado', 'cerrado'].includes(r.estado)
+  }
+
+  if (filtroEstado === 'criticos') {
+    return r.prioridad === 'critica'
+  }
+
+  return true
+})
   return (
     <div className="space-y-6">
       <div>
@@ -221,7 +249,27 @@ export default function OperatorDetailPage() {
         <h2 className="font-semibold mb-4 text-gray-700 dark:text-gray-300">
           Incidentes asignados al operador
         </h2>
-
+<div className="flex flex-wrap gap-2 mb-4">
+  {[
+    { key: 'todos', label: 'Todos' },
+    { key: 'pendientes', label: 'Pendientes' },
+    { key: 'en_proceso', label: 'En proceso' },
+    { key: 'resueltos', label: 'Resueltos' },
+    { key: 'criticos', label: 'Críticos' }
+  ].map((filtro) => (
+    <button
+      key={filtro.key}
+      onClick={() => setFiltroEstado(filtro.key)}
+      className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+        filtroEstado === filtro.key
+          ? 'bg-blue-600 text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}
+    >
+      {filtro.label}
+    </button>
+  ))}
+</div>
         {loading ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">Cargando incidentes...</p>
         ) : reportes.length === 0 ? (
@@ -243,7 +291,7 @@ export default function OperatorDetailPage() {
               </thead>
 
               <tbody>
-                {reportes.map((reporte) => (
+                {reportesFiltrados.map((reporte) => (
                   <tr
                     key={reporte._id}
                     className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
