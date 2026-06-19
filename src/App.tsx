@@ -10,6 +10,7 @@ import DetalleReporteScreen from './components/DetalleReporteScreen'
 import AdminDashboard from './features/municipality/pages/AdminDashboard'
 import OperatorDashboard from './features/municipality/pages/OperatorDashboard'
 import SuperDashboard from './components/super/SuperDashboard'
+import ProfileScreen from './components/ProfileScreen' // ✅ NUEVO IMPORT
 import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Building2, HardHat, Crown, User } from 'lucide-react'
@@ -98,7 +99,7 @@ function RoleRouter() {
   const isOperator = role === 'operator' || role === 'operador'
 
   // Rutas que TODOS los usuarios pueden visitar (modo ciudadano)
-  const rutasCiudadano = ['/', '/nuevo-reporte', '/mis-reportes', '/reporte']
+  const rutasCiudadano = ['/', '/nuevo-reporte', '/mis-reportes', '/reporte', '/profile'] // ✅ AGREGADO /profile
   const esRutaCiudadano = rutasCiudadano.some(ruta => location.pathname.startsWith(ruta))
 
   // Si está en una ruta de ciudadano, dejar pasar (sin redirigir)
@@ -187,6 +188,16 @@ function App() {
               </ProtectedRoute>
             </PageWrapper>
           } />
+
+          {/* ✅ NUEVA RUTA /profile */}
+          <Route path="/profile" element={
+            <PageWrapper wide>
+              <ProtectedRoute>
+                <ProfileScreen />
+              </ProtectedRoute>
+            </PageWrapper>
+          } />
+          
 
           <Route path="/municipality/admin/*" element={
             <ProtectedRoute>
