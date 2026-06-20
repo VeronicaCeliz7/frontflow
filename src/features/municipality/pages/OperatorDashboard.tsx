@@ -26,7 +26,7 @@ function OperatorHome() {
 
   const [vista, setVista] = useState<'pendientes' | 'mios'>('pendientes')    
   const [filtroEstado, setFiltroEstado] = useState('todos')
-  
+  const [incidenteSeleccionado, setIncidenteSeleccionado] = useState<any | null>(null)
   const filtros =
     vista === 'pendientes'
       ? { municipio, sinAsignar: 'true', soloPrincipales: 'true' }
@@ -228,33 +228,180 @@ function OperatorHome() {
                     </div>
                   </td>
 
-                    <td className="py-3 px-2">
-                      {vista === 'pendientes' && incidente.estado === 'pendiente' && !incidente.operadorAsignadoId ? (
-                        <button
-                          onClick={() => tomarIncidente(incidente._id)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition"
-                        >
-                          Tomar incidente
-                        </button>
-                      ) : (
-                        <select
-                          value={incidente.estado}
-                          onChange={(e) => cambiarEstado(incidente._id, e.target.value)}
-                          className="border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                        >
-                          <option value="pendiente">Pendiente</option>
-                          <option value="en_proceso">En proceso</option>
-                          <option value="resuelto">Resuelto</option>
-                          <option value="rechazado">Rechazado</option>
-                        </select>
-                      )}
-                    </td>
+                   <td className="py-3 px-2">
+  <div className="flex flex-col gap-2">
+    {vista === 'pendientes' && incidente.estado === 'pendiente' && !incidente.operadorAsignadoId ? (
+      <button
+        onClick={() => tomarIncidente(incidente._id)}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition"
+      >
+        Tomar incidente
+      </button>
+    ) : (
+      <select
+        value={incidente.estado}
+        onChange={(e) => cambiarEstado(incidente._id, e.target.value)}
+        className="border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+      >
+        <option value="pendiente">Pendiente</option>
+        <option value="en_proceso">En proceso</option>
+        <option value="resuelto">Resuelto</option>
+        <option value="rechazado">Rechazado</option>
+      </select>
+    )}
+
+    <button
+      onClick={() => setIncidenteSeleccionado(incidente)}
+      className="border border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/40 px-3 py-1.5 rounded-md text-xs font-medium transition"
+    >
+      Ver detalle
+    </button>
+  </div>
+</td> 
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
+        {incidenteSeleccionado && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    onClick={() => setIncidenteSeleccionado(null)}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-800 shadow-2xl"
+    >
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+            Detalle del incidente
+          </h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Información completa del incidente seleccionado.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIncidenteSeleccionado(null)}
+          className="p-2 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div className="sm:col-span-2">
+          <p className="text-gray-400 text-xs mb-1">Título</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.titulo || '-'}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400 text-xs mb-1">Estado</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.estado || '-'}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400 text-xs mb-1">Prioridad</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.prioridad || '-'}
+          </p>
+        </div>
+
+        <div className="sm:col-span-2">
+          <p className="text-gray-400 text-xs mb-1">Dirección</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.direccion || '-'}
+          </p>
+        </div>
+
+        <div className="sm:col-span-2">
+          <p className="text-gray-400 text-xs mb-1">Descripción</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.columna_unica || incidenteSeleccionado.descripcion || '-'}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400 text-xs mb-1">Municipio</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.municipio || incidenteSeleccionado.localidad || '-'}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400 text-xs mb-1">Operador asignado</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.operadorAsignadoNombre || 'Sin asignar'}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400 text-xs mb-1">Categoría IA</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.categoria_asignada_por_ia || 'Sin IA'}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-400 text-xs mb-1">Fecha de creación</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.createdAt
+              ? new Date(incidenteSeleccionado.createdAt).toLocaleString('es-AR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })
+              : '-'}
+          </p>
+        </div>
+
+        <div className="sm:col-span-2">
+          <p className="text-gray-400 text-xs mb-1">Observaciones</p>
+          <p className="font-medium text-gray-800 dark:text-gray-100">
+            {incidenteSeleccionado.observaciones || '-'}
+          </p>
+        </div>
+
+        {incidenteSeleccionado.archivo_url && (
+          <div className="sm:col-span-2">
+            <p className="text-gray-400 text-xs mb-2">Archivo ciudadano</p>
+
+            {incidenteSeleccionado.archivo_tipo === 'video' ? (
+              <video
+                src={incidenteSeleccionado.archivo_url}
+                controls
+                className="w-full max-h-64 rounded-md border border-gray-200 dark:border-gray-800"
+              />
+            ) : (
+              <img
+                src={incidenteSeleccionado.archivo_url}
+                alt="Archivo del incidente"
+                className="w-full max-h-64 object-contain rounded-md border border-gray-200 dark:border-gray-800"
+              />
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-end px-6 py-4 border-t border-gray-200 dark:border-gray-800">
+        <button
+          onClick={() => setIncidenteSeleccionado(null)}
+          className="px-5 py-2.5 rounded-md border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   )
