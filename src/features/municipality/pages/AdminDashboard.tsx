@@ -213,10 +213,63 @@ function AdminHome() {
         </div>
       </div>
 
+      
+      </div>
+    
+  )
+
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Gestión de reportes
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          Acá se concentrará la operación diaria de incidentes del municipio.
+        </p>
+      </div>
+
+      <div className="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-gray-800">
+        <h2 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          Módulo operativo de reportes
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Próximo paso: mover aquí la tabla completa de incidentes, filtros y detalle.
+        </p>
+      </div>
+    </div>
+  )
+}
+function AdminReportesPage() {
+  const { data, isLoading } = useIncidents()
+  const [statusFilter, setStatusFilter] = useState('')
+  const [priorityFilter, setPriorityFilter] = useState('')
+  const [selectedIncident, setSelectedIncident] = useState<any | null>(null)
+
+  const incidents = data?.data || []
+
+  const filtered = incidents.filter((i: any) => {
+    if (statusFilter && i.estado !== statusFilter) return false
+    if (priorityFilter && i.prioridad !== priorityFilter) return false
+    return true
+  })
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          Gestión de reportes
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
+          Consulta, filtra y gestiona los incidentes registrados en el municipio.
+        </p>
+      </div>
+
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-          <h2 className="font-semibold text-gray-900 text-sm">
-            Incidentes recientes
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+            Incidentes del municipio
           </h2>
 
           <div className="flex gap-2 flex-wrap">
@@ -269,6 +322,9 @@ function AdminHome() {
     </div>
   )
 }
+
+
+
 
 function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -359,7 +415,7 @@ function AdminLayout() {
         <main className="flex-1 overflow-y-auto p-4">
           <Routes>
             <Route index element={<AdminHome />} />
-            <Route path="reportes" element={<AdminHome />} />
+            <Route path="reportes" element={<AdminReportesPage />} />
             <Route path="usuarios" element={<UsuariosPage />} />
             <Route path="operadores" element={<OperadoresPage />} />
             <Route path="operadores/:id" element={<OperatorDetailPage />} />
