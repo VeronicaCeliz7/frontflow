@@ -17,70 +17,16 @@ const queryClient = new QueryClient()
 
 function OperatorHome() {
   const { user } = useUser()
-  const { getToken } = useAuth()
-  const queryClient = useQueryClient()
+  
 
   const nombreOperador = `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
   const municipio = (user?.publicMetadata?.municipio as string) || 'villa-maria'
   const operadorId = user?.id || ''
 
-  const [vista, setVista] = useState<'pendientes' | 'mios'>('pendientes')    
-  const [filtroEstado, setFiltroEstado] = useState('todos')
-  const [incidenteSeleccionado, setIncidenteSeleccionado] = useState<any | null>(null)
-  const filtros =
-    vista === 'pendientes'
-      ? { municipio, sinAsignar: 'true', soloPrincipales: 'true' }
-      : { operadorId }
-
-  const { data, isLoading } = useIncidents(filtros)
+  const { data } = useIncidents({ operadorId })
   const incidents = data?.data || []
 
-  const incidentesFiltrados = incidents.filter((r: any) => {
-  if (filtroEstado === 'todos') return true
-
-  if (filtroEstado === 'pendientes') {
-    return ['reportado', 'validacion_inicial', 'aceptado', 'asignado', 'pendiente'].includes(r.estado)
-  }
-
-  if (filtroEstado === 'en_proceso') {
-    return r.estado === 'en_proceso'
-  }
-
-  if (filtroEstado === 'resueltos') {
-    return ['resuelto', 'verificado', 'cerrado'].includes(r.estado)
-  }
-
-  if (filtroEstado === 'criticos') {
-    return r.prioridad === 'critica'
-  }
-
-  return true
-})
-
-  const tomarIncidente = async (id: string) => {
-    try {
-      const token = await getToken()
-      if (!token) return alert('Token no encontrado')
-      await takeIncident(token, id)
-      await queryClient.invalidateQueries({ queryKey: ['incidents'] })
-      alert('Incidente tomado correctamente')
-    } catch (error: any) {
-      alert(error?.response?.data?.error || 'Error al tomar incidente')
-    }
-  }
-
-  const cambiarEstado = async (id: string, status: string) => {
-    try {
-      const token = await getToken()
-      if (!token) return alert('Token no encontrado')
-      await updateIncidentStatus(token, { id, status })
-      await queryClient.invalidateQueries({ queryKey: ['incidents'] })
-      alert('Estado actualizado')
-    } catch (error: any) {
-      alert(error?.response?.data?.error || 'Error al actualizar estado')
-    }
-  }
-
+  
   const pendientes = incidents.filter((i: any) => i.estado === 'pendiente').length
   const enProceso = incidents.filter((i: any) => i.estado === 'en_proceso').length
   const resueltos = incidents.filter((i: any) => i.estado === 'resuelto').length
@@ -112,7 +58,91 @@ function OperatorHome() {
   <IAHeatmap />
 </div>
 
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+    
+    </div>
+ 
+  )
+}
+function OperatorIncidentesPage() {
+  const { user } = useUser()
+  const { getToken } = useAuth()
+  const queryClient = useQueryClient()
+
+  const municipio = (user?.publicMetadata?.municipio as string) || 'villa-maria'
+  const operadorId = user?.id || ''
+
+  const [vista, setVista] = useState<'pendientes' | 'mios'>('pendientes')
+  const [filtroEstado, setFiltroEstado] = useState('todos')
+  const [incidenteSeleccionado, setIncidenteSeleccionado] = useState<any | null>(null)
+
+  const filtros =
+  vista === 'pendientes'
+    ? { municipio, sinAsignar: 'true', soloPrincipales: 'true' }
+    : { operadorId }
+
+const { data, isLoading } = useIncidents(filtros)
+const incidents = data?.data || []
+  
+
+  const incidentesFiltrados = incidents.filter((r: any) => {
+    if (filtroEstado === 'todos') return true
+
+    if (filtroEstado === 'pendientes') {
+      return ['reportado', 'validacion_inicial', 'aceptado', 'asignado', 'pendiente'].includes(r.estado)
+    }
+
+    if (filtroEstado === 'en_proceso') {
+      return r.estado === 'en_proceso'
+    }
+
+    if (filtroEstado === 'resueltos') {
+      return ['resuelto', 'verificado', 'cerrado'].includes(r.estado)
+    }
+
+    if (filtroEstado === 'criticos') {
+      return r.prioridad === 'critica'
+    }
+
+    return true
+  })
+
+  const tomarIncidente = async (id: string) => {
+    try {
+      const token = await getToken()
+      if (!token) return alert('Token no encontrado')
+      await takeIncident(token, id)
+      await queryClient.invalidateQueries({ queryKey: ['incidents'] })
+      alert('Incidente tomado correctamente')
+    } catch (error: any) {
+      alert(error?.response?.data?.error || 'Error al tomar incidente')
+    }
+  }
+
+  const cambiarEstado = async (id: string, status: string) => {
+    try {
+      const token = await getToken()
+      if (!token) return alert('Token no encontrado')
+      await updateIncidentStatus(token, { id, status })
+      await queryClient.invalidateQueries({ queryKey: ['incidents'] })
+      alert('Estado actualizado')
+    } catch (error: any) {
+      alert(error?.response?.data?.error || 'Error al actualizar estado')
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Mis incidentes
+        </h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+          Gestioná los incidentes pendientes del municipio y los asignados a tu usuario.
+        </p>
+      </div>
+
+      {/* ACÁ VA EL BLOQUE OPERATIVO QUE HOY ESTÁ EN OPERATORHOME */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
   {vista === 'pendientes'
@@ -400,12 +430,18 @@ function OperatorHome() {
         </button>
       </div>
     </div>
-  </div>
+     </div>
 )}
       </div>
     </div>
   )
 }
+  
+
+
+
+
+
 
 function OperatorLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -485,7 +521,7 @@ function OperatorLayout() {
         <main className="flex-1 overflow-y-auto p-4">
           <Routes>
             <Route index element={<OperatorHome />} />
-            <Route path="asignados" element={<OperatorHome />} />
+            <Route path="asignados" element={<OperatorIncidentesPage />} />
             <Route path="reportes" element={<OperatorHome />} />
           </Routes>
         </main>
