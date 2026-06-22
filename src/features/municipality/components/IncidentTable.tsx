@@ -1,7 +1,4 @@
-import { useState } from 'react'
-import { useUpdateIncident } from '../hooks/useUpdateIncident'
 import StatusBadge from './StatusBadge'
-import { ChevronDown } from 'lucide-react'
 
 interface Incident {
   _id: string
@@ -10,16 +7,14 @@ interface Incident {
   estado: string
   createdAt: string | Date
 
+  operadorAsignadoId?: string | null
+  operadorAsignadoNombre?: string | null
+
   categoria_asignada_por_ia?: string
   ai_priority_score?: number
   posible_duplicado?: boolean
   duplicado_score?: number
   duplicado_distancia_metros?: number | null
-  duplicado_estado?: string
-  duplicado_sugerido_id?: string | null
-  incidenteGrupoId?: string | null
-  esIncidentePrincipal?: boolean
-  reportesRelacionadosCount?: number
 }
 
 interface IncidentTableProps {
@@ -37,18 +32,10 @@ const prioridadLabel = (prioridad?: string) => {
 }
 
 const prioridadClass = (prioridad?: string) => {
-  if (prioridad === 'critica' || prioridad === 'crítica') {
-    return 'bg-red-100 text-red-700'
-  }
-
-  if (prioridad === 'alta') {
-    return 'bg-orange-100 text-orange-700'
-  }
-
-  if (prioridad === 'media') {
-    return 'bg-blue-100 text-blue-700'
-  }
-
+  if (prioridad === 'critica' || prioridad === 'crítica') return 'bg-red-100 text-red-700'
+  if (prioridad === 'alta') return 'bg-orange-100 text-orange-700'
+  if (prioridad === 'media') return 'bg-blue-100 text-blue-700'
+  if (prioridad === 'baja') return 'bg-gray-100 text-gray-600'
   return 'bg-gray-100 text-gray-600'
 }
 
@@ -57,21 +44,6 @@ export default function IncidentTable({
   isLoading,
   onView
 }: IncidentTableProps) {
-  const { mutate: updateStatus } = useUpdateIncident()
-
-  const [changingId, setChangingId] = useState<string | null>(null)
-
-  const handleStatusChange = (id: string, newStatus: string) => {
-    setChangingId(id)
-
-    updateStatus(
-      { id, status: newStatus },
-      {
-        onSettled: () => setChangingId(null)
-      }
-    )
-  }
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-32">
@@ -93,19 +65,8 @@ export default function IncidentTable({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-100">
-            {[
-              'ID',
-              'Título',
-              'IA',
-              'Prioridad',
-              'Estado',
-              'Fecha',
-              'Cambiar estado'
-            ].map((header) => (
-              <th
-                key={header}
-                className="text-left py-3 px-2 text-gray-400 font-medium"
-              >
+            {['ID', 'Título', 'IA', 'Prioridad', 'Estado', 'Fecha', 'Responsable'].map((header) => (
+              <th key={header} className="text-left py-3 px-2 text-gray-400 font-medium">
                 {header}
               </th>
             ))}
@@ -117,73 +78,47 @@ export default function IncidentTable({
             <tr
               key={inc._id}
               onClick={() => onView?.(inc)}
-              className="
-                border-b
-                border-gray-50
-                hover:bg-gray-50
-                transition-colors
-                cursor-pointer
-              "
+              className="border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <td className="py-3 px-2 text-gray-400 font-mono text-xs">
                 #{inc._id?.slice(-5).toUpperCase()}
               </td>
 
-              <td className="py-3 px-2 font-medium text-gray-700 max-w-[200px] truncate">
+              <td className="py-3 px-2 font-medium text-gray-700 max-w-[220px] truncate">
                 {inc.titulo}
               </td>
 
               <td className="py-3 px-2">
-                <div className="flex flex-col gap-1 text-xs min-w-[145px]">
-                  <span className="px-2 py-1 rounded bg-blue-100 text-blue-700 font-medium">
+                <div className="space-y-1">
+                  <div className="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs">
                     {inc.categoria_asignada_por_ia || 'Sin IA'}
-                  </span>
+                  </div>
 
                   {typeof inc.ai_priority_score === 'number' && (
-                    <span className="px-2 py-1 rounded bg-indigo-100 text-indigo-700 font-medium">
+                    <div className="px-2 py-1 rounded bg-indigo-100 text-indigo-700 text-xs">
                       Score IA {inc.ai_priority_score}/100
-                    </span>
+                    </div>
                   )}
 
                   {inc.posible_duplicado && (
-                    <span className="px-2 py-1 rounded bg-purple-100 text-purple-700 font-medium">
+                    <div className="px-2 py-1 rounded bg-purple-100 text-purple-700 text-xs">
                       Duplicado
                       {typeof inc.duplicado_distancia_metros === 'number'
                         ? ` · ${inc.duplicado_distancia_metros} m`
                         : ''}
-                    </span>
+                    </div>
                   )}
-                  {inc.duplicado_estado === 'sugerido' && (
-  <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 font-medium">
-    IA sugiere duplicado
-    {inc.duplicado_score
-      ? ` · ${Math.round(inc.duplicado_score * 100)}%`
-      : ''}
-  </span>
-)}
 
-{inc.duplicado_estado === 'automatico' && (
-  <span className="px-2 py-1 rounded bg-green-100 text-green-800 font-medium">
-    Agrupado por IA
-  </span>
-)}
-
-{inc.esIncidentePrincipal &&
-  typeof inc.reportesRelacionadosCount === 'number' &&
-  inc.reportesRelacionadosCount > 0 && (
-    <span className="px-2 py-1 rounded bg-cyan-100 text-cyan-800 font-medium">
-      Principal · {inc.reportesRelacionadosCount} relacionados
-    </span>
-)}
+                  {typeof inc.duplicado_score === 'number' && inc.duplicado_score > 0 && (
+                    <div className="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-xs">
+                      IA sugiere duplicado · {inc.duplicado_score}%
+                    </div>
+                  )}
                 </div>
               </td>
 
               <td className="py-3 px-2">
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${prioridadClass(
-                    inc.prioridad
-                  )}`}
-                >
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${prioridadClass(inc.prioridad)}`}>
                   {prioridadLabel(inc.prioridad)}
                 </span>
               </td>
@@ -196,57 +131,16 @@ export default function IncidentTable({
                 {new Date(inc.createdAt).toLocaleDateString('es-AR')}
               </td>
 
-              <td
-                className="py-3 px-2"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="relative inline-block">
-                  <select
-                    value={inc.estado}
-                    disabled={changingId === inc._id}
-                    onChange={(e) =>
-                      handleStatusChange(
-                        inc._id,
-                        e.target.value
-                      )
-                    }
-                    className="
-                      appearance-none
-                      bg-white
-                      border
-                      border-gray-200
-                      rounded-lg
-                      px-3
-                      py-1.5
-                      pr-7
-                      text-xs
-                      text-gray-600
-                      cursor-pointer
-                      hover:border-blue-400
-                      transition-colors
-                      disabled:opacity-50
-                    "
-                  >
-<option value="pendiente">Pendiente</option>
-<option value="asignado">Asignado</option>
-<option value="en_proceso">En proceso</option>
-<option value="resuelto">Resuelto</option>
-<option value="verificado">Verificado</option>
-<option value="cerrado">Cerrado</option>
-<option value="rechazado">Rechazado</option>
-                  </select>
-
-                  <ChevronDown
-                    size={12}
-                    className="
-                      absolute
-                      right-2
-                      top-2.5
-                      text-gray-400
-                      pointer-events-none
-                    "
-                  />
-                </div>
+              <td className="py-3 px-2">
+                {inc.operadorAsignadoNombre ? (
+                  <span className="inline-flex px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-blue-700">
+                    Asignado a {inc.operadorAsignadoNombre}
+                  </span>
+                ) : (
+                  <span className="inline-flex px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-600">
+                    Sin operador
+                  </span>
+                )}
               </td>
             </tr>
           ))}

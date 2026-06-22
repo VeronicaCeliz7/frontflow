@@ -57,7 +57,18 @@ function AdminHome() {
   const incidents = data?.data || []
 
   const filtered = incidents.filter((i: any) => {
-    if (statusFilter && i.estado !== statusFilter) return false
+    if (statusFilter) {
+  if (statusFilter === 'duplicado') {
+    const esDuplicado =
+      i.estado === 'duplicado' ||
+      i.posible_duplicado === true ||
+      i.posibleDuplicado === true
+
+    if (!esDuplicado) return false
+  } else if (i.estado !== statusFilter) {
+    return false
+  }
+}
     if (priorityFilter && i.prioridad !== priorityFilter) return false
     return true
   })
@@ -250,7 +261,18 @@ function AdminReportesPage() {
   const incidents = data?.data || []
 
   const filtered = incidents.filter((i: any) => {
-    if (statusFilter && i.estado !== statusFilter) return false
+    if (statusFilter) {
+  if (statusFilter === 'duplicado') {
+    const esDuplicado =
+      i.estado === 'duplicado' ||
+      i.posible_duplicado === true ||
+      i.posibleDuplicado === true
+
+    if (!esDuplicado) return false
+  } else if (i.estado !== statusFilter) {
+    return false
+  }
+}
     if (priorityFilter && i.prioridad !== priorityFilter) return false
     return true
   })
