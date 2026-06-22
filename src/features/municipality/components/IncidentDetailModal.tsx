@@ -202,7 +202,7 @@ export default function IncidentDetailModal({
                     px-3
                     py-2
                     text-sm
-                    min-w-[260px]
+                    max-w-55
                   "
                 >
                   {operadores.map((op) => (

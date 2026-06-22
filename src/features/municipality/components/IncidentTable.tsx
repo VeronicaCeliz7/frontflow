@@ -84,7 +84,7 @@ export default function IncidentTable({
                 #{inc._id?.slice(-5).toUpperCase()}
               </td>
 
-              <td className="py-3 px-2 font-medium text-gray-700 max-w-[220px] truncate">
+              <td className="py-3 px-2 font-medium text-gray-700 max-w-55 truncate">
                 {inc.titulo}
               </td>
 
