@@ -53,7 +53,20 @@ export interface Reporte {
   archivo_tipo?: 'image' | 'video';
   categoria_asignada_por_ia?: string;
   ia_procesado: boolean;
-  estado: 'pendiente' | 'en_proceso' | 'resuelto' | 'rechazado';
+  estado:
+  | 'reportado'
+  | 'validacion_inicial'
+  | 'aceptado'
+  | 'asignado'
+  | 'en_proceso'
+  | 'resuelto'
+  | 'verificado'
+  | 'cerrado'
+  | 'rechazado'
+  | 'duplicado'
+  | 'informacion_insuficiente'
+  | 'fuera_de_jurisdiccion'
+  | 'pendiente';
   fecha_hora: Date;
   createdAt: Date;
   updatedAt: Date;
