@@ -7,7 +7,6 @@ import {
   FileText,
   Users,
   UserCog,
-  Settings,
   LogOut,
   ClipboardList,
   X
@@ -28,13 +27,13 @@ export default function Sidebar({ isOpen, onClose, role }: Props) {
     { to: '/municipality/admin/reportes', icon: FileText, label: 'Reportes' },
     { to: '/municipality/admin/usuarios', icon: Users, label: 'Usuarios' },
     { to: '/municipality/admin/operadores', icon: UserCog, label: 'Operadores' },
-    { to: '/municipality/admin/config', icon: Settings, label: 'Configuración' },
+    
   ]
 
   const operatorLinks = [
     { to: '/municipality/operator', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/municipality/operator/asignados', icon: ClipboardList, label: 'Mis incidentes' },
-    { to: '/municipality/operator/reportes', icon: FileText, label: 'Reportes' },
+    
   ]
 
   const links = isAdmin ? adminLinks : operatorLinks
