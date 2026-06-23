@@ -5,9 +5,10 @@ import SuperSidebar from './SuperSidebar';
 import SuperMap from './SuperMap';
 import { 
   Crown, Building2, HardHat, User, 
-  AlertTriangle, FileText, TrendingUp, CheckCircle 
+  AlertTriangle, FileText, TrendingUp, CheckCircle
 } from 'lucide-react';
 import StatCard from '../../features/municipality/components/StatCard'; // Ruta CORRECTA al StatCard original
+import IAHeatmap from '../IAHeatmap';
 
 import {
   getSuperDashboard,
@@ -15,6 +16,20 @@ import {
   getSuperUsuarios,
   getSuperReportes,
 } from '../../Services/superApi';
+
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 
 type SuperSection =
   | 'panel'
@@ -86,6 +101,17 @@ type Reporte = {
   vectorizado?: boolean;
 };
 
+const COLORS = [
+  '#2563eb',
+  '#16a34a',
+  '#f59e0b',
+  '#dc2626',
+  '#9333ea',
+  '#0891b2',
+  '#ea580c',
+  '#64748b'
+]
+
 export default function SuperDashboard() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -99,6 +125,7 @@ export default function SuperDashboard() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
     async function loadData() {
@@ -125,6 +152,14 @@ export default function SuperDashboard() {
     loadData();
   }, []);
 
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrentTime(new Date())
+  }, 1000)
+
+  return () => clearInterval(timer)
+}, [])
+
   const pageBg = 'bg-gray-50 dark:bg-gray-950';
   const cardBg = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none';
   const mutedText = 'text-gray-500 dark:text-gray-400';
@@ -140,6 +175,11 @@ export default function SuperDashboard() {
   const enProcesoCount =
     dashboard?.graficos.reportesPorEstado.find((item) => item._id === 'en_proceso')?.total ?? 0;
   const mostFrequentCategory = dashboard?.graficos.reportesPorCategoria[0];
+
+  const categoriasOrdenadas = dashboard?.graficos?.reportesPorCategoria
+    ? [...dashboard.graficos.reportesPorCategoria]
+        .sort((a, b) => b.total - a.total)
+    : []
 
   return (
     <div className={`min-h-screen ${pageBg} lg:flex`}>
@@ -321,44 +361,9 @@ export default function SuperDashboard() {
                     </div>
                   </div>
 
-                  {/* Incidentes recientes */}
-                  <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                    <h2 className="font-semibold text-gray-900 text-sm mb-3">
-                      Incidentes recientes
-                    </h2>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-sm">
-                        <thead>
-                          <tr className="border-b border-gray-200 dark:border-gray-800">
-                            <th className="py-3 text-gray-700 dark:text-gray-300">Título</th>
-                            <th className="py-3 text-gray-700 dark:text-gray-300">Cliente</th>
-                            <th className="py-3 text-gray-700 dark:text-gray-300">Estado</th>
-                            <th className="py-3 text-gray-700 dark:text-gray-300">Prioridad</th>
-                            <th className="py-3 text-gray-700 dark:text-gray-300">Fecha</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {reportes.slice(0, 10).map((reporte) => (
-                            <tr key={reporte._id} className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
-                              <td className="py-4 font-semibold text-gray-900 dark:text-gray-100">{reporte.titulo}</td>
-                              <td className="text-gray-700 dark:text-gray-300">{reporte.clienteNombre || '-'}</td>
-                              <td className="capitalize text-gray-700 dark:text-gray-300">{reporte.estado}</td>
-                              <td className="capitalize">
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  reporte.prioridad === 'critica' ? 'bg-red-100 text-red-800' :
-                                  reporte.prioridad === 'alta' ? 'bg-orange-100 text-orange-800' :
-                                  reporte.prioridad === 'media' ? 'bg-blue-100 text-blue-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {reporte.prioridad}
-                                </span>
-                              </td>
-                              <td className="text-gray-700 dark:text-gray-300">{new Date(reporte.fecha_hora).toLocaleString('es-AR')}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                  {/* Mapa de Calor IA - mismo componente usado por Administrador y Operador */}
+                  <div className="mt-5">
+                    <IAHeatmap />
                   </div>
                 </>
               )}
@@ -395,7 +400,7 @@ export default function SuperDashboard() {
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Usuarios y Roles</h3>
                   <p className={`mt-2 ${mutedText}`}>Lectura operativa de usuarios reales registrados en la base.</p>
                   <div className="mt-6 overflow-x-auto">
-                    <table className="w-full min-w-[225px] text-left text-sm">
+                    <table className="w-full min-w-56.25 text-left text-sm">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-800">
                           <th className="py-3 text-gray-700 dark:text-gray-300">Usuario</th>
@@ -428,7 +433,7 @@ export default function SuperDashboard() {
                   <p className={`mt-2 ${mutedText}`}>Todos los incidentes del sistema por municipio.</p>
                   
                   <div className="mt-6 overflow-x-auto">
-                    <table className="w-full min-w-[275px] text-left text-sm">
+                    <table className="w-full min-w-68.75 text-left text-sm">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-800">
                           <th className="py-3 text-gray-700 dark:text-gray-300">Título</th>
@@ -466,54 +471,220 @@ export default function SuperDashboard() {
               )}
 
               {/* Informes section */}
-              {activeSection === 'informes' && (
-                <section className={cardBg}>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Informes Ejecutivos</h3>
-                  <div className="mt-6 grid gap-4 lg:grid-cols-3">
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none">
-                      <p className="font-bold text-gray-900 dark:text-gray-100">Situación actual</p>
-                      <p className={`mt-2 text-sm ${mutedText}`}>Hay {dashboard.resumen.totalReportes} incidentes registrados, con {criticalCount} críticos y {highCount} de alta prioridad.</p>
+                {activeSection === 'informes' && (
+                  <section className={cardBg}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                          Informes Ejecutivos
+                        </h3>
+                        <p className={`mt-2 ${mutedText}`}>
+                          Lectura estratégica automática para toma de decisiones.
+                        </p>
+                      </div>
+
+                      <div className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-700">
+                        {criticalCount} críticos activos
+                      </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none">
-                      <p className="font-bold text-gray-900 dark:text-gray-100">Foco operativo</p>
-                      <p className={`mt-2 text-sm ${mutedText}`}>La categoría más frecuente es {mostFrequentCategory?._id || 'sin datos'}, con {mostFrequentCategory?.total || 0} reportes.</p>
+
+                    <div className="mt-6 grid gap-6 xl:grid-cols-3">
+                      <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+                        <p className="text-sm font-semibold text-red-700">
+                          Riesgo principal
+                        </p>
+                        <h4 className="mt-2 text-3xl font-bold text-red-700">
+                          {criticalCount}
+                        </h4>
+                        <p className="mt-2 text-sm text-red-700">
+                          Incidentes críticos requieren atención prioritaria.
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                        <p className="text-sm font-semibold text-amber-700">
+                          Alta prioridad
+                        </p>
+                        <h4 className="mt-2 text-3xl font-bold text-amber-700">
+                          {highCount}
+                        </h4>
+                        <p className="mt-2 text-sm text-amber-700">
+                          Casos sensibles que pueden escalar si no se gestionan.
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+                        <p className="text-sm font-semibold text-blue-700">
+                          Foco operativo
+                        </p>
+                        <h4 className="mt-2 text-3xl font-bold text-blue-700 capitalize">
+                          {mostFrequentCategory?._id || 'Sin datos'}
+                        </h4>
+                        <p className="mt-2 text-sm text-blue-700">
+                          Categoría dominante con {mostFrequentCategory?.total || 0} reportes.
+                        </p>
+                      </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none">
-                      <p className="font-bold text-gray-900 dark:text-gray-100">Clientes activos</p>
-                      <p className={`mt-2 text-sm ${mutedText}`}>Hay {dashboard.resumen.totalClientes} clientes activos en la plataforma.</p>
+
+                    <div className="mt-6 grid gap-6 xl:grid-cols-2">
+                      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100">
+                          Top Riesgos por Categoría
+                        </h4>
+
+                        <div className="mt-4 h-80">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                              layout="vertical"
+                              data={categoriasOrdenadas.slice(0, 6)}
+                              margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
+                            >
+                              <CartesianGrid strokeDasharray="3 3" />
+                              <XAxis type="number" />
+                              <YAxis type="category" dataKey="_id" width={120} />
+                              <Tooltip />
+                              <Bar dataKey="total" radius={[0, 8, 8, 0]}>
+                                {categoriasOrdenadas.slice(0, 6).map((_, index) => (
+                                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+                        <h4 className="font-bold text-gray-900 dark:text-gray-100">
+                          Resumen Ejecutivo IA
+                        </h4>
+
+                        <div className="mt-4 space-y-4">
+                          <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
+                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                              Diagnóstico automático
+                            </p>
+                            <p className={`mt-2 text-sm ${mutedText}`}>
+                              UrbanFlow registra {dashboard.resumen.totalReportes} incidentes.
+                              El sistema detecta {criticalCount} casos críticos y {highCount} de alta prioridad.
+                            </p>
+                          </div>
+
+                          <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
+                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                              Patrón dominante
+                            </p>
+                            <p className={`mt-2 text-sm ${mutedText}`}>
+                              La categoría con mayor concentración es {mostFrequentCategory?._id || 'sin datos'},
+                              con {mostFrequentCategory?.total || 0} reportes acumulados.
+                            </p>
+                          </div>
+
+                          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                            <p className="text-sm font-bold text-blue-800">
+                              Recomendación operativa
+                            </p>
+                            <p className="mt-2 text-sm text-blue-800">
+                              Priorizar incidentes críticos, reforzar operadores en zonas calientes
+                              y monitorear categorías recurrentes durante las próximas 24 horas.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </section>
-              )}
+                  </section>
+                )}
 
               {/* Analitica section */}
               {activeSection === 'analitica' && (
                 <section className={cardBg}>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Analítica Inteligente</h3>
-                  <p className={`mt-2 ${mutedText}`}>Distribución de incidentes por categoría y prioridad.</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Analítica Inteligente
+                  </h3>
+
+                  <p className={`mt-2 ${mutedText}`}>
+                    Distribución estratégica de incidentes.
+                  </p>
+
                   <div className="mt-6 grid gap-6 xl:grid-cols-2">
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                      <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Por categoría</h4>
-                      <div className="space-y-3">
-                        {dashboard.graficos.reportesPorCategoria.slice(0, 8).map((item) => (
-                          <div key={item._id} className="flex justify-between">
-                            <span className="capitalize text-gray-700 dark:text-gray-300">{item._id || 'sin categoría'}</span>
-                            <strong className="text-gray-900 dark:text-gray-100">{item.total}</strong>
-                          </div>
-                        ))}
+
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                    <h4 className="font-bold mb-4">
+                      Incidentes por Categoría
+                    </h4>
+
+                    <div className="h-105">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          layout="vertical"
+                          data={categoriasOrdenadas}
+                          margin={{
+                            top: 10,
+                            right: 30,
+                            left: 30,
+                            bottom: 10,
+                          }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+
+                          <XAxis type="number" />
+
+                          <YAxis
+                            type="category"
+                            dataKey="_id"
+                            width={120}
+                          />
+
+                          <Tooltip />
+
+                          <Bar
+                            dataKey="total"
+                            radius={[0, 8, 8, 0]}
+                          >
+                            {categoriasOrdenadas.map((_, index) => (
+                              <Cell
+                                key={index}
+                                fill={COLORS[index % COLORS.length]}
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+                      <h4 className="font-bold mb-4">
+                        Prioridades
+                      </h4>
+
+                      <div className="h-105">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={dashboard.graficos.reportesPorPrioridad}
+                              dataKey="total"
+                              nameKey="_id"
+                              innerRadius={80}
+                              outerRadius={140}
+                              label
+                            >
+                              {dashboard.graficos.reportesPorPrioridad.map(
+                                (_, index) => (
+                                  <Cell
+                                    key={index}
+                                    fill={COLORS[index % COLORS.length]}
+                                  />
+                                )
+                              )}
+                            </Pie>
+
+                            <Tooltip />
+                            <Legend />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
                     </div>
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                      <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Por prioridad</h4>
-                      <div className="space-y-3">
-                        {dashboard.graficos.reportesPorPrioridad.map((item) => (
-                          <div key={item._id} className="flex justify-between">
-                            <span className="capitalize text-gray-700 dark:text-gray-300">{item._id}</span>
-                            <strong className="text-gray-900 dark:text-gray-100">{item.total}</strong>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+
                   </div>
                 </section>
               )}
@@ -521,19 +692,77 @@ export default function SuperDashboard() {
               {/* Configuracion section */}
               {activeSection === 'configuracion' && (
                 <section className={cardBg}>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Configuración del Sistema</h3>
-                  <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Backend</p>
-                      <h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Conectado</h4>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Estado del Sistema
+                  </h3>
+
+                  <p className={`mt-2 ${mutedText}`}>
+                    Monitoreo operativo en tiempo real.
+                  </p>
+
+                  <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
+                        <span className="font-semibold">Backend</span>
+                      </div>
+                      <h4 className="mt-3 text-2xl font-bold">Conectado</h4>
                     </div>
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">MongoDB Atlas</p>
-                      <h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Operativo</h4>
+
+                    <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
+                        <span className="font-semibold">MongoDB Atlas</span>
+                      </div>
+                      <h4 className="mt-3 text-2xl font-bold">Operativo</h4>
                     </div>
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">IA</p>
-                      <h4 className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Activa</h4>
+
+                    <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="h-3 w-3 rounded-full bg-green-500 animate-pulse" />
+                        <span className="font-semibold">IA Gemini</span>
+                      </div>
+                      <h4 className="mt-3 text-2xl font-bold">Activa</h4>
+                    </div>
+
+                    <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                      <p className="font-semibold">Hora del Sistema</p>
+                      <h4 className="mt-2 text-xl font-bold">
+                        {currentTime.toLocaleTimeString()}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {currentTime.toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="bg-white border rounded-xl p-4">
+                      <p className="text-sm text-gray-500">Incidentes</p>
+                      <h4 className="text-3xl font-bold">
+                        {dashboard.resumen?.totalReportes || 0}
+                      </h4>
+                    </div>
+
+                    <div className="bg-white border rounded-xl p-4">
+                      <p className="text-sm text-gray-500">Usuarios</p>
+                      <h4 className="text-3xl font-bold">
+                        {usuarios.length}
+                      </h4>
+                    </div>
+
+                    <div className="bg-white border rounded-xl p-4">
+                      <p className="text-sm text-gray-500">Clientes</p>
+                      <h4 className="text-3xl font-bold">
+                        {clientes.length}
+                      </h4>
+                    </div>
+
+                    <div className="bg-white border rounded-xl p-4">
+                      <p className="text-sm text-gray-500">Disponibilidad</p>
+                      <h4 className="text-3xl font-bold text-green-600">
+                        99.9%
+                      </h4>
                     </div>
                   </div>
                 </section>

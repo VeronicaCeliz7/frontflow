@@ -14,3 +14,4 @@ export const getSuperDashboard = () => apiGet('/api/super/dashboard');
 export const getSuperClientes = () => apiGet('/api/super/clientes');
 export const getSuperUsuarios = () => apiGet('/api/super/usuarios');
 export const getSuperReportes = () => apiGet('/api/super/reportes');
+export const getIAHeatmap = () => apiGet('/api/ia/heatmap');
