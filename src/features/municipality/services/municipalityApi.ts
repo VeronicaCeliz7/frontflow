@@ -28,8 +28,6 @@ export const getIncidents = async (
   if (filters.categoria) params.append('categoria', filters.categoria)
   if (filters.page) params.append('page', filters.page)
 
-  
-
   const { data } = await axios.get(
     `${API_URL}/api/reportes?${params.toString()}`,
     getAuthHeaders(token)
@@ -68,15 +66,20 @@ export const assignIncidentOperator = async (
   token: string,
   {
     id,
-    operadorId
+    operadorId,
+    operadorNombre
   }: {
     id: string
     operadorId: string
+    operadorNombre: string
   }
 ) => {
   const { data } = await axios.patch(
     `${API_URL}/api/reportes/${id}/asignar-operador`,
-    { operadorId },
+    {
+      operadorId,
+      operadorNombre
+    },
     getAuthHeaders(token)
   )
 

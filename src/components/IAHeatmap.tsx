@@ -184,7 +184,7 @@ export default function IAHeatmap() {
       </div>
     </div>
 
-    <div className="h-[620px] rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800">
+    <div className="h-155 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800">
       {loading ? (
         <div className="h-full flex items-center justify-center text-sm text-gray-500">
           Cargando mapa inteligente...

@@ -60,29 +60,62 @@ const MisReportesScreen = () => {
 
   // Calcular estadísticas
   const total = reportes.length;
-  const pendientes = reportes.filter((r) => r.estado === 'pendiente').length;
-  const enProceso = reportes.filter((r) => r.estado === 'en_proceso').length;
-  const resueltos = reportes.filter((r) => r.estado === 'resuelto').length;
+  const pendientes = reportes.filter((r) =>
+  ['reportado', 'validacion_inicial', 'aceptado', 'pendiente'].includes(r.estado)
+  ).length;
+  const enProceso = reportes.filter((r) =>
+  ['asignado', 'en_proceso'].includes(r.estado)
+  ).length;
+  const resueltos = reportes.filter((r) =>
+  ['resuelto', 'verificado', 'cerrado'].includes(r.estado)
+  ).length;
   // const rechazados = reportes.filter((r) => r.estado === 'rechazado').length;
   const criticos = reportes.filter((r) => r.prioridad === 'critica' || r.prioridad === 'crítica').length;
 
   const getEstadoBadge = (estado: string) => {
-    switch (estado) {
-      case 'pendiente': return 'bg-yellow-50 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
-      case 'en_proceso': return 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
-      case 'resuelto': return 'bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800';
-      case 'rechazado': return 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
-      default: return 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+  switch (estado) {
+    case 'reportado':
+    case 'validacion_inicial':
+    case 'aceptado':
+    case 'pendiente':
+      return 'bg-yellow-50 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
+
+    case 'asignado':
+    case 'en_proceso':
+      return 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
+
+    case 'resuelto':
+    case 'verificado':
+    case 'cerrado':
+      return 'bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800';
+
+    case 'rechazado':
+    case 'duplicado':
+    case 'informacion_insuficiente':
+    case 'fuera_de_jurisdiccion':
+      return 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
+
+    default:
+      return 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
     }
   };
 
   const getEstadoTexto = (estado: string) => {
-    switch (estado) {
-      case 'pendiente': return 'Pendiente';
-      case 'en_proceso': return 'En Proceso';
-      case 'resuelto': return 'Resuelto';
-      case 'rechazado': return 'Rechazado';
-      default: return estado;
+  switch (estado) {
+    case 'reportado': return 'Reportado';
+    case 'validacion_inicial': return 'Validación inicial';
+    case 'aceptado': return 'Aceptado';
+    case 'asignado': return 'Asignado';
+    case 'en_proceso': return 'En proceso';
+    case 'resuelto': return 'Resuelto';
+    case 'verificado': return 'Verificado';
+    case 'cerrado': return 'Cerrado';
+    case 'rechazado': return 'Rechazado';
+    case 'duplicado': return 'Duplicado';
+    case 'informacion_insuficiente': return 'Información insuficiente';
+    case 'fuera_de_jurisdiccion': return 'Fuera de jurisdicción';
+    case 'pendiente': return 'Pendiente';
+    default: return estado;
     }
   };
 

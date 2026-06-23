@@ -48,19 +48,40 @@ function AdminHome() {
   const nombreAdmin = `${user?.firstName || ''} ${user?.lastName || ''}`.trim()
   const municipio = (user?.publicMetadata?.municipio as string) || 'villa-maria'
 
-  const [statusFilter, setStatusFilter] = useState('')
-  const [priorityFilter, setPriorityFilter] = useState('')
-  const [selectedIncident, setSelectedIncident] = useState<any>(null)
+  //const [statusFilter, setStatusFilter] = useState('')
+  //const [priorityFilter, setPriorityFilter] = useState('')
+  //const [selectedIncident, setSelectedIncident] = useState<any>(null)
 
-  const { data, isLoading } = useIncidents({ municipio })
+  //const { data, isLoading } = useIncidents({ municipio })
+
+  //const { data } = useIncidents({ municipio })    
+  //const filtered = incidents.filter((i: any) => {
+  //  if (statusFilter) {
+  //if (statusFilter === 'duplicado') {
+  //  const esDuplicado =
+  //    i.estado === 'duplicado' ||
+  //    i.posible_duplicado === true ||
+  //    i.posibleDuplicado === true
+
+  //  if (!esDuplicado) return false
+  //} else if (i.estado !== statusFilter) {
+  //  return false
+  //}
+  //}
+  //  if (priorityFilter && i.prioridad !== priorityFilter) return false
+  //  return true
+  //})
+
+  //const total = incidents.length
+  //const pendientes = incidents.filter((i: any) => i.estado === 'pendiente').length
+  //const enProceso = incidents.filter((i: any) => i.estado === 'en_proceso').length
+  //const resueltos = incidents.filter((i: any) => i.estado === 'resuelto').length
+  //const rechazados = incidents.filter((i: any) => i.estado === 'rechazado').length
+  //const criticos = incidents.filter((i: any) => i.prioridad === 'critica').length
+
+  const { data } = useIncidents({ municipio })
 
   const incidents = data?.data || []
-
-  const filtered = incidents.filter((i: any) => {
-    if (statusFilter && i.estado !== statusFilter) return false
-    if (priorityFilter && i.prioridad !== priorityFilter) return false
-    return true
-  })
 
   const total = incidents.length
   const pendientes = incidents.filter((i: any) => i.estado === 'pendiente').length
@@ -250,7 +271,18 @@ function AdminReportesPage() {
   const incidents = data?.data || []
 
   const filtered = incidents.filter((i: any) => {
-    if (statusFilter && i.estado !== statusFilter) return false
+    if (statusFilter) {
+  if (statusFilter === 'duplicado') {
+    const esDuplicado =
+      i.estado === 'duplicado' ||
+      i.posible_duplicado === true ||
+      i.posibleDuplicado === true
+
+    if (!esDuplicado) return false
+  } else if (i.estado !== statusFilter) {
+    return false
+  }
+}
     if (priorityFilter && i.prioridad !== priorityFilter) return false
     return true
   })

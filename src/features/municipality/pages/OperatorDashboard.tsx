@@ -207,7 +207,7 @@ const incidents = data?.data || []
                   <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Estado</th>
                   <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Municipio</th>
                   <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Operador</th>
-                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium min-w-[180px]">Motor IA</th>
+                  <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium min-w-70">Motor IA</th>
                   <th className="text-left py-3 px-2 text-gray-500 dark:text-gray-400 font-medium">Acción</th>
                 </tr>
               </thead>
