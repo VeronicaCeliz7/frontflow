@@ -298,7 +298,7 @@ export default function UsuariosPage() {
                           : 'bg-red-100 text-red-700'
                       }`}
                     >
-                      {u.activo ? 'Activo' : 'Inactivo'}
+                      {u.activo ? 'Habilitado' : 'Inhabilitado'}
                     </span>
                   </td>
 
@@ -535,17 +535,35 @@ export default function UsuariosPage() {
               </div>
 
               <div>
-                <p className="text-gray-400 text-xs mb-1">Estado</p>
-                <span
-                  className={`inline-flex px-2 py-1 rounded-full text-xs font-semibold ${
-                    usuarioSeleccionado.activo
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}
-                >
-                  {usuarioSeleccionado.activo ? 'Activo' : 'Inactivo'}
-                </span>
-              </div>
+  <p className="text-gray-400 text-xs mb-2">Estado</p>
+
+  <div className="flex items-center gap-3">
+    <button
+      type="button"
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+        usuarioSeleccionado.activo ? 'bg-green-500' : 'bg-red-500'
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+          usuarioSeleccionado.activo ? 'translate-x-6' : 'translate-x-1'
+        }`}
+      />
+    </button>
+
+    <span
+      className={`text-sm font-semibold ${
+        usuarioSeleccionado.activo ? 'text-green-600' : 'text-red-600'
+      }`}
+    >
+      {usuarioSeleccionado.activo ? 'Habilitado' : 'Inhabilitado'}
+    </span>
+  </div>
+
+  <p className="mt-2 text-xs text-gray-500 italic">
+  La activación y desactivación de operadores se encuentra en proceso de integración.
+</p>
+</div>
 
               <div>
                 <p className="text-gray-400 text-xs mb-1">Municipio</p>
