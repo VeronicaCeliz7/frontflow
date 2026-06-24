@@ -52,8 +52,8 @@ export default function MapaInterno() {
         </CircleMarker>
       </MapContainer>
 
-      {/* Tarjeta FIJA EN LA PARTE INFERIOR - CON FONDO MÁS VISIBLE */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] bg-white dark:bg-gray-900 rounded-lg shadow-2xl p-4 max-w-sm w-[90%] border-2 border-blue-500 dark:border-blue-400">
+      {/* Tarjeta SUBIDA - bottom-20 en lugar de bottom-6 */}
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[1000] bg-white dark:bg-gray-900 rounded-lg shadow-2xl p-4 max-w-sm w-[90%] border-2 border-blue-500 dark:border-blue-400">
         <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm flex items-center gap-2">
           <span className="text-lg">📍</span> Ubicación del reporte
         </h3>
