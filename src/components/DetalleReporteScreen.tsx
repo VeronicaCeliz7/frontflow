@@ -201,28 +201,47 @@ const DetalleReporteScreen = () => {
         </div>
       )}
 
-      {/* Modal de imagen */}
+      {/* Modal de imagen mejorado - tarjeta con imagen */}
       {imagenModal && (
         <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
           onClick={() => setImagenModal(null)}
         >
           <div
-            className="relative max-w-4xl max-h-[90vh]"
+            className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              onClick={() => setImagenModal(null)}
-              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition text-2xl flex items-center gap-2"
-            >
-              <X size={24} />
-              Cerrar
-            </button>
-            <img
-              src={imagenModal}
-              alt="Imagen del reporte"
-              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain"
-            />
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                📷 Imagen del reporte
+              </h3>
+              <button
+                onClick={() => setImagenModal(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Contenido: imagen */}
+            <div className="p-4 flex items-center justify-center max-h-[70vh] overflow-auto">
+              <img
+                src={imagenModal}
+                alt="Imagen del reporte"
+                className="max-w-full max-h-[65vh] rounded-lg object-contain"
+              />
+            </div>
+
+            {/* Footer con botón de cierre */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+              <button
+                onClick={() => setImagenModal(null)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
