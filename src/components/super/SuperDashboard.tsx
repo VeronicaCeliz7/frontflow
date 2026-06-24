@@ -192,6 +192,11 @@ export default function SuperDashboard() {
         .sort((a, b) => b.total - a.total)
     : []
 
+  const estadosOrdenados = dashboard?.graficos?.reportesPorEstado
+    ? [...dashboard.graficos.reportesPorEstado]
+        .sort((a, b) => b.total - a.total)
+    : []
+
   return (
     <div className={`min-h-screen ${pageBg} lg:flex`}>
       <SuperSidebar
@@ -337,22 +342,34 @@ export default function SuperDashboard() {
                       {dashboard.graficos.reportesPorCategoria.length === 0 ? (
                         <p className="text-sm text-gray-400">No hay datos para mostrar.</p>
                       ) : (
-                        <div className="space-y-3">
-                          {dashboard.graficos.reportesPorCategoria.slice(0, 8).map((item) => (
-                            <div key={item._id} className="flex items-center justify-between">
-                              <span className="capitalize text-gray-700 text-sm">{item._id || 'Sin categoría'}</span>
-                              <div className="flex items-center gap-3">
-                                <div className="w-32 bg-gray-200 rounded-full h-2">
-                                  <div 
-                                    className="bg-blue-600 h-2 rounded-full" 
-                                    style={{ width: `${(item.total / dashboard.resumen.totalReportes) * 100}%` }}
-                                  />
-                                </div>
-                                <span className="text-sm font-semibold text-gray-900">{item.total}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                        
+<div className="h-72">
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart
+      layout="vertical"
+      data={categoriasOrdenadas.slice(0, 8)}
+      margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis type="number" />
+      <YAxis
+        type="category"
+        dataKey="_id"
+        width={120}
+      />
+      <Tooltip />
+      <Bar dataKey="total" radius={[0, 8, 8, 0]}>
+        {categoriasOrdenadas.slice(0, 8).map((_, index) => (
+          <Cell
+            key={index}
+            fill={COLORS[index % COLORS.length]}
+          />
+        ))}
+      </Bar>
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+                        
                       )}
                     </div>
 
@@ -360,28 +377,34 @@ export default function SuperDashboard() {
                       <h2 className="font-semibold text-gray-900 text-sm mb-3">
                         Incidentes por estado
                       </h2>
-                      <div className="space-y-3">
-                        {dashboard.graficos.reportesPorEstado.map((item) => (
-                          <div key={item._id} className="flex items-center justify-between">
-                            <span className="capitalize text-gray-700">{item._id}</span>
-                            <div className="flex items-center gap-3">
-                              <div className="w-32 bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className="h-2 rounded-full" 
-                                  style={{ 
-                                    width: `${(item.total / dashboard.resumen.totalReportes) * 100}%`,
-                                    backgroundColor: 
-                                      item._id === 'pendiente' ? '#ef4444' :
-                                      item._id === 'en_proceso' ? '#f59e0b' :
-                                      item._id === 'resuelto' ? '#22c55e' : '#6b7280'
-                                  }}
-                                />
-                              </div>
-                              <span className="text-sm font-semibold text-gray-900">{item.total}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+
+<div className="h-72">
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart
+      layout="vertical"
+      data={estadosOrdenados}
+      margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis type="number" />
+      <YAxis
+        type="category"
+        dataKey="_id"
+        width={120}
+      />
+      <Tooltip />
+      <Bar dataKey="total" radius={[0, 8, 8, 0]}>
+        {estadosOrdenados.map((_, index) => (
+          <Cell
+            key={index}
+            fill={COLORS[index % COLORS.length]}
+          />
+        ))}
+      </Bar>
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+
                     </div>
                   </div>
 
