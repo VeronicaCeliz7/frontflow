@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
 import { Reporte } from '../types/reporte';
+import { X } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
 
@@ -13,6 +14,7 @@ const DetalleReporteScreen = () => {
   const [reporte, setReporte] = useState<Reporte | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [imagenModal, setImagenModal] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchReporte = async () => {
@@ -190,14 +192,38 @@ const DetalleReporteScreen = () => {
       {reporte.archivo_url && (
         <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-2">📎 Archivo adjunto</p>
-          <a 
-            href={reporte.archivo_url} 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setImagenModal(reporte.archivo_url)}
             className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-2"
           >
-            🔗 Ver archivo adjunto (foto/video)
-          </a>
+            📷 Ver imagen adjunta
+          </button>
+        </div>
+      )}
+
+      {/* Modal de imagen */}
+      {imagenModal && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setImagenModal(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setImagenModal(null)}
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition text-2xl flex items-center gap-2"
+            >
+              <X size={24} />
+              Cerrar
+            </button>
+            <img
+              src={imagenModal}
+              alt="Imagen del reporte"
+              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain"
+            />
+          </div>
         </div>
       )}
     </div>
