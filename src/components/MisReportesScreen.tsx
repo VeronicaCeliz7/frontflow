@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Reporte } from '../types/reporte';
 import UrbanFlowLogo from './UrbanFlowLogo';
-import { Calendar, MapPin, ChevronRight, Brain, AlertTriangle, GitMerge, FileText, CheckCircle, Clock, X } from 'lucide-react';
+import { Calendar, MapPin, ChevronRight, Brain, AlertTriangle, GitMerge, FileText, CheckCircle, Clock } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
 
@@ -39,7 +39,6 @@ const MisReportesScreen = () => {
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
-  const [imagenModal, setImagenModal] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchReportes = async () => {
@@ -288,19 +287,6 @@ const MisReportesScreen = () => {
                         Posible duplicado
                       </span>
                     )}
-
-                    {/* ✅ IMAGEN - SOLO EL BOTÓN, SIN SALIR DE LA APP */}
-                    {reporte.archivo_url && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setImagenModal(reporte.archivo_url);
-                        }}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 text-xs hover:bg-green-100 dark:hover:bg-green-900/50 transition"
-                      >
-                        📷 Ver imagen
-                      </button>
-                    )}
                   </div>
                 </div>
                 
@@ -328,32 +314,6 @@ const MisReportesScreen = () => {
           ← Volver al inicio
         </button>
       </div>
-
-      {/* ✅ MODAL DE IMAGEN - DENTRO DE LA APP */}
-      {imagenModal && (
-        <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setImagenModal(null)}
-        >
-          <div
-            className="relative max-w-4xl max-h-[90vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setImagenModal(null)}
-              className="absolute -top-12 right-0 text-white hover:text-gray-300 transition text-2xl flex items-center gap-2"
-            >
-              <X size={24} />
-              Cerrar
-            </button>
-            <img
-              src={imagenModal}
-              alt="Imagen del reporte"
-              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
