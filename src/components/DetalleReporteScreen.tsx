@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
 import { Reporte } from '../types/reporte';
+import { X } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api`;
 
@@ -13,6 +14,7 @@ const DetalleReporteScreen = () => {
   const [reporte, setReporte] = useState<Reporte | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [imagenModal, setImagenModal] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchReporte = async () => {
@@ -46,49 +48,49 @@ const DetalleReporteScreen = () => {
   }, [id, getToken]);
 
   const getEstadoColor = (estado: string) => {
-  switch (estado) {
-    case 'reportado':
-    case 'validacion_inicial':
-    case 'aceptado':
-    case 'pendiente':
-      return 'bg-yellow-50 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
+    switch (estado) {
+      case 'reportado':
+      case 'validacion_inicial':
+      case 'aceptado':
+      case 'pendiente':
+        return 'bg-yellow-50 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800';
 
-    case 'asignado':
-    case 'en_proceso':
-      return 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
+      case 'asignado':
+      case 'en_proceso':
+        return 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800';
 
-    case 'resuelto':
-    case 'verificado':
-    case 'cerrado':
-      return 'bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800';
+      case 'resuelto':
+      case 'verificado':
+      case 'cerrado':
+        return 'bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800';
 
-    case 'rechazado':
-    case 'duplicado':
-    case 'informacion_insuficiente':
-    case 'fuera_de_jurisdiccion':
-      return 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
+      case 'rechazado':
+      case 'duplicado':
+      case 'informacion_insuficiente':
+      case 'fuera_de_jurisdiccion':
+        return 'bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800';
 
-    default:
-      return 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+      default:
+        return 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
     }
   };
 
-const getEstadoTexto = (estado: string) => {
-  switch (estado) {
-    case 'reportado': return 'Reportado';
-    case 'validacion_inicial': return 'Validación inicial';
-    case 'aceptado': return 'Aceptado';
-    case 'asignado': return 'Asignado';
-    case 'en_proceso': return 'En proceso';
-    case 'resuelto': return 'Resuelto';
-    case 'verificado': return 'Verificado';
-    case 'cerrado': return 'Cerrado';
-    case 'rechazado': return 'Rechazado';
-    case 'duplicado': return 'Duplicado';
-    case 'informacion_insuficiente': return 'Información insuficiente';
-    case 'fuera_de_jurisdiccion': return 'Fuera de jurisdicción';
-    case 'pendiente': return 'Pendiente';
-    default: return estado;
+  const getEstadoTexto = (estado: string) => {
+    switch (estado) {
+      case 'reportado': return 'Reportado';
+      case 'validacion_inicial': return 'Validación inicial';
+      case 'aceptado': return 'Aceptado';
+      case 'asignado': return 'Asignado';
+      case 'en_proceso': return 'En proceso';
+      case 'resuelto': return 'Resuelto';
+      case 'verificado': return 'Verificado';
+      case 'cerrado': return 'Cerrado';
+      case 'rechazado': return 'Rechazado';
+      case 'duplicado': return 'Duplicado';
+      case 'informacion_insuficiente': return 'Información insuficiente';
+      case 'fuera_de_jurisdiccion': return 'Fuera de jurisdicción';
+      case 'pendiente': return 'Pendiente';
+      default: return estado;
     }
   };
 
@@ -171,14 +173,12 @@ const getEstadoTexto = (estado: string) => {
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">Dirección</p>
             <p className="text-gray-800 dark:text-gray-200">{reporte.direccion}</p>
             {reporte.latitud !== 0 && reporte.longitud !== 0 && (
-              <a
-                href={`https://www.google.com/maps?q=${reporte.latitud},${reporte.longitud}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => navigate(`/mapa-interno?lat=${reporte.latitud}&lng=${reporte.longitud}&zoom=18&direccion=${encodeURIComponent(reporte.direccion || 'Sin dirección')}`)}
                 className="text-blue-600 dark:text-blue-400 text-sm mt-2 inline-block hover:underline"
               >
-                Ver en Google Maps →
-              </a>
+                Ver ubicación en el mapa →
+              </button>
             )}
           </div>
 
@@ -192,14 +192,57 @@ const getEstadoTexto = (estado: string) => {
       {reporte.archivo_url && (
         <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md">
           <p className="text-gray-500 dark:text-gray-400 text-sm mb-2">📎 Archivo adjunto</p>
-          <a 
-            href={reporte.archivo_url} 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setImagenModal(reporte.archivo_url)}
             className="text-blue-600 dark:text-blue-400 hover:underline text-sm flex items-center gap-2"
           >
-            🔗 Ver archivo adjunto (foto/video)
-          </a>
+            📷 Ver imagen adjunta
+          </button>
+        </div>
+      )}
+
+      {/* Modal de imagen mejorado - tarjeta con imagen */}
+      {imagenModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setImagenModal(null)}
+        >
+          <div
+            className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                📷 Imagen del reporte
+              </h3>
+              <button
+                onClick={() => setImagenModal(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Contenido: imagen */}
+            <div className="p-4 flex items-center justify-center max-h-[70vh] overflow-auto">
+              <img
+                src={imagenModal}
+                alt="Imagen del reporte"
+                className="max-w-full max-h-[65vh] rounded-lg object-contain"
+              />
+            </div>
+
+            {/* Footer con botón de cierre */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+              <button
+                onClick={() => setImagenModal(null)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

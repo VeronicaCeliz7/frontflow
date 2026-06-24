@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserButton } from '@clerk/clerk-react';
+import { UserButton, useUser } from '@clerk/clerk-react';
 import SuperSidebar from './SuperSidebar';
 import SuperMap from './SuperMap';
 import { 
   Crown, Building2, HardHat, User, 
   AlertTriangle, FileText, TrendingUp, CheckCircle
 } from 'lucide-react';
-import StatCard from '../../features/municipality/components/StatCard'; // Ruta CORRECTA al StatCard original
+import StatCard from '../../features/municipality/components/StatCard';
 import IAHeatmap from '../IAHeatmap';
 
 import {
@@ -114,6 +114,7 @@ const COLORS = [
 
 export default function SuperDashboard() {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
  
@@ -128,6 +129,8 @@ export default function SuperDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date())
+
+  const nombreSuperAdmin = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
 
   useEffect(() => {
     async function loadData() {
@@ -156,13 +159,12 @@ export default function SuperDashboard() {
     loadData();
   }, []);
 
-useEffect(() => {
-  const timer = setInterval(() => {
-    setCurrentTime(new Date())
-  }, 1000)
-
-  return () => clearInterval(timer)
-}, [])
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   const pageBg = 'bg-gray-50 dark:bg-gray-950';
   const cardBg = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none';
@@ -197,6 +199,7 @@ useEffect(() => {
       />
 
       <main className="min-w-0 flex-1">
+        {/* HEADER - Con botones ARRIBA y título DEBAJO */}
         <header className="sticky top-0 z-20 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3 sm:px-6">
           <div className="flex items-center justify-between gap-4">
             <button
@@ -206,13 +209,36 @@ useEffect(() => {
               ☰
             </button>
 
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate text-xl font-semibold text-gray-900 dark:text-gray-100 sm:text-2xl">
-                Centro de Decisión UrbanFlow
-              </h2>
-              <p className={`text-xs sm:text-sm ${mutedText}`}>
-                Datos reales para gestión urbana inteligente
-              </p>
+            {/* BOTONES DE ROLES - ARRIBA */}
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => navigate('/municipality/admin')}
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
+              >
+                <Building2 size={14} />
+                Administrador
+              </button>
+              <button
+                onClick={() => navigate('/municipality/operator')}
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
+              >
+                <HardHat size={14} />
+                Operador
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
+              >
+                <User size={14} />
+                Ciudadano
+              </button>
+              <button
+                onClick={() => navigate('/superadmin')}
+                className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-1.5"
+              >
+                <Crown size={14} />
+                Superadministrador
+              </button>
             </div>
 
             <div className="flex items-center gap-3">
@@ -220,35 +246,14 @@ useEffect(() => {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 mt-3 pt-2 border-t border-gray-100 dark:border-gray-800">
-            <button
-              onClick={() => navigate('/municipality/admin')}
-              className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
-            >
-              <Building2 size={14} />
-              Administrador
-            </button>
-            <button
-              onClick={() => navigate('/municipality/operator')}
-              className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
-            >
-              <HardHat size={14} />
-              Operador
-            </button>
-            <button
-              onClick={() => navigate('/')}
-              className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
-            >
-              <User size={14} />
-              Ciudadano
-            </button>
-            <button
-              onClick={() => navigate('/superadmin')}
-              className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-1.5"
-            >
-              <Crown size={14} />
+          {/* TÍTULO Y SUBTÍTULO - DEBAJO DE LOS BOTONES */}
+          <div className="min-w-0 flex-1 mt-3 pt-2 border-t border-gray-100 dark:border-gray-800">
+            <h2 className="truncate text-xl font-semibold text-gray-900 dark:text-gray-100 sm:text-2xl">
               Superadministrador
-            </button>
+            </h2>
+            <p className={`text-xs sm:text-sm ${mutedText}`}>
+              Gestión global del sistema UrbanFlow
+            </p>
           </div>
         </header>
 
@@ -269,6 +274,16 @@ useEffect(() => {
             <>
               {activeSection === 'panel' && (
                 <>
+                  {/* BIENVENIDA - IGUAL A ADMIN */}
+                  <div>
+                    <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                      Bienvenido, {nombreSuperAdmin || 'Superadministrador'} 👋
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
+                      Gestión global del sistema UrbanFlow
+                    </p>
+                  </div>
+
                   {/* TARJETAS EXACTAMENTE IGUALES AL ADMIN DASHBOARD */}
                   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <StatCard
@@ -365,7 +380,7 @@ useEffect(() => {
                     </div>
                   </div>
 
-                  {/* Mapa de Calor IA - mismo componente usado por Administrador y Operador */}
+                  {/* Mapa de Calor IA - IGUAL A ADMIN */}
                   <div className="mt-5">
                     <IAHeatmap />
                   </div>
@@ -492,128 +507,128 @@ useEffect(() => {
               )}
 
               {/* Informes section */}
-                {activeSection === 'informes' && (
-                  <section className={cardBg}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                          Informes Ejecutivos
-                        </h3>
-                        <p className={`mt-2 ${mutedText}`}>
-                          Lectura estratégica automática para toma de decisiones.
-                        </p>
-                      </div>
+              {activeSection === 'informes' && (
+                <section className={cardBg}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        Informes Ejecutivos
+                      </h3>
+                      <p className={`mt-2 ${mutedText}`}>
+                        Lectura estratégica automática para toma de decisiones.
+                      </p>
+                    </div>
 
-                      <div className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-700">
-                        {criticalCount} críticos activos
+                    <div className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-700">
+                      {criticalCount} críticos activos
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid gap-6 xl:grid-cols-3">
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+                      <p className="text-sm font-semibold text-red-700">
+                        Riesgo principal
+                      </p>
+                      <h4 className="mt-2 text-3xl font-bold text-red-700">
+                        {criticalCount}
+                      </h4>
+                      <p className="mt-2 text-sm text-red-700">
+                        Incidentes críticos requieren atención prioritaria.
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+                      <p className="text-sm font-semibold text-amber-700">
+                        Alta prioridad
+                      </p>
+                      <h4 className="mt-2 text-3xl font-bold text-amber-700">
+                        {highCount}
+                      </h4>
+                      <p className="mt-2 text-sm text-amber-700">
+                        Casos sensibles que pueden escalar si no se gestionan.
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+                      <p className="text-sm font-semibold text-blue-700">
+                        Foco operativo
+                      </p>
+                      <h4 className="mt-2 text-3xl font-bold text-blue-700 capitalize">
+                        {mostFrequentCategory?._id || 'Sin datos'}
+                      </h4>
+                      <p className="mt-2 text-sm text-blue-700">
+                        Categoría dominante con {mostFrequentCategory?.total || 0} reportes.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid gap-6 xl:grid-cols-2">
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100">
+                        Top Riesgos por Categoría
+                      </h4>
+
+                      <div className="mt-4 h-80">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            layout="vertical"
+                            data={categoriasOrdenadas.slice(0, 6)}
+                            margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis type="number" />
+                            <YAxis type="category" dataKey="_id" width={120} />
+                            <Tooltip />
+                            <Bar dataKey="total" radius={[0, 8, 8, 0]}>
+                              {categoriasOrdenadas.slice(0, 6).map((_, index) => (
+                                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
                       </div>
                     </div>
 
-                    <div className="mt-6 grid gap-6 xl:grid-cols-3">
-                      <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
-                        <p className="text-sm font-semibold text-red-700">
-                          Riesgo principal
-                        </p>
-                        <h4 className="mt-2 text-3xl font-bold text-red-700">
-                          {criticalCount}
-                        </h4>
-                        <p className="mt-2 text-sm text-red-700">
-                          Incidentes críticos requieren atención prioritaria.
-                        </p>
-                      </div>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100">
+                        Resumen Ejecutivo IA
+                      </h4>
 
-                      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                        <p className="text-sm font-semibold text-amber-700">
-                          Alta prioridad
-                        </p>
-                        <h4 className="mt-2 text-3xl font-bold text-amber-700">
-                          {highCount}
-                        </h4>
-                        <p className="mt-2 text-sm text-amber-700">
-                          Casos sensibles que pueden escalar si no se gestionan.
-                        </p>
-                      </div>
+                      <div className="mt-4 space-y-4">
+                        <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
+                          <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                            Diagnóstico automático
+                          </p>
+                          <p className={`mt-2 text-sm ${mutedText}`}>
+                            UrbanFlow registra {dashboard.resumen.totalReportes} incidentes.
+                            El sistema detecta {criticalCount} casos críticos y {highCount} de alta prioridad.
+                          </p>
+                        </div>
 
-                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
-                        <p className="text-sm font-semibold text-blue-700">
-                          Foco operativo
-                        </p>
-                        <h4 className="mt-2 text-3xl font-bold text-blue-700 capitalize">
-                          {mostFrequentCategory?._id || 'Sin datos'}
-                        </h4>
-                        <p className="mt-2 text-sm text-blue-700">
-                          Categoría dominante con {mostFrequentCategory?.total || 0} reportes.
-                        </p>
-                      </div>
-                    </div>
+                        <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
+                          <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                            Patrón dominante
+                          </p>
+                          <p className={`mt-2 text-sm ${mutedText}`}>
+                            La categoría con mayor concentración es {mostFrequentCategory?._id || 'sin datos'},
+                            con {mostFrequentCategory?.total || 0} reportes acumulados.
+                          </p>
+                        </div>
 
-                    <div className="mt-6 grid gap-6 xl:grid-cols-2">
-                      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100">
-                          Top Riesgos por Categoría
-                        </h4>
-
-                        <div className="mt-4 h-80">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                              layout="vertical"
-                              data={categoriasOrdenadas.slice(0, 6)}
-                              margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
-                            >
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis type="number" />
-                              <YAxis type="category" dataKey="_id" width={120} />
-                              <Tooltip />
-                              <Bar dataKey="total" radius={[0, 8, 8, 0]}>
-                                {categoriasOrdenadas.slice(0, 6).map((_, index) => (
-                                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
+                        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                          <p className="text-sm font-bold text-blue-800">
+                            Recomendación operativa
+                          </p>
+                          <p className="mt-2 text-sm text-blue-800">
+                            Priorizar incidentes críticos, reforzar operadores en zonas calientes
+                            y monitorear categorías recurrentes durante las próximas 24 horas.
+                          </p>
                         </div>
                       </div>
-
-                      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100">
-                          Resumen Ejecutivo IA
-                        </h4>
-
-                        <div className="mt-4 space-y-4">
-                          <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
-                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                              Diagnóstico automático
-                            </p>
-                            <p className={`mt-2 text-sm ${mutedText}`}>
-                              UrbanFlow registra {dashboard.resumen.totalReportes} incidentes.
-                              El sistema detecta {criticalCount} casos críticos y {highCount} de alta prioridad.
-                            </p>
-                          </div>
-
-                          <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
-                            <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                              Patrón dominante
-                            </p>
-                            <p className={`mt-2 text-sm ${mutedText}`}>
-                              La categoría con mayor concentración es {mostFrequentCategory?._id || 'sin datos'},
-                              con {mostFrequentCategory?.total || 0} reportes acumulados.
-                            </p>
-                          </div>
-
-                          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
-                            <p className="text-sm font-bold text-blue-800">
-                              Recomendación operativa
-                            </p>
-                            <p className="mt-2 text-sm text-blue-800">
-                              Priorizar incidentes críticos, reforzar operadores en zonas calientes
-                              y monitorear categorías recurrentes durante las próximas 24 horas.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
                     </div>
-                  </section>
-                )}
+                  </div>
+                </section>
+              )}
 
               {/* Analitica section */}
               {activeSection === 'analitica' && (
@@ -629,49 +644,35 @@ useEffect(() => {
                   <div className="mt-6 grid gap-6 xl:grid-cols-2">
 
                     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-                    <h4 className="font-bold mb-4">
-                      Incidentes por Categoría
-                    </h4>
+                      <h4 className="font-bold mb-4">
+                        Incidentes por Categoría
+                      </h4>
 
-                    <div className="h-105">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          layout="vertical"
-                          data={categoriasOrdenadas}
-                          margin={{
-                            top: 10,
-                            right: 30,
-                            left: 30,
-                            bottom: 10,
-                          }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-
-                          <XAxis type="number" />
-
-                          <YAxis
-                            type="category"
-                            dataKey="_id"
-                            width={120}
-                          />
-
-                          <Tooltip />
-
-                          <Bar
-                            dataKey="total"
-                            radius={[0, 8, 8, 0]}
+                      <div className="h-105">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            layout="vertical"
+                            data={categoriasOrdenadas}
+                            margin={{
+                              top: 10,
+                              right: 30,
+                              left: 30,
+                              bottom: 10,
+                            }}
                           >
-                            {categoriasOrdenadas.map((_, index) => (
-                              <Cell
-                                key={index}
-                                fill={COLORS[index % COLORS.length]}
-                              />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis type="number" />
+                            <YAxis type="category" dataKey="_id" width={120} />
+                            <Tooltip />
+                            <Bar dataKey="total" radius={[0, 8, 8, 0]}>
+                              {categoriasOrdenadas.map((_, index) => (
+                                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
-                  </div>
 
                     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
                       <h4 className="font-bold mb-4">
@@ -698,7 +699,6 @@ useEffect(() => {
                                 )
                               )}
                             </Pie>
-
                             <Tooltip />
                             <Legend />
                           </PieChart>
