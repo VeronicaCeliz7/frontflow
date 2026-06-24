@@ -1,4 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
 type Cliente = {
@@ -14,6 +15,7 @@ type Cliente = {
 
 type Props = {
   clientes: Cliente[];
+  clienteSeleccionado?: string | null;
 };
 
 const markerIcon = new L.Icon({
@@ -23,7 +25,27 @@ const markerIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-export default function SuperMap({ clientes }: Props) {
+function CentrarCliente({
+  clientes,
+  clienteSeleccionado,
+}: Props) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!clienteSeleccionado) return;
+
+    const cliente = clientes.find((c) => c._id === clienteSeleccionado);
+    if (!cliente) return;
+
+    map.flyTo([cliente.latitud, cliente.longitud], 15, {
+      duration: 1.2,
+    });
+  }, [clienteSeleccionado, clientes, map]);
+
+  return null;
+}
+
+export default function SuperMap({ clientes, clienteSeleccionado }: Props) {
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
       <MapContainer
@@ -32,6 +54,11 @@ export default function SuperMap({ clientes }: Props) {
         scrollWheelZoom
         className="h-[420px] w-full"
       >
+        <CentrarCliente
+          clientes={clientes}
+          clienteSeleccionado={clienteSeleccionado}
+        />
+
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
