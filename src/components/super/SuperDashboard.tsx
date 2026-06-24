@@ -117,6 +117,8 @@ export default function SuperDashboard() {
   const { user } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+ 
+  const [clienteSeleccionado, setClienteSeleccionado] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<SuperSection>('panel');
 
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
@@ -145,8 +147,10 @@ export default function SuperDashboard() {
         setClientes(clientesData.clientes || []);
         setUsuarios(usuariosData.usuarios || []);
         setReportes(reportesData.reportes || []);
-      } catch {
-        setError('No se pudo conectar con el backend.');
+      } catch (err) {
+  console.error("Error cargando SuperDashboard:", err);
+  setError('No se pudo conectar con el backend.');
+
       } finally {
         setLoading(false);
       }
@@ -390,9 +394,12 @@ export default function SuperDashboard() {
                   <p className={`mt-2 ${mutedText}`}>
                     Organizaciones reales conectadas a UrbanFlow, con localización y acceso directo al mapa.
                   </p>
-                  <div className="mt-6">
-                    <SuperMap clientes={clientes} />
-                  </div>
+                <div id="super-clientes-mapa" className="mt-6">
+                  <SuperMap
+                      clientes={clientes}
+                      clienteSeleccionado={clienteSeleccionado}
+/>
+                </div>
                   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {clientes.map((cliente) => (
                       <article key={cliente._id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none">
@@ -402,7 +409,21 @@ export default function SuperDashboard() {
                         </div>
                         <p className={`mt-2 text-sm capitalize ${mutedText}`}>{cliente.tipo.replace('_', ' ')}</p>
                         <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">{cliente.localidad}, {cliente.provincia}, {cliente.pais}</p>
-                        <a href={`https://www.openstreetmap.org/?mlat=${cliente.latitud}&mlon=${cliente.longitud}#map=15/${cliente.latitud}/${cliente.longitud}`} target="_blank" rel="noreferrer" className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Ver georreferencia</a>
+                        
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setClienteSeleccionado(cliente._id);
+                          document
+                           .getElementById("super-clientes-mapa")
+                           ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                         }}
+                         className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                      >
+                        Ver georreferencia
+                      </button>
+                      
+                      
                       </article>
                     ))}
                   </div>
