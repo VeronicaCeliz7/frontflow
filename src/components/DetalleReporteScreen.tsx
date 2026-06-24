@@ -174,7 +174,7 @@ const DetalleReporteScreen = () => {
             <p className="text-gray-800 dark:text-gray-200">{reporte.direccion}</p>
             {reporte.latitud !== 0 && reporte.longitud !== 0 && (
               <button
-                onClick={() => navigate(`/mapa-interno?lat=${reporte.latitud}&lng=${reporte.longitud}&zoom=18`)}
+                onClick={() => navigate(`/mapa-interno?lat=${reporte.latitud}&lng=${reporte.longitud}&zoom=18&direccion=${encodeURIComponent(reporte.direccion || 'Sin dirección')}`)}
                 className="text-blue-600 dark:text-blue-400 text-sm mt-2 inline-block hover:underline"
               >
                 Ver ubicación en el mapa →
