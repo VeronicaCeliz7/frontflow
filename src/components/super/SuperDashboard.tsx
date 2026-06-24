@@ -132,26 +132,31 @@ export default function SuperDashboard() {
 
   const nombreSuperAdmin = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
 
+  // ✅ OPTIMIZACIÓN: Carga escalonada - primero el dashboard, luego el resto
   useEffect(() => {
     async function loadData() {
       try {
-        const [dashboardData, clientesData, usuariosData, reportesData] =
-          await Promise.all([
-            getSuperDashboard(),
+        // 1. PRIMERO: cargar el dashboard (tarjetas, gráficos, alertas)
+        const dashboardData = await getSuperDashboard();
+        setDashboard(dashboardData);
+        setLoading(false); // ✅ Mostrar el dashboard AHORA
+
+        // 2. DESPUÉS: cargar el resto en paralelo (sin bloquear)
+        try {
+          const [clientesData, usuariosData, reportesData] = await Promise.all([
             getSuperClientes(),
             getSuperUsuarios(),
             getSuperReportes(),
           ]);
-
-        setDashboard(dashboardData);
-        setClientes(clientesData.clientes || []);
-        setUsuarios(usuariosData.usuarios || []);
-        setReportes(reportesData.reportes || []);
+          setClientes(clientesData.clientes || []);
+          setUsuarios(usuariosData.usuarios || []);
+          setReportes(reportesData.reportes || []);
+        } catch (err) {
+          console.error('Error cargando datos secundarios:', err);
+        }
       } catch (err) {
-  console.error("Error cargando SuperDashboard:", err);
-  setError('No se pudo conectar con el backend.');
-
-      } finally {
+        console.error("Error cargando SuperDashboard:", err);
+        setError('No se pudo conectar con el backend.');
         setLoading(false);
       }
     }
