@@ -27,7 +27,7 @@ function OperatorHome() {
   const incidents = data?.data || []
 
   
-  const pendientes = incidents.filter((i: any) => i.estado === 'pendiente').length
+  const asignado = incidents.filter((i: any) => i.estado === 'asignado').length
   const enProceso = incidents.filter((i: any) => i.estado === 'en_proceso').length
   const resueltos = incidents.filter((i: any) => i.estado === 'resuelto').length
   const criticos = incidents.filter((i: any) => i.prioridad === 'critica').length
@@ -44,7 +44,7 @@ function OperatorHome() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Pendientes" value={pendientes} icon={ClipboardList} color="yellow" subtitle="Sin asignar" />
+        <StatCard title="Asignados" value={asignado} icon={ClipboardList} color="yellow" subtitle="Asignados a mí" />
         <StatCard title="En proceso" value={enProceso} icon={Clock} color="blue" subtitle="Gestionando" />
         <StatCard title="Resueltos" value={resueltos} icon={CheckCircle} color="green" subtitle="Finalizados" />
         <StatCard title="Críticos" value={criticos} icon={AlertTriangle} color="red" subtitle="Alta prioridad" />
@@ -77,8 +77,15 @@ function OperatorIncidentesPage() {
 
   const filtros =
   vista === 'pendientes'
-    ? { municipio, sinAsignar: 'true', soloPrincipales: 'true' }
-    : { operadorId }
+    ? {
+        municipio,
+        estado: 'aceptado',
+        sinAsignar: 'true',
+        soloPrincipales: 'true'
+      }
+    : {
+        operadorId
+      }
 
 const { data, isLoading } = useIncidents(filtros)
 const incidents = data?.data || []
@@ -258,36 +265,76 @@ const incidents = data?.data || []
                     </div>
                   </td>
 
-                   <td className="py-3 px-2">
+                 <td className="py-3 px-2">
   <div className="flex flex-col gap-2">
-    {vista === 'pendientes' && incidente.estado === 'pendiente' && !incidente.operadorAsignadoId ? (
-      <button
-        onClick={() => tomarIncidente(incidente._id)}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition"
-      >
-        Tomar incidente
-      </button>
-    ) : (
-      <select
-        value={incidente.estado}
-        onChange={(e) => cambiarEstado(incidente._id, e.target.value)}
-        className="border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-      >
-        <option value="pendiente">Pendiente</option>
-        <option value="en_proceso">En proceso</option>
-        <option value="resuelto">Resuelto</option>
-        <option value="rechazado">Rechazado</option>
-      </select>
-    )}
+
+    {/* Incidente aceptado y todavía sin operador */}
+    {vista === 'pendientes' &&
+      incidente.estado === 'aceptado' &&
+      !incidente.operadorAsignadoId && (
+        <button
+          onClick={() => tomarIncidente(incidente._id)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition"
+        >
+          Tomar incidente
+        </button>
+      )}
+
+
+    {/* El operador inicia el trabajo */}
+    {vista === 'mios' &&
+      incidente.estado === 'asignado' && (
+        <button
+          onClick={() =>
+            cambiarEstado(
+              incidente._id,
+              'en_proceso'
+            )
+          }
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition"
+        >
+          Iniciar trabajo
+        </button>
+      )}
+
+
+    {/* El operador finaliza el trabajo */}
+    {vista === 'mios' &&
+      incidente.estado === 'en_proceso' && (
+        <button
+          onClick={() =>
+            cambiarEstado(
+              incidente._id,
+              'resuelto'
+            )
+          }
+          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-xs font-medium transition"
+        >
+          Marcar como resuelto
+        </button>
+      )}
+
+
+    {/* Una vez resuelto, el operador ya no modifica el estado */}
+    {vista === 'mios' &&
+      incidente.estado === 'resuelto' && (
+        <span className="px-3 py-1.5 rounded-md text-xs font-medium bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-300">
+          Pendiente de verificación
+        </span>
+      )}
+
 
     <button
-      onClick={() => setIncidenteSeleccionado(incidente)}
+      onClick={() =>
+        setIncidenteSeleccionado(incidente)
+      }
       className="border border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950/40 px-3 py-1.5 rounded-md text-xs font-medium transition"
     >
       Ver detalle
     </button>
+
   </div>
-</td> 
+</td>  
                   </tr>
                 ))}
               </tbody>
