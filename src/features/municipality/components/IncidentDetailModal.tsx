@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react'
 import axios from 'axios'
-import { assignIncidentOperator } from '../services/municipalityApi'
+import {
+  assignIncidentOperator,
+  updateIncidentStatus
+} from '../services/municipalityApi'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -34,7 +37,9 @@ export default function IncidentDetailModal({
   const [operadorSeleccionado, setOperadorSeleccionado] = useState('')
   const [cargandoOperadores, setCargandoOperadores] = useState(false)
   const [asignando, setAsignando] = useState(false)
-
+  ///agrego estado de carga
+  const [cambiandoEstado, setCambiandoEstado] = useState(false)
+ 
   useEffect(() => {
     if (!open || !incident?.municipio) return
 
@@ -79,8 +84,72 @@ export default function IncidentDetailModal({
   if (!open || !incident) return null
 
   const puedeAsignar =
-    !incident.operadorAsignadoId &&
-    ['pendiente', 'reportado', 'validacion_inicial', 'aceptado'].includes(incident.estado)
+  !incident.operadorAsignadoId &&
+  incident.estado === 'aceptado'
+
+  ///agrego acciones del Administrador
+  const accionesPorEstado: Record<
+  string,
+  { estado: string; label: string }[]
+> = {
+  reportado: [
+    {
+      estado: 'validacion_inicial',
+      label: 'Iniciar validación'
+    }
+  ],
+
+  validacion_inicial: [
+    {
+      estado: 'aceptado',
+      label: 'Aceptar incidente'
+    },
+    {
+      estado: 'rechazado',
+      label: 'Rechazar incidente'
+    },
+    {
+      estado: 'duplicado',
+      label: 'Marcar como duplicado'
+    },
+    {
+      estado: 'informacion_insuficiente',
+      label: 'Información insuficiente'
+    },
+    {
+      estado: 'fuera_de_jurisdiccion',
+      label: 'Fuera de jurisdicción'
+    }
+  ],
+
+  informacion_insuficiente: [
+    {
+      estado: 'validacion_inicial',
+      label: 'Retomar validación'
+    }
+  ],
+
+  resuelto: [
+    {
+      estado: 'verificado',
+      label: 'Verificar resolución'
+    },
+    {
+      estado: 'en_proceso',
+      label: 'Devolver a proceso'
+    }
+  ],
+
+  verificado: [
+    {
+      estado: 'cerrado',
+      label: 'Cerrar incidente'
+    }
+  ]
+}
+
+const accionesEstado =
+  accionesPorEstado[incident.estado] || []
 
   const nombreOperador = (op: Operador) => {
     const nombreCompleto =
@@ -91,6 +160,52 @@ export default function IncidentDetailModal({
     if (op.email) return op.email
     return op.clerkUserId
   }
+
+///funcion que ejeturara el cambio de estado del incidente
+const handleCambiarEstado = async (
+  nuevoEstado: string
+) => {
+  try {
+    setCambiandoEstado(true)
+
+    const token = await getToken()
+
+    if (!token) {
+      alert('No se pudo obtener token')
+      return
+    }
+
+    await updateIncidentStatus(token, {
+      id: incident._id,
+      status: nuevoEstado
+    })
+
+    alert(
+      `Estado actualizado a: ${nuevoEstado}`
+    )
+
+    onClose()
+
+    // Por ahora usamos reload para comprobar
+    // claramente el nuevo estado.
+    window.location.reload()
+
+  } catch (error: any) {
+
+    console.error(
+      'Error cambiando estado:',
+      error
+    )
+
+    alert(
+      error?.response?.data?.error ||
+      'Error al actualizar estado'
+    )
+
+  } finally {
+    setCambiandoEstado(false)
+  }
+}
 
   const handleAsignarOperador = async () => {
     try {
@@ -175,7 +290,42 @@ export default function IncidentDetailModal({
             {incident.municipio}
           </p>
         </div>
+///para mostrar botones en  el modal de la manera que se pueda cambiar el estado del incidente
+ {accionesEstado.length > 0 && (
+  <div className="mt-6">
+    <p className="text-sm font-semibold text-gray-700 mb-3">
+      Acciones disponibles
+    </p>
 
+    <div className="flex flex-wrap gap-2">
+      {accionesEstado.map((accion) => (
+        <button
+          key={accion.estado}
+          onClick={() =>
+            handleCambiarEstado(
+              accion.estado
+            )
+          }
+          disabled={cambiandoEstado}
+          className="
+            bg-blue-600
+            hover:bg-blue-700
+            text-white
+            px-4
+            py-2
+            rounded-lg
+            text-sm
+            disabled:opacity-50
+          "
+        >
+          {accion.label}
+        </button>
+      ))}
+    </div>
+  </div>
+)}       
+        
+        
         {puedeAsignar && (
           <div className="mt-6 space-y-3">
             <label className="block text-sm font-semibold text-gray-700">
