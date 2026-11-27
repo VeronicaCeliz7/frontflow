@@ -16,6 +16,8 @@ import {
   getSuperUsuarios,
   getSuperReportes,
 } from '../../Services/superApi';
+import DynamicBarChart from '../DynamicBarChart';
+import { adaptMongoTotals } from '../../utils/formatters';
 
 import {
   PieChart,
@@ -192,10 +194,21 @@ export default function SuperDashboard() {
         .sort((a, b) => b.total - a.total)
     : []
 
-  const estadosOrdenados = dashboard?.graficos?.reportesPorEstado
-    ? [...dashboard.graficos.reportesPorEstado]
-        .sort((a, b) => b.total - a.total)
-    : []
+  //const estadosOrdenados = dashboard?.graficos?.reportesPorEstado
+  //  ? [...dashboard.graficos.reportesPorEstado]
+   //     .sort((a, b) => b.total - a.total)
+   // : []
+
+const categoriasChartData = adaptMongoTotals(
+    dashboard?.graficos?.reportesPorCategoria ?? [],
+    { sortDesc: true }
+  )
+
+  const estadosChartData = adaptMongoTotals(
+    dashboard?.graficos?.reportesPorEstado ?? [],
+    { sortDesc: true }
+  )
+    
 
   return (
     <div className={`min-h-screen ${pageBg} lg:flex`}>
@@ -344,30 +357,12 @@ export default function SuperDashboard() {
                       ) : (
                         
 <div className="h-72">
-  <ResponsiveContainer width="100%" height="100%">
-    <BarChart
-      layout="vertical"
-      data={categoriasOrdenadas.slice(0, 8)}
-      margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis type="number" />
-      <YAxis
-        type="category"
-        dataKey="_id"
-        width={120}
-      />
-      <Tooltip />
-      <Bar dataKey="total" radius={[0, 8, 8, 0]}>
-        {categoriasOrdenadas.slice(0, 8).map((_, index) => (
-          <Cell
-            key={index}
-            fill={COLORS[index % COLORS.length]}
-          />
-        ))}
-      </Bar>
-    </BarChart>
-  </ResponsiveContainer>
+  <DynamicBarChart
+    data={categoriasChartData.slice(0, 8)}
+    domain="categoria"
+    layout="vertical"
+    yAxisWidth={120}
+  />
 </div>
                         
                       )}
@@ -379,31 +374,14 @@ export default function SuperDashboard() {
                       </h2>
 
 <div className="h-72">
-  <ResponsiveContainer width="100%" height="100%">
-    <BarChart
-      layout="vertical"
-      data={estadosOrdenados}
-      margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis type="number" />
-      <YAxis
-        type="category"
-        dataKey="_id"
-        width={120}
-      />
-      <Tooltip />
-      <Bar dataKey="total" radius={[0, 8, 8, 0]}>
-        {estadosOrdenados.map((_, index) => (
-          <Cell
-            key={index}
-            fill={COLORS[index % COLORS.length]}
-          />
-        ))}
-      </Bar>
-    </BarChart>
-  </ResponsiveContainer>
+  <DynamicBarChart
+    data={estadosChartData}
+    domain="estado"
+    layout="vertical"
+    yAxisWidth={120}
+  />
 </div>
+
 
                     </div>
                   </div>

@@ -16,6 +16,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Building2, HardHat, Crown, User } from 'lucide-react'
 
+
 // ============================================
 // PageWrapper - DEFINIDO ANTES DE USARLO
 // ============================================
