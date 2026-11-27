@@ -1,21 +1,30 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { UserButton, useUser } from '@clerk/clerk-react';
-import SuperSidebar from './SuperSidebar';
-import SuperMap from './SuperMap';
-import { 
-  Crown, Building2, HardHat, User, 
-  AlertTriangle, FileText, TrendingUp, CheckCircle
-} from 'lucide-react';
-import StatCard from '../../features/municipality/components/StatCard';
-import IAHeatmap from '../IAHeatmap';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserButton, useUser } from "@clerk/clerk-react";
+import SuperSidebar from "./SuperSidebar";
+import SuperMap from "./SuperMap";
+
+import {
+  Crown,
+  Building2,
+  HardHat,
+  User,
+  AlertTriangle,
+  FileText,
+  TrendingUp,
+  CheckCircle,
+} from "lucide-react";
+import StatCard from "../../features/municipality/components/StatCard";
+import IAHeatmap from "../IAHeatmap";
 
 import {
   getSuperDashboard,
   getSuperClientes,
   getSuperUsuarios,
   getSuperReportes,
-} from '../../Services/superApi';
+} from "../../Services/superApi";
+import DynamicBarChart from "../DynamicBarChart";
+import { adaptMongoTotals } from "../../utils/formatters";
 
 import {
   PieChart,
@@ -24,21 +33,21 @@ import {
   ResponsiveContainer,
   Tooltip,
   Legend,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  //BarChart,
+  //Bar,
+  //XAxis,
+  // YAxis,
+  //CartesianGrid,
 } from "recharts";
 
 type SuperSection =
-  | 'panel'
-  | 'clientes'
-  | 'usuarios'
-  | 'incidentes'
-  | 'informes'
-  | 'analitica'
-  | 'configuracion';
+  | "panel"
+  | "clientes"
+  | "usuarios"
+  | "incidentes"
+  | "informes"
+  | "analitica"
+  | "configuracion";
 
 type DashboardData = {
   ok: boolean;
@@ -102,24 +111,26 @@ type Reporte = {
 };
 
 const COLORS = [
-  '#2563eb',
-  '#16a34a',
-  '#f59e0b',
-  '#dc2626',
-  '#9333ea',
-  '#0891b2',
-  '#ea580c',
-  '#64748b'
-]
+  "#2563eb",
+  "#16a34a",
+  "#f59e0b",
+  "#dc2626",
+  "#9333ea",
+  "#0891b2",
+  "#ea580c",
+  "#64748b",
+];
 
 export default function SuperDashboard() {
   const navigate = useNavigate();
   const { user } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
- 
-  const [clienteSeleccionado, setClienteSeleccionado] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<SuperSection>('panel');
+
+  const [clienteSeleccionado, setClienteSeleccionado] = useState<string | null>(
+    null,
+  );
+  const [activeSection, setActiveSection] = useState<SuperSection>("panel");
 
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -127,10 +138,11 @@ export default function SuperDashboard() {
   const [reportes, setReportes] = useState<Reporte[]>([]);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [error, setError] = useState("");
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const nombreSuperAdmin = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
+  const nombreSuperAdmin =
+    `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
 
   // ✅ OPTIMIZACIÓN: Carga escalonada - primero el dashboard, luego el resto
   useEffect(() => {
@@ -152,11 +164,11 @@ export default function SuperDashboard() {
           setUsuarios(usuariosData.usuarios || []);
           setReportes(reportesData.reportes || []);
         } catch (err) {
-          console.error('Error cargando datos secundarios:', err);
+          console.error("Error cargando datos secundarios:", err);
         }
       } catch (err) {
         console.error("Error cargando SuperDashboard:", err);
-        setError('No se pudo conectar con el backend.');
+        setError("No se pudo conectar con el backend.");
         setLoading(false);
       }
     }
@@ -166,36 +178,57 @@ export default function SuperDashboard() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-  const pageBg = 'bg-gray-50 dark:bg-gray-950';
-  const cardBg = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none';
-  const mutedText = 'text-gray-500 dark:text-gray-400';
+  const pageBg = "bg-gray-50 dark:bg-gray-950";
+  const cardBg =
+    "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none";
+  const mutedText = "text-gray-500 dark:text-gray-400";
 
   const criticalCount =
-    dashboard?.graficos.reportesPorPrioridad.find((item) => item._id === 'critica')?.total ?? 0;
+    dashboard?.graficos.reportesPorPrioridad.find(
+      (item) => item._id === "critica",
+    )?.total ?? 0;
   const highCount =
-    dashboard?.graficos.reportesPorPrioridad.find((item) => item._id === 'alta')?.total ?? 0;
+    dashboard?.graficos.reportesPorPrioridad.find((item) => item._id === "alta")
+      ?.total ?? 0;
   const pendingCount =
-    dashboard?.graficos.reportesPorEstado.find((item) => item._id === 'pendiente')?.total ?? 0;
+    dashboard?.graficos.reportesPorEstado.find(
+      (item) => item._id === "pendiente",
+    )?.total ?? 0;
   const resolvedCount =
-    dashboard?.graficos.reportesPorEstado.find((item) => item._id === 'resuelto')?.total ?? 0;
+    dashboard?.graficos.reportesPorEstado.find(
+      (item) => item._id === "resuelto",
+    )?.total ?? 0;
   const enProcesoCount =
-    dashboard?.graficos.reportesPorEstado.find((item) => item._id === 'en_proceso')?.total ?? 0;
+    dashboard?.graficos.reportesPorEstado.find(
+      (item) => item._id === "en_proceso",
+    )?.total ?? 0;
   const mostFrequentCategory = dashboard?.graficos.reportesPorCategoria[0];
 
-  const categoriasOrdenadas = dashboard?.graficos?.reportesPorCategoria
-    ? [...dashboard.graficos.reportesPorCategoria]
-        .sort((a, b) => b.total - a.total)
-    : []
+  //const categoriasOrdenadas = dashboard?.graficos?.reportesPorCategoria
+  // ? [...dashboard.graficos.reportesPorCategoria].sort(
+  //       (a, b) => b.total - a.total,
+  //   )
+  //: [];
 
-  const estadosOrdenados = dashboard?.graficos?.reportesPorEstado
-    ? [...dashboard.graficos.reportesPorEstado]
-        .sort((a, b) => b.total - a.total)
-    : []
+  //const estadosOrdenados = dashboard?.graficos?.reportesPorEstado
+  //  ? [...dashboard.graficos.reportesPorEstado]
+  //     .sort((a, b) => b.total - a.total)
+  // : []
+
+  const categoriasChartData = adaptMongoTotals(
+    dashboard?.graficos?.reportesPorCategoria ?? [],
+    { sortDesc: true },
+  );
+
+  const estadosChartData = adaptMongoTotals(
+    dashboard?.graficos?.reportesPorEstado ?? [],
+    { sortDesc: true },
+  );
 
   return (
     <div className={`min-h-screen ${pageBg} lg:flex`}>
@@ -222,28 +255,28 @@ export default function SuperDashboard() {
             {/* BOTONES DE ROLES - ARRIBA */}
             <div className="flex flex-wrap items-center gap-2">
               <button
-                onClick={() => navigate('/municipality/admin')}
+                onClick={() => navigate("/municipality/admin")}
                 className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <Building2 size={14} />
                 Administrador
               </button>
               <button
-                onClick={() => navigate('/municipality/operator')}
+                onClick={() => navigate("/municipality/operator")}
                 className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <HardHat size={14} />
                 Operador
               </button>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigate("/")}
                 className="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5"
               >
                 <User size={14} />
                 Ciudadano
               </button>
               <button
-                onClick={() => navigate('/superadmin')}
+                onClick={() => navigate("/superadmin")}
                 className="px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-1.5"
               >
                 <Crown size={14} />
@@ -270,7 +303,9 @@ export default function SuperDashboard() {
         <div className="space-y-5 p-4 sm:p-6">
           {loading && (
             <section className={cardBg}>
-              <p className="font-medium text-gray-700 dark:text-gray-300">Cargando datos reales del backend...</p>
+              <p className="font-medium text-gray-700 dark:text-gray-300">
+                Cargando datos reales del backend...
+              </p>
             </section>
           )}
 
@@ -282,12 +317,12 @@ export default function SuperDashboard() {
 
           {!loading && !error && dashboard && (
             <>
-              {activeSection === 'panel' && (
+              {activeSection === "panel" && (
                 <>
                   {/* BIENVENIDA - IGUAL A ADMIN */}
                   <div>
                     <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                      Bienvenido, {nombreSuperAdmin || 'Superadministrador'} 👋
+                      Bienvenido, {nombreSuperAdmin || "Superadministrador"} 👋
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
                       Gestión global del sistema UrbanFlow
@@ -340,36 +375,18 @@ export default function SuperDashboard() {
                         Incidentes por categoría
                       </h2>
                       {dashboard.graficos.reportesPorCategoria.length === 0 ? (
-                        <p className="text-sm text-gray-400">No hay datos para mostrar.</p>
+                        <p className="text-sm text-gray-400">
+                          No hay datos para mostrar.
+                        </p>
                       ) : (
-                        
-<div className="h-72">
-  <ResponsiveContainer width="100%" height="100%">
-    <BarChart
-      layout="vertical"
-      data={categoriasOrdenadas.slice(0, 8)}
-      margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis type="number" />
-      <YAxis
-        type="category"
-        dataKey="_id"
-        width={120}
-      />
-      <Tooltip />
-      <Bar dataKey="total" radius={[0, 8, 8, 0]}>
-        {categoriasOrdenadas.slice(0, 8).map((_, index) => (
-          <Cell
-            key={index}
-            fill={COLORS[index % COLORS.length]}
-          />
-        ))}
-      </Bar>
-    </BarChart>
-  </ResponsiveContainer>
-</div>
-                        
+                        <div className="h-72">
+                          <DynamicBarChart
+                            data={categoriasChartData.slice(0, 8)}
+                            domain="categoria"
+                            layout="vertical"
+                            yAxisWidth={120}
+                          />
+                        </div>
                       )}
                     </div>
 
@@ -378,33 +395,14 @@ export default function SuperDashboard() {
                         Incidentes por estado
                       </h2>
 
-<div className="h-72">
-  <ResponsiveContainer width="100%" height="100%">
-    <BarChart
-      layout="vertical"
-      data={estadosOrdenados}
-      margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
-    >
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis type="number" />
-      <YAxis
-        type="category"
-        dataKey="_id"
-        width={120}
-      />
-      <Tooltip />
-      <Bar dataKey="total" radius={[0, 8, 8, 0]}>
-        {estadosOrdenados.map((_, index) => (
-          <Cell
-            key={index}
-            fill={COLORS[index % COLORS.length]}
-          />
-        ))}
-      </Bar>
-    </BarChart>
-  </ResponsiveContainer>
-</div>
-
+                      <div className="h-72">
+                        <DynamicBarChart
+                          data={estadosChartData}
+                          domain="estado"
+                          layout="vertical"
+                          yAxisWidth={120}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -416,42 +414,58 @@ export default function SuperDashboard() {
               )}
 
               {/* Clientes section */}
-              {activeSection === 'clientes' && (
+              {activeSection === "clientes" && (
                 <section className={cardBg}>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Gestión de Clientes</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Gestión de Clientes
+                  </h3>
                   <p className={`mt-2 ${mutedText}`}>
-                    Organizaciones reales conectadas a UrbanFlow, con localización y acceso directo al mapa.
+                    Organizaciones reales conectadas a UrbanFlow, con
+                    localización y acceso directo al mapa.
                   </p>
-                <div id="super-clientes-mapa" className="mt-6">
-                  <SuperMap
+                  <div id="super-clientes-mapa" className="mt-6">
+                    <SuperMap
                       clientes={clientes}
                       clienteSeleccionado={clienteSeleccionado}
-/>
-                </div>
+                    />
+                  </div>
                   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {clientes.map((cliente) => (
-                      <article key={cliente._id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none">
-                        <div className="flex items-center justify-between gap-3">
-                          <h4 className="font-bold text-gray-900 dark:text-gray-100">{cliente.nombre}</h4>
-                          <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-medium text-white">Activo</span>
-                        </div>
-                        <p className={`mt-2 text-sm capitalize ${mutedText}`}>{cliente.tipo.replace('_', ' ')}</p>
-                        <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">{cliente.localidad}, {cliente.provincia}, {cliente.pais}</p>
-                        
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setClienteSeleccionado(cliente._id);
-                          document
-                           .getElementById("super-clientes-mapa")
-                           ?.scrollIntoView({ behavior: "smooth", block: "start" });
-                         }}
-                         className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                      <article
+                        key={cliente._id}
+                        className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 shadow-none"
                       >
-                        Ver georreferencia
-                      </button>
-                      
-                      
+                        <div className="flex items-center justify-between gap-3">
+                          <h4 className="font-bold text-gray-900 dark:text-gray-100">
+                            {cliente.nombre}
+                          </h4>
+                          <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-medium text-white">
+                            Activo
+                          </span>
+                        </div>
+                        <p className={`mt-2 text-sm capitalize ${mutedText}`}>
+                          {cliente.tipo.replace("_", " ")}
+                        </p>
+                        <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          {cliente.localidad}, {cliente.provincia},{" "}
+                          {cliente.pais}
+                        </p>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setClienteSeleccionado(cliente._id);
+                            document
+                              .getElementById("super-clientes-mapa")
+                              ?.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start",
+                              });
+                          }}
+                          className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                        >
+                          Ver georreferencia
+                        </button>
                       </article>
                     ))}
                   </div>
@@ -459,29 +473,60 @@ export default function SuperDashboard() {
               )}
 
               {/* Usuarios section */}
-              {activeSection === 'usuarios' && (
+              {activeSection === "usuarios" && (
                 <section className={cardBg}>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Usuarios y Roles</h3>
-                  <p className={`mt-2 ${mutedText}`}>Lectura operativa de usuarios reales registrados en la base.</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Usuarios y Roles
+                  </h3>
+                  <p className={`mt-2 ${mutedText}`}>
+                    Lectura operativa de usuarios reales registrados en la base.
+                  </p>
                   <div className="mt-6 overflow-x-auto">
                     <table className="w-full min-w-56.25 text-left text-sm">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-800">
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Usuario</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Email</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Rol</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Cliente</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Estado</th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Usuario
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Email
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Rol
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Cliente
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Estado
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {usuarios.slice(0, 50).map((usuario) => (
-                          <tr key={usuario._id} className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
-                            <td className="py-4 font-semibold text-gray-900 dark:text-gray-100">{[usuario.nombre, usuario.apellido].filter(Boolean).join(' ') || 'Sin nombre'}</td>
-                            <td className="text-gray-700 dark:text-gray-300">{usuario.email}</td>
-                            <td className="capitalize text-gray-700 dark:text-gray-300">{usuario.rol}</td>
-                            <td className="text-gray-700 dark:text-gray-300">{usuario.clienteNombre || 'UrbanFlow'}</td>
-                            <td><span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-medium text-white">Activo</span></td>
+                          <tr
+                            key={usuario._id}
+                            className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          >
+                            <td className="py-4 font-semibold text-gray-900 dark:text-gray-100">
+                              {[usuario.nombre, usuario.apellido]
+                                .filter(Boolean)
+                                .join(" ") || "Sin nombre"}
+                            </td>
+                            <td className="text-gray-700 dark:text-gray-300">
+                              {usuario.email}
+                            </td>
+                            <td className="capitalize text-gray-700 dark:text-gray-300">
+                              {usuario.rol}
+                            </td>
+                            <td className="text-gray-700 dark:text-gray-300">
+                              {usuario.clienteNombre || "UrbanFlow"}
+                            </td>
+                            <td>
+                              <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-medium text-white">
+                                Activo
+                              </span>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -491,41 +536,78 @@ export default function SuperDashboard() {
               )}
 
               {/* Incidentes section */}
-              {activeSection === 'incidentes' && (
+              {activeSection === "incidentes" && (
                 <section className={cardBg}>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Centro Operativo de Incidentes</h3>
-                  <p className={`mt-2 ${mutedText}`}>Todos los incidentes del sistema por municipio.</p>
-                  
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    Centro Operativo de Incidentes
+                  </h3>
+                  <p className={`mt-2 ${mutedText}`}>
+                    Todos los incidentes del sistema por municipio.
+                  </p>
+
                   <div className="mt-6 overflow-x-auto">
                     <table className="w-full min-w-68.75 text-left text-sm">
                       <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-800">
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Título</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Cliente</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Estado</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Prioridad</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Categoría</th>
-                          <th className="py-3 text-gray-700 dark:text-gray-300">Fecha</th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Título
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Cliente
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Estado
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Prioridad
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Categoría
+                          </th>
+                          <th className="py-3 text-gray-700 dark:text-gray-300">
+                            Fecha
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {reportes.slice(0, 100).map((reporte) => (
-                          <tr key={reporte._id} className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
-                            <td className="py-4 font-semibold text-gray-900 dark:text-gray-100">{reporte.titulo}</td>
-                            <td className="text-gray-700 dark:text-gray-300">{reporte.clienteNombre || '-'}</td>
-                            <td className="capitalize text-gray-700 dark:text-gray-300">{reporte.estado}</td>
+                          <tr
+                            key={reporte._id}
+                            className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          >
+                            <td className="py-4 font-semibold text-gray-900 dark:text-gray-100">
+                              {reporte.titulo}
+                            </td>
+                            <td className="text-gray-700 dark:text-gray-300">
+                              {reporte.clienteNombre || "-"}
+                            </td>
+                            <td className="capitalize text-gray-700 dark:text-gray-300">
+                              {reporte.estado}
+                            </td>
                             <td className="capitalize">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                reporte.prioridad === 'critica' ? 'bg-red-100 text-red-800' :
-                                reporte.prioridad === 'alta' ? 'bg-orange-100 text-orange-800' :
-                                reporte.prioridad === 'media' ? 'bg-blue-100 text-blue-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  reporte.prioridad === "critica"
+                                    ? "bg-red-100 text-red-800"
+                                    : reporte.prioridad === "alta"
+                                      ? "bg-orange-100 text-orange-800"
+                                      : reporte.prioridad === "media"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : "bg-gray-100 text-gray-800"
+                                }`}
+                              >
                                 {reporte.prioridad}
                               </span>
                             </td>
-                            <td className="capitalize text-gray-700 dark:text-gray-300">{reporte.categoria_asignada_por_ia || 'sin categoría'}</td>
-                            <td className="text-gray-700 dark:text-gray-300">{new Date(reporte.fecha_hora).toLocaleString('es-AR')}</td>
+                            <td className="capitalize text-gray-700 dark:text-gray-300">
+                              {reporte.categoria_asignada_por_ia ||
+                                "sin categoría"}
+                            </td>
+                            <td className="text-gray-700 dark:text-gray-300">
+                              {new Date(reporte.fecha_hora).toLocaleString(
+                                "es-AR",
+                              )}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -535,7 +617,7 @@ export default function SuperDashboard() {
               )}
 
               {/* Informes section */}
-              {activeSection === 'informes' && (
+              {activeSection === "informes" && (
                 <section className={cardBg}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -582,10 +664,11 @@ export default function SuperDashboard() {
                         Foco operativo
                       </p>
                       <h4 className="mt-2 text-3xl font-bold text-blue-700 capitalize">
-                        {mostFrequentCategory?._id || 'Sin datos'}
+                        {mostFrequentCategory?._id || "Sin datos"}
                       </h4>
                       <p className="mt-2 text-sm text-blue-700">
-                        Categoría dominante con {mostFrequentCategory?.total || 0} reportes.
+                        Categoría dominante con{" "}
+                        {mostFrequentCategory?.total || 0} reportes.
                       </p>
                     </div>
                   </div>
@@ -597,23 +680,12 @@ export default function SuperDashboard() {
                       </h4>
 
                       <div className="mt-4 h-80">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            layout="vertical"
-                            data={categoriasOrdenadas.slice(0, 6)}
-                            margin={{ top: 10, right: 30, left: 30, bottom: 10 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis type="number" />
-                            <YAxis type="category" dataKey="_id" width={120} />
-                            <Tooltip />
-                            <Bar dataKey="total" radius={[0, 8, 8, 0]}>
-                              {categoriasOrdenadas.slice(0, 6).map((_, index) => (
-                                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                              ))}
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
+                        <DynamicBarChart
+                          data={categoriasChartData.slice(0, 6)}
+                          domain="categoria"
+                          layout="vertical"
+                          yAxisWidth={120}
+                        />
                       </div>
                     </div>
 
@@ -628,8 +700,9 @@ export default function SuperDashboard() {
                             Diagnóstico automático
                           </p>
                           <p className={`mt-2 text-sm ${mutedText}`}>
-                            UrbanFlow registra {dashboard.resumen.totalReportes} incidentes.
-                            El sistema detecta {criticalCount} casos críticos y {highCount} de alta prioridad.
+                            UrbanFlow registra {dashboard.resumen.totalReportes}{" "}
+                            incidentes. El sistema detecta {criticalCount} casos
+                            críticos y {highCount} de alta prioridad.
                           </p>
                         </div>
 
@@ -638,8 +711,10 @@ export default function SuperDashboard() {
                             Patrón dominante
                           </p>
                           <p className={`mt-2 text-sm ${mutedText}`}>
-                            La categoría con mayor concentración es {mostFrequentCategory?._id || 'sin datos'},
-                            con {mostFrequentCategory?.total || 0} reportes acumulados.
+                            La categoría con mayor concentración es{" "}
+                            {mostFrequentCategory?._id || "sin datos"}, con{" "}
+                            {mostFrequentCategory?.total || 0} reportes
+                            acumulados.
                           </p>
                         </div>
 
@@ -648,8 +723,9 @@ export default function SuperDashboard() {
                             Recomendación operativa
                           </p>
                           <p className="mt-2 text-sm text-blue-800">
-                            Priorizar incidentes críticos, reforzar operadores en zonas calientes
-                            y monitorear categorías recurrentes durante las próximas 24 horas.
+                            Priorizar incidentes críticos, reforzar operadores
+                            en zonas calientes y monitorear categorías
+                            recurrentes durante las próximas 24 horas.
                           </p>
                         </div>
                       </div>
@@ -659,7 +735,7 @@ export default function SuperDashboard() {
               )}
 
               {/* Analitica section */}
-              {activeSection === 'analitica' && (
+              {activeSection === "analitica" && (
                 <section className={cardBg}>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     Analítica Inteligente
@@ -670,42 +746,23 @@ export default function SuperDashboard() {
                   </p>
 
                   <div className="mt-6 grid gap-6 xl:grid-cols-2">
-
                     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
                       <h4 className="font-bold mb-4">
                         Incidentes por Categoría
                       </h4>
 
                       <div className="h-105">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            layout="vertical"
-                            data={categoriasOrdenadas}
-                            margin={{
-                              top: 10,
-                              right: 30,
-                              left: 30,
-                              bottom: 10,
-                            }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis type="number" />
-                            <YAxis type="category" dataKey="_id" width={120} />
-                            <Tooltip />
-                            <Bar dataKey="total" radius={[0, 8, 8, 0]}>
-                              {categoriasOrdenadas.map((_, index) => (
-                                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                              ))}
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
+                        <DynamicBarChart
+                          data={categoriasChartData}
+                          domain="categoria"
+                          layout="vertical"
+                          yAxisWidth={120}
+                        />
                       </div>
                     </div>
 
                     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
-                      <h4 className="font-bold mb-4">
-                        Prioridades
-                      </h4>
+                      <h4 className="font-bold mb-4">Prioridades</h4>
 
                       <div className="h-105">
                         <ResponsiveContainer width="100%" height="100%">
@@ -724,7 +781,7 @@ export default function SuperDashboard() {
                                     key={index}
                                     fill={COLORS[index % COLORS.length]}
                                   />
-                                )
+                                ),
                               )}
                             </Pie>
                             <Tooltip />
@@ -733,13 +790,12 @@ export default function SuperDashboard() {
                         </ResponsiveContainer>
                       </div>
                     </div>
-
                   </div>
                 </section>
               )}
 
               {/* Configuracion section */}
-              {activeSection === 'configuracion' && (
+              {activeSection === "configuracion" && (
                 <section className={cardBg}>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     Estado del Sistema
@@ -795,16 +851,12 @@ export default function SuperDashboard() {
 
                     <div className="bg-white border rounded-xl p-4">
                       <p className="text-sm text-gray-500">Usuarios</p>
-                      <h4 className="text-3xl font-bold">
-                        {usuarios.length}
-                      </h4>
+                      <h4 className="text-3xl font-bold">{usuarios.length}</h4>
                     </div>
 
                     <div className="bg-white border rounded-xl p-4">
                       <p className="text-sm text-gray-500">Clientes</p>
-                      <h4 className="text-3xl font-bold">
-                        {clientes.length}
-                      </h4>
+                      <h4 className="text-3xl font-bold">{clientes.length}</h4>
                     </div>
 
                     <div className="bg-white border rounded-xl p-4">
