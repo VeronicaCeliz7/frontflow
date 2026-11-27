@@ -12,20 +12,11 @@ import {
   User,
   Crown
 } from 'lucide-react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend
-} from 'recharts'
+
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useUser } from '@clerk/clerk-react'
+import DynamicBarChart from '../../../components/DynamicBarChart'
 
 import Sidebar from '../components/Sidebar'
 import StatCard from '../components/StatCard'
@@ -40,7 +31,7 @@ import IAHeatmap from '../../../components/IAHeatmap'
 
 const queryClient = new QueryClient()
 
-const PIE_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444']
+//const PIE_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444']
 
 function AdminHome() {
   const { user } = useUser()
@@ -175,25 +166,16 @@ function AdminHome() {
           {barData.length === 0 ? (
             <p className="text-sm text-gray-400">No hay datos para mostrar.</p>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={barData} barSize={32}>
-                <XAxis
-                  dataKey="categoria"
-                  tick={{ fontSize: 11, fill: '#9ca3af' }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis hide />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: 'none',
-                    boxShadow: 'none'
-                  }}
-                />
-                <Bar dataKey="cantidad" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="h-[220px]">
+              <DynamicBarChart
+                data={barData.map((item) => ({
+                  key: item.categoria,
+                  label: item.categoria,
+                  value: item.cantidad,
+                }))}
+                domain="categoria"
+              />
+            </div>
           )}
         </div>
 
@@ -205,31 +187,16 @@ function AdminHome() {
           {pieData.length === 0 ? (
             <p className="text-sm text-gray-400">No hay datos para mostrar.</p>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  paddingAngle={4}
-                  dataKey="value"
-                >
-                  {pieData.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i]} />
-                  ))}
-                </Pie>
-                <Legend
-                  iconType="circle"
-                  iconSize={8}
-                  formatter={(v) => (
-                    <span style={{ color: '#6b7280', fontSize: 12 }}>{v}</span>
-                  )}
-                />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+           <div className="h-[220px]">
+  <DynamicBarChart
+    data={barData.map((item) => ({
+      key: item.categoria,
+      label: item.categoria,
+      value: item.cantidad,
+    }))}
+    domain="categoria"
+  />
+</div>
           )}
         </div>
       </div>
